@@ -6,7 +6,7 @@ const SUPABASE_URL = "https://ptrsztelwuwrbounfpod.supabase.co";
 
 // Supabase에서 Project Settings → API에서
 // Publishable key(또는 anon key)를 복사해서 넣어주세요.
-const SUPABASE_KEY = "여기에_SUPABASE_PUBLISHABLE_KEY_입력";
+const SUPABASE_KEY = "sb_publishable_I1wduW_WYOxku9iIx6GhEA_10TGX4Dh";
 
 
 const supabaseClient = supabase.createClient(
