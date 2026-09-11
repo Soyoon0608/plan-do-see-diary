@@ -664,6 +664,7 @@ function escapeHTML(text) {
 const taskForm = document.getElementById("taskForm");
 const taskPlanId = document.getElementById("taskPlanId");
 const taskList = document.getElementById("taskList");
+const taskSearch = document.getElementById("taskSearch");
 
 let editingTaskId = null;
 
@@ -817,25 +818,28 @@ await loadTasks();
 
 // 할 일 목록 불러오기
 async function loadTasks() {
+  const searchText =
+    taskSearch.value.trim().toLowerCase();
 
   const { data, error } = await supabaseClient
     .from("tasks")
     .select("*")
     .order("created_at", { ascending: false });
 
-
   if (error) {
-
     console.error("TASK SELECT ERROR:", error);
-
     return;
   }
 
+  const filteredTasks = data.filter(task =>
+    task.task_name
+      .toLowerCase()
+      .includes(searchText)
+  );
 
   taskList.innerHTML = "";
 
-
-data.forEach(task => {
+  filteredTasks.forEach(task => {
 
   taskList.innerHTML += `
 
@@ -889,6 +893,10 @@ data.forEach(task => {
 loadTaskPlans();
 
 loadTasks();
+
+taskSearch.addEventListener("input", () => {
+  loadTasks();
+});
 
 // ================================
 // Card 2 — 할 일 수정
