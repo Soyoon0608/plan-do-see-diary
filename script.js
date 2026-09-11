@@ -1,7 +1,3 @@
-// ==============================
-// Supabase 설정
-// ==============================
-
 const SUPABASE_URL =
 "https://ptrsztelwuwrbounfpod.supabase.co";
 
@@ -46,10 +42,10 @@ return date.toLocaleString(
 }
 
 // ==================================================
-// Plan — 계획 세우기
+// Plan
 // ==================================================
 
-const form =
+const planForm =
 document.getElementById(
 "planForm"
 );
@@ -84,15 +80,15 @@ document.getElementById(
 "estimatedHours"
 );
 
-const submitButton =
-form.querySelector(
+const planSubmitButton =
+planForm.querySelector(
 'button[type="submit"]'
 );
 
 let editingPlanId = null;
 
 // ==================================================
-// 계획 목록 영역
+// 계획 목록 생성
 // ==================================================
 
 const planListSection =
@@ -100,24 +96,20 @@ document.createElement(
 "section"
 );
 
-planListSection.className =
-"card";
-
 planListSection.innerHTML = `
+
+  <hr>
 
   <h2>내 계획</h2>
 
   <div id="planList">
-
-계획을 불러오는 중입니다...
-
+    계획을 불러오는 중입니다...
   </div>
-
 `;
 
-form.parentElement.insertBefore(
-planListSection,
-form.nextSibling
+planForm.insertAdjacentElement(
+"afterend",
+planListSection
 );
 
 const planList =
@@ -126,7 +118,7 @@ document.getElementById(
 );
 
 // ==================================================
-// 계획 수정 이력 영역
+// 수정 이력 영역 생성
 // ==================================================
 
 const historySection =
@@ -134,24 +126,20 @@ document.createElement(
 "section"
 );
 
-historySection.className =
-"card";
-
 historySection.innerHTML = `
+
+  <hr>
 
   <h2>수정 이력</h2>
 
   <div id="historyList">
-
-계획의 수정 이력을 선택하면 표시됩니다.
-
+    계획의 수정 이력을 선택하면 표시됩니다.
   </div>
-
 `;
 
-planListSection.parentElement.insertBefore(
-historySection,
-planListSection.nextSibling
+planListSection.insertAdjacentElement(
+"afterend",
+historySection
 );
 
 const historyList =
@@ -184,12 +172,17 @@ ascending: false
 
 if (error) {
 
-console.error(error);
+```
+console.error(
+  "PLAN SELECT ERROR:",
+  error
+);
 
 planList.innerHTML =
-  "<p>계획을 불러오지 못했습니다.</p>";
+  "계획을 불러오지 못했습니다.";
 
 return;
+```
 
 }
 
@@ -198,82 +191,74 @@ if (
 data.length === 0
 ) {
 
+```
 planList.innerHTML =
-  "<p>아직 저장된 계획이 없습니다.</p>";
+  "아직 저장된 계획이 없습니다.";
 
 return;
+```
 
 }
 
-planList.innerHTML =
-"";
+planList.innerHTML = "";
 
 data.forEach(
 (plan) => {
 
-
-  const planCard =
+```
+  const item =
     document.createElement(
       "div"
     );
 
 
-  planCard.className =
-    "plan-item";
-
-
-  planCard.innerHTML = `
+  item.innerHTML = `
 
     <h3>
-      ${escapeHTML(plan.plan_name)}
+      ${escapeHTML(
+        plan.plan_name
+      )}
     </h3>
 
-
     <p>
-      <strong>기간</strong><br>
-
+      기간:
       ${plan.start_date}
       ~
       ${plan.end_date}
     </p>
 
-
     <p>
-      <strong>우선순위</strong><br>
-
-      ${escapeHTML(plan.priority)}
+      우선순위:
+      ${escapeHTML(
+        plan.priority
+      )}
     </p>
 
-
     <p>
-      <strong>성공 기준</strong><br>
-
-      ${escapeHTML(plan.success_criteria)}
+      성공 기준:
+      ${escapeHTML(
+        plan.success_criteria
+      )}
     </p>
 
-
     <p>
-      <strong>예상 시간</strong><br>
-
+      예상 시간:
       ${plan.estimated_hours}시간
     </p>
 
-
     <button
-      class="edit-button"
+      class="edit-plan-button"
       data-id="${plan.id}"
     >
       수정
     </button>
 
-
     <button
-      class="history-button"
+      class="history-plan-button"
       data-id="${plan.id}"
     >
       수정 이력 보기
     </button>
-
 
     <hr>
 
@@ -281,32 +266,38 @@ data.forEach(
 
 
   planList.appendChild(
-    planCard
+    item
   );
 
 }
-
+```
 
 );
 
 document
 .querySelectorAll(
-".edit-button"
+".edit-plan-button"
 )
 .forEach(
 (button) => {
 
-
+```
     button.addEventListener(
       "click",
       () => {
 
+        const id =
+          button.dataset.id;
+
+
         const selectedPlan =
           data.find(
             (plan) =>
-              String(plan.id) ===
               String(
-                button.dataset.id
+                plan.id
+              ) ===
+              String(
+                id
               )
           );
 
@@ -315,7 +306,7 @@ document
           selectedPlan
         ) {
 
-          startEdit(
+          startPlanEdit(
             selectedPlan
           );
 
@@ -326,14 +317,16 @@ document
 
   }
 );
+```
 
 document
 .querySelectorAll(
-".history-button"
+".history-plan-button"
 )
 .forEach(
 (button) => {
 
+```
     button.addEventListener(
       "click",
       () => {
@@ -347,6 +340,7 @@ document
 
   }
 );
+```
 
 }
 
@@ -354,27 +348,32 @@ document
 // 계획 저장 / 수정
 // ==================================================
 
-form.addEventListener(
+planForm.addEventListener(
 "submit",
 async (event) => {
 
-
+```
 event.preventDefault();
 
 
 const planData = {
 
   plan_name:
-    planNameInput.value.trim(),
+    planNameInput
+      .value
+      .trim(),
 
   start_date:
-    startDateInput.value,
+    startDateInput
+      .value,
 
   end_date:
-    endDateInput.value,
+    endDateInput
+      .value,
 
   priority:
-    priorityInput.value,
+    priorityInput
+      .value,
 
   success_criteria:
     successCriteriaInput
@@ -383,7 +382,8 @@ const planData = {
 
   estimated_hours:
     Number(
-      estimatedHoursInput.value
+      estimatedHoursInput
+        .value
     )
 
 };
@@ -394,7 +394,7 @@ if (
   !planData.start_date ||
   !planData.end_date ||
   !planData.success_criteria ||
-  !planData.estimated_hours
+  planData.estimated_hours <= 0
 ) {
 
   alert(
@@ -406,7 +406,7 @@ if (
 }
 
 
-// 새 계획 저장
+// 새 계획
 
 if (
   !editingPlanId
@@ -422,11 +422,11 @@ if (
       ]);
 
 
-  if (
-    error
-  ) {
+  if (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     alert(
       "계획 저장에 실패했습니다."
@@ -442,7 +442,7 @@ if (
   );
 
 
-  form.reset();
+  planForm.reset();
 
 
   await loadPlans();
@@ -454,7 +454,7 @@ if (
 }
 
 
-// 기존 계획 조회
+// 기존 계획 가져오기
 
 const {
   data: oldPlan,
@@ -489,39 +489,34 @@ if (
 
 // 수정 이력 저장
 
-const historyData = {
-
-  plan_id:
-    oldPlan.id,
-
-  plan_name:
-    oldPlan.plan_name,
-
-  start_date:
-    oldPlan.start_date,
-
-  end_date:
-    oldPlan.end_date,
-
-  priority:
-    oldPlan.priority,
-
-  success_criteria:
-    oldPlan.success_criteria,
-
-  estimated_hours:
-    oldPlan.estimated_hours
-
-};
-
-
 const {
   error: historyError
 } =
   await supabaseClient
     .from("plan_history")
     .insert([
-      historyData
+      {
+        plan_id:
+          oldPlan.id,
+
+        plan_name:
+          oldPlan.plan_name,
+
+        start_date:
+          oldPlan.start_date,
+
+        end_date:
+          oldPlan.end_date,
+
+        priority:
+          oldPlan.priority,
+
+        success_criteria:
+          oldPlan.success_criteria,
+
+        estimated_hours:
+          oldPlan.estimated_hours
+      }
     ]);
 
 
@@ -542,7 +537,7 @@ if (
 }
 
 
-// 현재 계획 수정
+// 계획 수정
 
 const {
   error: updateError
@@ -567,8 +562,7 @@ if (
   );
 
   alert(
-    "계획 수정에 실패했습니다.\n\n" +
-    updateError.message
+    "계획 수정에 실패했습니다."
   );
 
   return;
@@ -577,24 +571,24 @@ if (
 
 
 alert(
-  "계획이 수정되었고 이전 계획은 수정 이력에 저장되었습니다!"
+  "계획이 수정되었습니다!"
 );
 
 
-editingPlanId =
-  null;
+editingPlanId = null;
 
 
-submitButton.textContent =
+planSubmitButton.textContent =
   "계획 저장";
 
 
-form.reset();
+planForm.reset();
 
 
 await loadPlans();
 
 await loadTaskPlans();
+```
 
 }
 );
@@ -603,7 +597,7 @@ await loadTaskPlans();
 // 계획 수정 시작
 // ==================================================
 
-function startEdit(plan) {
+function startPlanEdit(plan) {
 
 editingPlanId =
 plan.id;
@@ -626,23 +620,18 @@ plan.success_criteria;
 estimatedHoursInput.value =
 plan.estimated_hours;
 
-submitButton.textContent =
+planSubmitButton.textContent =
 "계획 수정 저장";
 
 window.scrollTo({
-
 top: 0,
-
-behavior:
-  "smooth"
-
-
+behavior: "smooth"
 });
 
 }
 
 // ==================================================
-// 수정 이력 불러오기
+// 수정 이력
 // ==================================================
 
 async function loadHistory(
@@ -657,7 +646,9 @@ data,
 error
 } =
 await supabaseClient
-.from("plan_history")
+.from(
+"plan_history"
+)
 .select("*")
 .eq(
 "plan_id",
@@ -674,13 +665,16 @@ if (
 error
 ) {
 
-
-console.error(error);
+```
+console.error(
+  error
+);
 
 historyList.innerHTML =
-  "<p>수정 이력을 불러오지 못했습니다.</p>";
+  "수정 이력을 불러오지 못했습니다.";
 
 return;
+```
 
 }
 
@@ -689,63 +683,62 @@ if (
 data.length === 0
 ) {
 
+```
 historyList.innerHTML =
-  "<p>아직 수정 이력이 없습니다.</p>";
+  "아직 수정 이력이 없습니다.";
 
 return;
+```
 
 }
 
-historyList.innerHTML =
-"";
+historyList.innerHTML = "";
 
 data.forEach(
 (history) => {
 
+```
   historyList.innerHTML += `
 
     <div>
 
-      <h3>
+      <strong>
         ${escapeHTML(
           history.plan_name
         )}
-      </h3>
-
+      </strong>
 
       <p>
-
         기간:
         ${history.start_date}
         ~
         ${history.end_date}
+      </p>
 
-        <br><br>
-
+      <p>
         우선순위:
         ${escapeHTML(
           history.priority
         )}
+      </p>
 
-        <br><br>
-
+      <p>
         성공 기준:
         ${escapeHTML(
           history.success_criteria
         )}
+      </p>
 
-        <br><br>
-
+      <p>
         예상 시간:
         ${history.estimated_hours}시간
+      </p>
 
-        <br><br>
-
-        수정 전 기록 저장 시간:
+      <p>
+        기록 시간:
         ${formatDate(
           history.changed_at
         )}
-
       </p>
 
       <hr>
@@ -755,13 +748,14 @@ data.forEach(
   `;
 
 }
+```
 
 );
 
 }
 
 // ==================================================
-// Card 2 — Do / 할 일 관리
+// Do — 할 일
 // ==================================================
 
 const taskForm =
@@ -833,12 +827,13 @@ if (
 error
 ) {
 
+```
 console.error(
   error
 );
 
 return;
-
+```
 
 }
 
@@ -853,99 +848,96 @@ taskPlanFilter.innerHTML = `     <option value="">
 data.forEach(
 (plan) => {
 
-
-  taskPlanId.innerHTML += `
-
+```
+  const option = `
     <option value="${plan.id}">
       ${escapeHTML(
         plan.plan_name
       )}
     </option>
-
   `;
 
 
-  taskPlanFilter.innerHTML += `
+  taskPlanId.innerHTML +=
+    option;
 
-    <option value="${plan.id}">
-      ${escapeHTML(
-        plan.plan_name
-      )}
-    </option>
 
-  `;
+  taskPlanFilter.innerHTML +=
+    option;
 
 }
+```
 
 );
 
 }
 
 // ==================================================
-// 할 일 추가 / 수정
+// 할 일 저장 / 수정
 // ==================================================
 
 taskForm.addEventListener(
 "submit",
 async (event) => {
 
-
+```
 event.preventDefault();
 
 
-const taskName =
-  document
-    .getElementById(
-      "taskName"
-    )
-    .value
-    .trim();
+const taskData = {
 
+  plan_id:
+    Number(
+      taskPlanId.value
+    ),
 
-const planId =
-  taskPlanId.value;
-
-
-const dueDate =
-  document
-    .getElementById(
-      "taskDueDate"
-    )
-    .value ||
-  null;
-
-
-const taskPriority =
-  document
-    .getElementById(
-      "taskPriority"
-    )
-    .value;
-
-
-const taskTag =
-  document
-    .getElementById(
-      "taskTag"
-    )
-    .value
-    .trim() ||
-  null;
-
-
-const taskEstimatedHours =
-  Number(
+  task_name:
     document
       .getElementById(
-        "taskEstimatedHours"
+        "taskName"
       )
       .value
-  ) || 0;
+      .trim(),
+
+  due_date:
+    document
+      .getElementById(
+        "taskDueDate"
+      )
+      .value ||
+    null,
+
+  priority:
+    document
+      .getElementById(
+        "taskPriority"
+      )
+      .value,
+
+  tag:
+    document
+      .getElementById(
+        "taskTag"
+      )
+      .value
+      .trim() ||
+    null,
+
+  estimated_hours:
+    Number(
+      document
+        .getElementById(
+          "taskEstimatedHours"
+        )
+        .value
+    ) || 0
+
+};
 
 
 if (
-  !taskName ||
-  !planId
+  !taskData.task_name ||
+  !taskData.plan_id
 ) {
 
   alert(
@@ -955,29 +947,6 @@ if (
   return;
 
 }
-
-
-const taskData = {
-
-  plan_id:
-    Number(planId),
-
-  task_name:
-    taskName,
-
-  due_date:
-    dueDate,
-
-  priority:
-    taskPriority,
-
-  tag:
-    taskTag,
-
-  estimated_hours:
-    taskEstimatedHours
-
-};
 
 
 let error;
@@ -990,17 +959,15 @@ if (
   const result =
     await supabaseClient
       .from("tasks")
-      .insert(
+      .insert([
         taskData
-      );
+      ]);
 
 
   error =
     result.error;
 
-}
-
-else {
+} else {
 
   const result =
     await supabaseClient
@@ -1038,13 +1005,6 @@ if (
 }
 
 
-alert(
-  editingTaskId
-    ? "할 일이 수정되었습니다!"
-    : "할 일이 추가되었습니다!"
-);
-
-
 editingTaskId =
   null;
 
@@ -1062,13 +1022,14 @@ taskForm
 
 await loadTasks();
 
-await loadExecutionTasks();
+await loadExecutionTaskOptions();
+```
 
 }
 );
 
 // ==================================================
-// 할 일 목록 불러오기
+// 할 일 불러오기
 // ==================================================
 
 async function loadTasks() {
@@ -1103,9 +1064,13 @@ if (
 error
 ) {
 
-console.error(error);
+```
+console.error(
+  error
+);
 
 return;
+```
 
 }
 
@@ -1113,6 +1078,7 @@ const filteredTasks =
 data.filter(
 (task) => {
 
+```
     const matchesSearch =
       task.task_name
         .toLowerCase()
@@ -1123,8 +1089,12 @@ data.filter(
 
     const matchesPlan =
       !selectedPlanId ||
-      String(task.plan_id) ===
-      String(selectedPlanId);
+      String(
+        task.plan_id
+      ) ===
+      String(
+        selectedPlanId
+      );
 
 
     const taskStatus =
@@ -1154,15 +1124,16 @@ data.filter(
 
   }
 );
+```
 
-
-// 정렬
+// 최근 추가순
 
 if (
 selectedSort ===
 "created_desc"
 ) {
 
+```
 filteredTasks.sort(
   (a, b) =>
     new Date(
@@ -1172,15 +1143,18 @@ filteredTasks.sort(
       a.created_at
     )
 );
+```
 
 }
+
+// 마감일 빠른 순
 
 if (
 selectedSort ===
 "due_asc"
 ) {
 
-
+```
 filteredTasks.sort(
   (a, b) => {
 
@@ -1198,21 +1172,22 @@ filteredTasks.sort(
 
   }
 );
+```
 
 }
+
+// 우선순위
 
 if (
 selectedSort ===
 "priority_desc"
 ) {
 
-
+```
 const priorityOrder = {
 
   "높음": 3,
-
   "보통": 2,
-
   "낮음": 1
 
 };
@@ -1220,18 +1195,25 @@ const priorityOrder = {
 
 filteredTasks.sort(
   (a, b) =>
-    (priorityOrder[b.priority] || 0) -
-    (priorityOrder[a.priority] || 0)
+    priorityOrder[
+      b.priority
+    ] -
+    priorityOrder[
+      a.priority
+    ]
 );
-
+```
 
 }
+
+// 예상 시간 적은 순
 
 if (
 selectedSort ===
 "hours_asc"
 ) {
 
+```
 filteredTasks.sort(
   (a, b) =>
     Number(
@@ -1241,16 +1223,18 @@ filteredTasks.sort(
       b.estimated_hours || 0
     )
 );
-
+```
 
 }
+
+// 예상 시간 많은 순
 
 if (
 selectedSort ===
 "hours_desc"
 ) {
 
-
+```
 filteredTasks.sort(
   (a, b) =>
     Number(
@@ -1260,7 +1244,7 @@ filteredTasks.sort(
       a.estimated_hours || 0
     )
 );
-
+```
 
 }
 
@@ -1271,63 +1255,60 @@ if (
 filteredTasks.length === 0
 ) {
 
-
+```
 taskList.innerHTML =
   "<p>검색 또는 필터 결과가 없습니다.</p>";
 
 return;
-
+```
 
 }
 
 filteredTasks.forEach(
 (task) => {
 
-
+```
   taskList.innerHTML += `
 
-    <div class="task-item">
+    <div>
 
-      <strong>
+      <h3>
         ${escapeHTML(
           task.task_name
         )}
-      </strong>
-
+      </h3>
 
       <p>
-
         마감일:
         ${task.due_date || "없음"}
+      </p>
 
-        <br>
-
+      <p>
         우선순위:
         ${escapeHTML(
-          task.priority || "보통"
+          task.priority
         )}
+      </p>
 
-        <br>
-
+      <p>
         태그:
         ${escapeHTML(
           task.tag || "없음"
         )}
+      </p>
 
-        <br>
-
+      <p>
         예상 시간:
         ${task.estimated_hours || 0}시간
+      </p>
 
-        <br>
-
+      <p>
         상태:
         ${
           task.is_completed
             ? "완료"
             : "진행 중"
         }
-
       </p>
 
 
@@ -1339,10 +1320,7 @@ filteredTasks.forEach(
 
 
       <button
-        onclick="toggleTaskComplete(
-          ${task.id},
-          ${task.is_completed}
-        )"
+        onclick="toggleTaskComplete(${task.id})"
       >
         ${
           task.is_completed
@@ -1359,6 +1337,13 @@ filteredTasks.forEach(
       </button>
 
 
+      <button
+        onclick="showTaskExecutions(${task.id})"
+      >
+        실행 기록 보기
+      </button>
+
+
       <hr>
 
     </div>
@@ -1366,7 +1351,7 @@ filteredTasks.forEach(
   `;
 
 }
-
+```
 
 );
 
@@ -1426,12 +1411,13 @@ if (
 error
 ) {
 
-alert(
-  "할 일을 불러오지 못했습니다."
+```
+console.error(
+  error
 );
 
 return;
-
+```
 
 }
 
@@ -1440,38 +1426,41 @@ document
 "taskName"
 )
 .value =
-task.task_name || "";
+task.task_name;
 
 taskPlanId.value =
-task.plan_id || "";
+task.plan_id;
 
 document
 .getElementById(
 "taskDueDate"
 )
 .value =
-task.due_date || "";
+task.due_date ||
+"";
 
 document
 .getElementById(
 "taskPriority"
 )
 .value =
-task.priority || "보통";
+task.priority;
 
 document
 .getElementById(
 "taskTag"
 )
 .value =
-task.tag || "";
+task.tag ||
+"";
 
 document
 .getElementById(
 "taskEstimatedHours"
 )
 .value =
-task.estimated_hours || 0;
+task.estimated_hours ||
+0;
 
 editingTaskId =
 taskId;
@@ -1484,11 +1473,7 @@ taskForm
 "할 일 수정 저장";
 
 taskForm.scrollIntoView({
-
-behavior:
-  "smooth"
-
-
+behavior: "smooth"
 });
 
 }
@@ -1497,15 +1482,14 @@ window.startTaskEdit =
 startTaskEdit;
 
 // ==================================================
-// 완료 상태 변경
+// 완료 처리 + 중복 완료 기록 방지
 // ==================================================
 
 let completingTaskIds =
 new Set();
 
 async function toggleTaskComplete(
-taskId,
-currentStatus
+taskId
 ) {
 
 // 연속 클릭 방지
@@ -1516,7 +1500,9 @@ taskId
 )
 ) {
 
+```
 return;
+```
 
 }
 
@@ -1526,48 +1512,249 @@ taskId
 
 try {
 
+```
 const {
-  error
+  data: task,
+  error: taskError
 } =
   await supabaseClient
     .from("tasks")
-    .update({
-
-      is_completed:
-        !currentStatus
-
-    })
+    .select(
+      "id, is_completed"
+    )
     .eq(
       "id",
       taskId
-    );
+    )
+    .single();
 
 
 if (
-  error
+  taskError
 ) {
 
-  console.error(error);
+  throw taskError;
+
+}
+
+
+// ==================================================
+// 진행 중 → 완료
+// ==================================================
+
+if (
+  !task.is_completed
+) {
+
+  // 먼저 완료 상태 변경
+  // 조건까지 걸어서 중복 완료 방지
+
+  const {
+    data: updatedTasks,
+    error: updateError
+  } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        is_completed:
+          true
+      })
+      .eq(
+        "id",
+        taskId
+      )
+      .eq(
+        "is_completed",
+        false
+      )
+      .select();
+
+
+  if (
+    updateError
+  ) {
+
+    throw updateError;
+
+  }
+
+
+  // 이미 다른 클릭이 완료했다면
+  // 완료 기록 추가하지 않음
+
+  if (
+    !updatedTasks ||
+    updatedTasks.length === 0
+  ) {
+
+    await loadTasks();
+
+    return;
+
+  }
+
+
+  // 기존 완료 기록 확인
+
+  const {
+    data: existingRecord,
+    error: recordCheckError
+  } =
+    await supabaseClient
+      .from(
+        "execution_records"
+      )
+      .select(
+        "id"
+      )
+      .eq(
+        "task_id",
+        taskId
+      )
+      .eq(
+        "is_completion_record",
+        true
+      )
+      .limit(
+        1
+      );
+
+
+  if (
+    recordCheckError
+  ) {
+
+    throw recordCheckError;
+
+  }
+
+
+  // 완료 기록이 없을 때만 생성
+
+  if (
+    !existingRecord ||
+    existingRecord.length === 0
+  ) {
+
+    const now =
+      new Date()
+        .toISOString();
+
+
+    const {
+      error: insertError
+    } =
+      await supabaseClient
+        .from(
+          "execution_records"
+        )
+        .insert([
+          {
+            task_id:
+              taskId,
+
+            started_at:
+              now,
+
+            ended_at:
+              now,
+
+            actual_minutes:
+              0,
+
+            blocked_reason:
+              null,
+
+            is_completion_record:
+              true
+          }
+        ]);
+
+
+    if (
+      insertError
+    ) {
+
+      throw insertError;
+
+    }
+
+  }
+
 
   alert(
-    "완료 상태 변경에 실패했습니다.\n\n" +
-    error.message
+    "할 일이 완료되었습니다!"
   );
 
-  return;
+}
+
+
+// ==================================================
+// 완료 → 진행 중
+// ==================================================
+
+else {
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        is_completed:
+          false
+      })
+      .eq(
+        "id",
+        taskId
+      );
+
+
+  if (
+    error
+  ) {
+
+    throw error;
+
+  }
+
+
+  alert(
+    "진행 중으로 변경되었습니다."
+  );
 
 }
 
 
 await loadTasks();
 
-}
+await loadExecutionRecords();
+```
 
-finally {
+} catch (
+error
+) {
 
+```
+console.error(
+  "COMPLETE ERROR:",
+  error
+);
+
+
+alert(
+  "완료 상태 변경에 실패했습니다.\n\n" +
+  error.message
+);
+```
+
+} finally {
+
+```
 completingTaskIds.delete(
   taskId
 );
+```
 
 }
 
@@ -1590,7 +1777,9 @@ if (
 )
 ) {
 
+```
 return;
+```
 
 }
 
@@ -1609,14 +1798,17 @@ if (
 error
 ) {
 
-console.error(error);
+```
+console.error(
+  error
+);
 
 alert(
-  "할 일 삭제에 실패했습니다.\n\n" +
-  error.message
+  "삭제에 실패했습니다."
 );
 
 return;
+```
 
 }
 
@@ -1626,7 +1818,7 @@ alert(
 
 await loadTasks();
 
-await loadExecutionTasks();
+await loadExecutionTaskOptions();
 
 }
 
@@ -1634,7 +1826,7 @@ window.deleteTask =
 deleteTask;
 
 // ==================================================
-// Card 3 — 실제로 한 일 적기
+// See — 실행 기록
 // ==================================================
 
 const executionForm =
@@ -1647,19 +1839,19 @@ document.getElementById(
 "executionTaskId"
 );
 
-const executionStartTime =
+const startedAt =
 document.getElementById(
-"executionStartTime"
+"startedAt"
 );
 
-const executionEndTime =
+const endedAt =
 document.getElementById(
-"executionEndTime"
+"endedAt"
 );
 
-const actualHours =
+const actualMinutes =
 document.getElementById(
-"actualHours"
+"actualMinutes"
 );
 
 const blockedReason =
@@ -1673,10 +1865,10 @@ document.getElementById(
 );
 
 // ==================================================
-// 실행 기록용 할 일 목록 불러오기
+// 실행 기록용 할 일 목록
 // ==================================================
 
-async function loadExecutionTasks() {
+async function loadExecutionTaskOptions() {
 
 const {
 data,
@@ -1698,36 +1890,30 @@ if (
 error
 ) {
 
+```
 console.error(
-  "실행 기록용 할 일 불러오기 오류:",
   error
 );
 
 return;
+```
 
 }
 
-executionTaskId.innerHTML = `
-
-```
-<option value="">
-  할 일을 선택하세요
-</option>
-```
-
-`;
+executionTaskId.innerHTML = `     <option value="">
+      할 일을 선택하세요     </option>
+  `;
 
 data.forEach(
 (task) => {
 
+```
   executionTaskId.innerHTML += `
 
     <option value="${task.id}">
-
       ${escapeHTML(
         task.task_name
       )}
-
     </option>
 
   `;
@@ -1755,17 +1941,17 @@ const taskId =
   executionTaskId.value;
 
 
-const startTime =
-  executionStartTime.value;
+const start =
+  startedAt.value;
 
 
-const endTime =
-  executionEndTime.value;
+const end =
+  endedAt.value;
 
 
-const hours =
+const minutes =
   Number(
-    actualHours.value
+    actualMinutes.value
   );
 
 
@@ -1778,13 +1964,12 @@ const reason =
 
 if (
   !taskId ||
-  !startTime ||
-  !endTime ||
-  !hours
+  !start ||
+  !end
 ) {
 
   alert(
-    "할 일, 시작 시각, 끝난 시각, 실제 걸린 시간을 입력해주세요."
+    "할 일, 시작 시각, 끝난 시각을 입력해주세요."
   );
 
   return;
@@ -1794,23 +1979,23 @@ if (
 
 const startDate =
   new Date(
-    startTime
+    start
   );
 
 
 const endDate =
   new Date(
-    endTime
+    end
   );
 
 
 if (
-  endDate <=
+  endDate <
   startDate
 ) {
 
   alert(
-    "끝난 시각은 시작 시각보다 늦어야 합니다."
+    "끝난 시각은 시작 시각보다 빠를 수 없습니다."
   );
 
   return;
@@ -1818,35 +2003,60 @@ if (
 }
 
 
-const executionData = {
+let finalMinutes =
+  minutes;
 
-  task_id:
-    Number(
-      taskId
-    ),
 
-  start_time:
-    startDate.toISOString(),
+// 실제 시간 미입력 시 자동 계산
 
-  end_time:
-    endDate.toISOString(),
+if (
+  !finalMinutes ||
+  finalMinutes <= 0
+) {
 
-  actual_hours:
-    hours,
+  finalMinutes =
+    Math.round(
+      (
+        endDate -
+        startDate
+      ) /
+      60000
+    );
 
-  blocked_reason:
-    reason
-
-};
+}
 
 
 const {
   error
 } =
   await supabaseClient
-    .from("task_executions")
+    .from(
+      "execution_records"
+    )
     .insert([
-      executionData
+      {
+        task_id:
+          Number(
+            taskId
+          ),
+
+        started_at:
+          startDate
+            .toISOString(),
+
+        ended_at:
+          endDate
+            .toISOString(),
+
+        actual_minutes:
+          finalMinutes,
+
+        blocked_reason:
+          reason,
+
+        is_completion_record:
+          false
+      }
     ]);
 
 
@@ -1877,17 +2087,17 @@ alert(
 executionForm.reset();
 
 
-await loadExecutions();
+await loadExecutionRecords();
 ```
 
 }
 );
 
 // ==================================================
-// 실행 기록 목록 불러오기
+// 전체 실행 기록 불러오기
 // ==================================================
 
-async function loadExecutions() {
+async function loadExecutionRecords() {
 
 executionList.innerHTML =
 "실행 기록을 불러오는 중입니다...";
@@ -1897,7 +2107,9 @@ data,
 error
 } =
 await supabaseClient
-.from("task_executions")
+.from(
+"execution_records"
+)
 .select(`         *,
         tasks (
           task_name
@@ -1920,9 +2132,8 @@ console.error(
   error
 );
 
-
 executionList.innerHTML =
-  "<p>실행 기록을 불러오지 못했습니다.</p>";
+  "실행 기록을 불러오지 못했습니다.";
 
 return;
 ```
@@ -1936,7 +2147,7 @@ data.length === 0
 
 ```
 executionList.innerHTML =
-  "<p>아직 저장된 실행 기록이 없습니다.</p>";
+  "아직 실행 기록이 없습니다.";
 
 return;
 ```
@@ -1947,87 +2158,69 @@ executionList.innerHTML =
 "";
 
 data.forEach(
-(execution) => {
+(record) => {
 
 ```
-  const taskName =
-    execution.tasks
-      ?.task_name ||
-    "알 수 없는 할 일";
+  const typeText =
+    record.is_completion_record
+      ? "완료 기록"
+      : "실행 기록";
 
 
   executionList.innerHTML += `
 
-    <div class="execution-item">
+    <div>
 
-
-      <h4>
-
-        ${escapeHTML(
-          taskName
-        )}
-
-      </h4>
+      <h3>
+        ${
+          escapeHTML(
+            record.tasks?.task_name ||
+            "삭제된 할 일"
+          )
+        }
+      </h3>
 
 
       <p>
+        기록 종류:
+        ${typeText}
+      </p>
 
-        <strong>
-          시작 시각
-        </strong>
 
-        <br>
-
+      <p>
+        시작 시각:
         ${formatDate(
-          execution.start_time
+          record.started_at
         )}
+      </p>
 
 
-        <br><br>
-
-
-        <strong>
-          끝난 시각
-        </strong>
-
-        <br>
-
+      <p>
+        끝난 시각:
         ${formatDate(
-          execution.end_time
+          record.ended_at
         )}
+      </p>
 
 
-        <br><br>
+      <p>
+        실제 걸린 시간:
+        ${record.actual_minutes || 0}분
+      </p>
 
 
-        <strong>
-          실제 걸린 시간
-        </strong>
-
-        <br>
-
-        ${execution.actual_hours}시간
-
-
-        <br><br>
-
-
-        <strong>
-          막혔던 이유
-        </strong>
-
-        <br>
-
-        ${escapeHTML(
-          execution.blocked_reason ||
-          "없음"
-        )}
-
+      <p>
+        막혔던 이유:
+        ${
+          escapeHTML(
+            record.blocked_reason ||
+            "없음"
+          )
+        }
       </p>
 
 
       <hr>
-
 
     </div>
 
@@ -2041,15 +2234,146 @@ data.forEach(
 }
 
 // ==================================================
-// 페이지 처음 열었을 때
+// 특정 할 일의 실행 기록 보기
 // ==================================================
 
-loadPlans();
+async function showTaskExecutions(
+taskId
+) {
 
-loadTaskPlans();
+const {
+data,
+error
+} =
+await supabaseClient
+.from(
+"execution_records"
+)
+.select("*")
+.eq(
+"task_id",
+taskId
+)
+.order(
+"created_at",
+{
+ascending: false
+}
+);
 
-loadTasks();
+if (
+error
+) {
 
-loadExecutionTasks();
+```
+console.error(
+  error
+);
 
-loadExecutions();
+alert(
+  "실행 기록을 불러오지 못했습니다."
+);
+
+return;
+```
+
+}
+
+if (
+!data ||
+data.length === 0
+) {
+
+```
+alert(
+  "이 할 일에는 아직 실행 기록이 없습니다."
+);
+
+return;
+```
+
+}
+
+executionList.innerHTML =
+"";
+
+data.forEach(
+(record) => {
+
+```
+  executionList.innerHTML += `
+
+    <div>
+
+      <p>
+        시작:
+        ${formatDate(
+          record.started_at
+        )}
+      </p>
+
+      <p>
+        종료:
+        ${formatDate(
+          record.ended_at
+        )}
+      </p>
+
+      <p>
+        실제 시간:
+        ${record.actual_minutes || 0}분
+      </p>
+
+      <p>
+        막힌 이유:
+        ${
+          escapeHTML(
+            record.blocked_reason ||
+            "없음"
+          )
+        }
+      </p>
+
+      <hr>
+
+    </div>
+
+  `;
+
+}
+```
+
+);
+
+document
+.getElementById(
+"executionList"
+)
+.scrollIntoView({
+behavior: "smooth"
+});
+
+}
+
+window.showTaskExecutions =
+showTaskExecutions;
+
+// ==================================================
+// 페이지 시작
+// ==================================================
+
+async function initializePage() {
+
+await loadPlans();
+
+await loadTaskPlans();
+
+await loadTasks();
+
+await loadExecutionTaskOptions();
+
+await loadExecutionRecords();
+
+}
+
+initializePage();
