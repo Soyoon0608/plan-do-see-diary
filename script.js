@@ -657,3 +657,183 @@ function escapeHTML(text) {
   return div.innerHTML;
 
 }
+// ================================
+// Card 2 — 할 일 관리
+// ================================
+
+const taskForm = document.getElementById("taskForm");
+const taskPlanId = document.getElementById("taskPlanId");
+const taskList = document.getElementById("taskList");
+
+
+// 계획 목록을 할 일의 "연결할 계획" 선택창에 표시
+async function loadTaskPlans() {
+
+  const { data, error } = await supabaseClient
+    .from("plans")
+    .select("id, plan_name")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("계획 불러오기 오류:", error);
+    return;
+  }
+
+  taskPlanId.innerHTML = `
+    <option value="">계획을 선택하세요</option>
+  `;
+
+  data.forEach(plan => {
+
+    taskPlanId.innerHTML += `
+      <option value="${plan.id}">
+        ${escapeHTML(plan.plan_name)}
+      </option>
+    `;
+
+  });
+}
+
+
+// 할 일 추가
+taskForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const taskName =
+    document.getElementById("taskName").value.trim();
+
+  const planId =
+    taskPlanId.value;
+
+  const dueDate =
+    document.getElementById("taskDueDate").value || null;
+
+  const priority =
+    document.getElementById("taskPriority").value;
+
+  const tag =
+    document.getElementById("taskTag").value.trim() || null;
+
+  const estimatedHours =
+    Number(
+      document.getElementById("taskEstimatedHours").value
+    ) || 0;
+
+
+  if (!taskName || !planId) {
+
+    alert("할 일과 계획을 입력해주세요.");
+
+    return;
+  }
+
+
+  const { error } = await supabaseClient
+    .from("tasks")
+    .insert({
+
+      plan_id: Number(planId),
+
+      task_name: taskName,
+
+      due_date: dueDate,
+
+      priority: priority,
+
+      tag: tag,
+
+      estimated_hours: estimatedHours
+
+    });
+
+
+  if (error) {
+
+    console.error("TASK INSERT ERROR:", error);
+
+    alert(
+      "할 일 추가에 실패했습니다.\n\n" +
+      error.message
+    );
+
+    return;
+  }
+
+
+  alert("할 일이 추가되었습니다!");
+
+  taskForm.reset();
+
+  await loadTasks();
+
+});
+
+
+// 할 일 목록 불러오기
+async function loadTasks() {
+
+  const { data, error } = await supabaseClient
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+
+  if (error) {
+
+    console.error("TASK SELECT ERROR:", error);
+
+    return;
+  }
+
+
+  taskList.innerHTML = "";
+
+
+  data.forEach(task => {
+
+    taskList.innerHTML += `
+
+      <div>
+
+        <strong>
+          ${escapeHTML(task.task_name)}
+        </strong>
+
+        <p>
+
+          마감일:
+          ${task.due_date || "없음"}
+
+          <br>
+
+          우선순위:
+          ${escapeHTML(task.priority || "보통")}
+
+          <br>
+
+          태그:
+          ${escapeHTML(task.tag || "없음")}
+
+          <br>
+
+          예상 시간:
+          ${task.estimated_hours || 0}시간
+
+        </p>
+
+      </div>
+
+      <hr>
+
+    `;
+
+  });
+
+}
+
+
+// 페이지가 열리면 실행
+loadTaskPlans();
+
+loadTasks();
