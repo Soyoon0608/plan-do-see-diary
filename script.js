@@ -109,9 +109,7 @@ planListSection.innerHTML = `
 
   <div id="planList">
 
-```
 계획을 불러오는 중입니다...
-```
 
   </div>
 
@@ -145,9 +143,7 @@ historySection.innerHTML = `
 
   <div id="historyList">
 
-```
 계획의 수정 이력을 선택하면 표시됩니다.
-```
 
   </div>
 
@@ -188,14 +184,12 @@ ascending: false
 
 if (error) {
 
-```
 console.error(error);
 
 planList.innerHTML =
   "<p>계획을 불러오지 못했습니다.</p>";
 
 return;
-```
 
 }
 
@@ -204,12 +198,10 @@ if (
 data.length === 0
 ) {
 
-```
 planList.innerHTML =
   "<p>아직 저장된 계획이 없습니다.</p>";
 
 return;
-```
 
 }
 
@@ -219,7 +211,7 @@ planList.innerHTML =
 data.forEach(
 (plan) => {
 
-```
+
   const planCard =
     document.createElement(
       "div"
@@ -293,7 +285,7 @@ data.forEach(
   );
 
 }
-```
+
 
 );
 
@@ -304,7 +296,7 @@ document
 .forEach(
 (button) => {
 
-```
+
     button.addEventListener(
       "click",
       () => {
@@ -334,7 +326,6 @@ document
 
   }
 );
-```
 
 document
 .querySelectorAll(
@@ -343,7 +334,6 @@ document
 .forEach(
 (button) => {
 
-```
     button.addEventListener(
       "click",
       () => {
@@ -357,7 +347,6 @@ document
 
   }
 );
-```
 
 }
 
@@ -369,7 +358,7 @@ form.addEventListener(
 "submit",
 async (event) => {
 
-```
+
 event.preventDefault();
 
 
@@ -606,7 +595,6 @@ form.reset();
 await loadPlans();
 
 await loadTaskPlans();
-```
 
 }
 );
@@ -643,12 +631,11 @@ submitButton.textContent =
 
 window.scrollTo({
 
-```
 top: 0,
 
 behavior:
   "smooth"
-```
+
 
 });
 
@@ -687,14 +674,13 @@ if (
 error
 ) {
 
-```
+
 console.error(error);
 
 historyList.innerHTML =
   "<p>수정 이력을 불러오지 못했습니다.</p>";
 
 return;
-```
 
 }
 
@@ -703,12 +689,10 @@ if (
 data.length === 0
 ) {
 
-```
 historyList.innerHTML =
   "<p>아직 수정 이력이 없습니다.</p>";
 
 return;
-```
 
 }
 
@@ -718,7 +702,6 @@ historyList.innerHTML =
 data.forEach(
 (history) => {
 
-```
   historyList.innerHTML += `
 
     <div>
@@ -772,7 +755,6 @@ data.forEach(
   `;
 
 }
-```
 
 );
 
@@ -851,13 +833,12 @@ if (
 error
 ) {
 
-```
 console.error(
   error
 );
 
 return;
-```
+
 
 }
 
@@ -872,7 +853,7 @@ taskPlanFilter.innerHTML = `     <option value="">
 data.forEach(
 (plan) => {
 
-```
+
   taskPlanId.innerHTML += `
 
     <option value="${plan.id}">
@@ -895,7 +876,6 @@ data.forEach(
   `;
 
 }
-```
 
 );
 
@@ -909,7 +889,7 @@ taskForm.addEventListener(
 "submit",
 async (event) => {
 
-```
+
 event.preventDefault();
 
 
@@ -1083,7 +1063,6 @@ taskForm
 await loadTasks();
 
 await loadExecutionTasks();
-```
 
 }
 );
@@ -1124,11 +1103,9 @@ if (
 error
 ) {
 
-```
 console.error(error);
 
 return;
-```
 
 }
 
@@ -1136,7 +1113,6 @@ const filteredTasks =
 data.filter(
 (task) => {
 
-```
     const matchesSearch =
       task.task_name
         .toLowerCase()
@@ -1178,7 +1154,7 @@ data.filter(
 
   }
 );
-```
+
 
 // 정렬
 
@@ -1187,7 +1163,6 @@ selectedSort ===
 "created_desc"
 ) {
 
-```
 filteredTasks.sort(
   (a, b) =>
     new Date(
@@ -1197,7 +1172,6 @@ filteredTasks.sort(
       a.created_at
     )
 );
-```
 
 }
 
@@ -1206,7 +1180,7 @@ selectedSort ===
 "due_asc"
 ) {
 
-```
+
 filteredTasks.sort(
   (a, b) => {
 
@@ -1224,7 +1198,6 @@ filteredTasks.sort(
 
   }
 );
-```
 
 }
 
@@ -1233,7 +1206,7 @@ selectedSort ===
 "priority_desc"
 ) {
 
-```
+
 const priorityOrder = {
 
   "높음": 3,
@@ -1250,7 +1223,7 @@ filteredTasks.sort(
     (priorityOrder[b.priority] || 0) -
     (priorityOrder[a.priority] || 0)
 );
-```
+
 
 }
 
@@ -1259,7 +1232,6 @@ selectedSort ===
 "hours_asc"
 ) {
 
-```
 filteredTasks.sort(
   (a, b) =>
     Number(
@@ -1269,7 +1241,7 @@ filteredTasks.sort(
       b.estimated_hours || 0
     )
 );
-```
+
 
 }
 
@@ -1278,7 +1250,7 @@ selectedSort ===
 "hours_desc"
 ) {
 
-```
+
 filteredTasks.sort(
   (a, b) =>
     Number(
@@ -1288,7 +1260,7 @@ filteredTasks.sort(
       a.estimated_hours || 0
     )
 );
-```
+
 
 }
 
@@ -1299,19 +1271,19 @@ if (
 filteredTasks.length === 0
 ) {
 
-```
+
 taskList.innerHTML =
   "<p>검색 또는 필터 결과가 없습니다.</p>";
 
 return;
-```
+
 
 }
 
 filteredTasks.forEach(
 (task) => {
 
-```
+
   taskList.innerHTML += `
 
     <div class="task-item">
@@ -1394,7 +1366,7 @@ filteredTasks.forEach(
   `;
 
 }
-```
+
 
 );
 
@@ -1454,13 +1426,12 @@ if (
 error
 ) {
 
-```
 alert(
   "할 일을 불러오지 못했습니다."
 );
 
 return;
-```
+
 
 }
 
@@ -1514,10 +1485,9 @@ taskForm
 
 taskForm.scrollIntoView({
 
-```
 behavior:
   "smooth"
-```
+
 
 });
 
@@ -1546,9 +1516,7 @@ taskId
 )
 ) {
 
-```
 return;
-```
 
 }
 
@@ -1558,7 +1526,6 @@ taskId
 
 try {
 
-```
 const {
   error
 } =
@@ -1593,17 +1560,14 @@ if (
 
 
 await loadTasks();
-```
 
 }
 
 finally {
 
-```
 completingTaskIds.delete(
   taskId
 );
-```
 
 }
 
@@ -1626,9 +1590,7 @@ if (
 )
 ) {
 
-```
 return;
-```
 
 }
 
@@ -1647,7 +1609,6 @@ if (
 error
 ) {
 
-```
 console.error(error);
 
 alert(
@@ -1656,7 +1617,6 @@ alert(
 );
 
 return;
-```
 
 }
 
@@ -1738,14 +1698,12 @@ if (
 error
 ) {
 
-```
 console.error(
   "실행 기록용 할 일 불러오기 오류:",
   error
 );
 
 return;
-```
 
 }
 
@@ -1762,7 +1720,6 @@ executionTaskId.innerHTML = `
 data.forEach(
 (task) => {
 
-```
   executionTaskId.innerHTML += `
 
     <option value="${task.id}">
