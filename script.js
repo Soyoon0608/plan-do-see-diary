@@ -2243,20 +2243,155 @@ window.showTaskExecutions =
 showTaskExecutions;
 
 // ==================================================
+// See — 돌아보기
+// ==================================================
+
+const reviewSummary =
+document.getElementById(
+  "reviewSummary"
+);
+
+
+// ==================================================
+// 완료 수 집계
+// ==================================================
+
+async function loadReviewSummary() {
+
+  reviewSummary.innerHTML =
+    "돌아보기 정보를 불러오는 중입니다...";
+
+
+  // 완료 기록만 조회
+  const {
+    data: completionRecords,
+    error: completionError
+  } =
+    await supabaseClient
+      .from("execution_records")
+      .select("id, task_id")
+      .eq(
+        "is_completion_record",
+        true
+      );
+
+
+  if (completionError) {
+
+    console.error(
+      "REVIEW COMPLETION SELECT ERROR:",
+      completionError
+    );
+
+    reviewSummary.innerHTML =
+      "완료 현황을 불러오지 못했습니다.";
+
+    return;
+
+  }
+
+
+  // 전체 완료 수
+  const completionCount =
+    completionRecords
+      ? completionRecords.length
+      : 0;
+
+
+  // 실제 실행 기록 수
+  const {
+    data: executionRecords,
+    error: executionError
+  } =
+    await supabaseClient
+      .from("execution_records")
+      .select("id")
+      .eq(
+        "is_completion_record",
+        false
+      );
+
+
+  if (executionError) {
+
+    console.error(
+      "REVIEW EXECUTION SELECT ERROR:",
+      executionError
+    );
+
+    reviewSummary.innerHTML = `
+
+      <p>
+        완료한 할 일:
+        <strong>
+          ${completionCount}개
+        </strong>
+      </p>
+
+      <p>
+        실행 기록:
+        불러오지 못했습니다.
+      </p>
+
+    `;
+
+    return;
+
+  }
+
+
+  const executionCount =
+    executionRecords
+      ? executionRecords.length
+      : 0;
+
+
+  reviewSummary.innerHTML = `
+
+    <div>
+
+      <h3>
+        오늘의 돌아보기
+      </h3>
+
+      <p>
+        완료한 할 일:
+        <strong>
+          ${completionCount}개
+        </strong>
+      </p>
+
+      <p>
+        실제 실행 기록:
+        <strong>
+          ${executionCount}개
+        </strong>
+      </p>
+
+    </div>
+
+  `;
+
+}
+
+
+// ==================================================
 // 페이지 시작
 // ==================================================
 
 async function initializePage() {
 
-await loadPlans();
+  await loadPlans();
 
-await loadTaskPlans();
+  await loadTaskPlans();
 
-await loadTasks();
+  await loadTasks();
 
-await loadExecutionTaskOptions();
+  await loadExecutionTaskOptions();
 
-await loadExecutionRecords();
+  await loadExecutionRecords();
+
+  await loadReviewSummary();
 
 }
 
