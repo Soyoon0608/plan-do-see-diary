@@ -1,0 +1,114 @@
+{
+  "version": "2.0",
+  "project": "Plan · Do · See Diary",
+  "timezone": "Asia/Seoul",
+
+  "tables": {
+    "plans": {
+      "description": "사용자가 세운 계획",
+      "columns": [
+        "id",
+        "plan_name",
+        "start_date",
+        "end_date",
+        "priority",
+        "success_criteria",
+        "estimated_hours",
+        "next_action",
+        "created_at"
+      ]
+    },
+
+    "plan_history": {
+      "description": "계획을 수정하기 전의 변경 이력",
+      "columns": [
+        "id",
+        "plan_id",
+        "plan_name",
+        "start_date",
+        "end_date",
+        "priority",
+        "success_criteria",
+        "estimated_hours",
+        "changed_at"
+      ],
+      "relations": [
+        {
+          "from": "plan_history.plan_id",
+          "to": "plans.id",
+          "type": "many-to-one"
+        }
+      ]
+    },
+
+    "tasks": {
+      "description": "계획에 연결된 할 일",
+      "columns": [
+        "id",
+        "plan_id",
+        "task_name",
+        "due_date",
+        "priority",
+        "tag",
+        "estimated_hours",
+        "is_completed",
+        "created_at"
+      ],
+      "relations": [
+        {
+          "from": "tasks.plan_id",
+          "to": "plans.id",
+          "type": "many-to-one"
+        }
+      ]
+    },
+
+    "execution_records": {
+      "description": "실제로 수행한 작업 기록",
+      "columns": [
+        "id",
+        "task_id",
+        "started_at",
+        "ended_at",
+        "actual_minutes",
+        "blocked_reason",
+        "is_completion_record",
+        "created_at"
+      ],
+      "relations": [
+        {
+          "from": "execution_records.task_id",
+          "to": "tasks.id",
+          "type": "many-to-one"
+        }
+      ]
+    }
+  },
+
+  "date_rules": {
+    "plan_start_date": "YYYY-MM-DD",
+    "plan_end_date": "YYYY-MM-DD",
+    "task_due_date": "YYYY-MM-DD",
+    "execution_started_at": "ISO 8601 timestamp",
+    "execution_ended_at": "ISO 8601 timestamp",
+    "display_timezone": "Asia/Seoul",
+    "delay_rule": "완료되지 않은 task의 due_date가 Asia/Seoul 기준 오늘보다 이전이면 지연으로 계산한다."
+  },
+
+  "review_rules": {
+    "plan_count": "선택된 범위에 포함된 현재 task의 수",
+    "completed_count": "현재 완료 상태인 task의 수",
+    "delayed_count": "완료되지 않았고 due_date가 서울 기준 오늘보다 이전인 task의 수",
+    "blocked_count": "blocked_reason이 하나 이상 존재하는 task의 수",
+    "expected_hours": "task의 estimated_hours 합계",
+    "actual_hours": "완료 기록을 제외한 execution_records의 actual_minutes 합계를 시간으로 변환한 값",
+    "difference_hours": "actual_hours - expected_hours"
+  },
+
+  "security_rules": {
+    "html_output": "사용자 입력값은 escapeHTML 처리 후 화면에 출력한다.",
+    "script_input": "script 태그 등 HTML/JavaScript 형태의 입력도 실행되지 않고 문자 그대로 표시되어야 한다.",
+    "secret_policy": "브라우저 코드에는 Supabase Publishable Key만 사용하며 service_role key, 데이터베이스 비밀번호 등의 비밀값을 포함하지 않는다.",
+    "authentication": "현재 로그인 기능이 없으므로 공개 URL에 민감한 개인정보를 저장하지 않는다."
+  }
+}
