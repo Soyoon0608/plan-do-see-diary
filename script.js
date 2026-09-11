@@ -2789,70 +2789,122 @@ async function loadReviewSummary() {
   // ==================================================
   // 숫자 표시
   // ==================================================
+reviewSummary.innerHTML = `
 
-  reviewSummary.innerHTML = `
+  <div>
 
-    <div>
+    <h3>
+      돌아보기 결과
+    </h3>
 
-      <h3>
-        돌아보기 결과
-      </h3>
+    <p>
+      기간:
+      ${startDate || "전체"}
+      ~
+      ${endDate || "전체"}
+    </p>
 
-      <p>
-        기간:
-        ${startDate || "전체"}
-        ~
-        ${endDate || "전체"}
-      </p>
+    <p>
+      계획 수:
+      <button
+        type="button"
+        class="review-evidence-button"
+        data-review-type="plan"
+      >
+        <strong>
+          ${planCount}개
+        </strong>
+      </button>
+    </p>
 
-      <p>
-        계획 수:
-        <button
-          type="button"
-          onclick="showReviewEvidence('plan')"
-        >
-          <strong>
-            ${planCount}개
-          </strong>
-        </button>
-      </p>
+    <p>
+      완료 수:
+      <button
+        type="button"
+        class="review-evidence-button"
+        data-review-type="completed"
+      >
+        <strong>
+          ${completedCount}개
+        </strong>
+      </button>
+    </p>
 
-      <p>
-        완료 수:
-        <button
-          type="button"
-          onclick="showReviewEvidence('completed')"
-        >
-          <strong>
-            ${completedCount}개
-          </strong>
-        </button>
-      </p>
+    <p>
+      지연 수:
+      <button
+        type="button"
+        class="review-evidence-button"
+        data-review-type="delayed"
+      >
+        <strong>
+          ${delayedCount}개
+        </strong>
+      </button>
+    </p>
 
-      <p>
-        지연 수:
-        <button
-          type="button"
-          onclick="showReviewEvidence('delayed')"
-        >
-          <strong>
-            ${delayedCount}개
-          </strong>
-        </button>
-      </p>
+    <p>
+      막힘 수:
+      <button
+        type="button"
+        class="review-evidence-button"
+        data-review-type="blocked"
+      >
+        <strong>
+          ${blockedCount}개
+        </strong>
+      </button>
+    </p>
 
-      <p>
-        막힘 수:
-        <button
-          type="button"
-          onclick="showReviewEvidence('blocked')"
-        >
-          <strong>
-            ${blockedCount}개
-          </strong>
-        </button>
-      </p>
+    <hr>
 
+    <p>
+      예상 시간:
+      <strong>
+        ${estimatedHours.toFixed(1)}시간
+      </strong>
+    </p>
+
+    <p>
+      실제 시간:
+      <strong>
+        ${actualHours.toFixed(1)}시간
+      </strong>
+    </p>
+
+    <p>
+      차이:
+      <strong>
+        ${
+          differenceHours >= 0
+            ? "+"
+            : ""
+        }${differenceHours.toFixed(1)}시간
+      </strong>
+    </p>
+
+  </div>
+
+`;
+  // 숫자 버튼 클릭 이벤트 연결
+  document
+  .querySelectorAll(".review-evidence-button")
+  .forEach((button) => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const type =
+          button.dataset.reviewType;
+
+        showReviewEvidence(type);
+
+      }
+    );
+
+  });
+ 
       <hr>
 
       <p>
