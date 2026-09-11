@@ -945,3 +945,5 @@ async function startTaskEdit(taskId) {
   });
 
 }
+
+window.startTaskEdit = startTaskEdit;
