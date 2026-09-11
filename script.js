@@ -665,6 +665,7 @@ const taskForm = document.getElementById("taskForm");
 const taskPlanId = document.getElementById("taskPlanId");
 const taskList = document.getElementById("taskList");
 
+let editingTaskId = null;
 
 // 계획 목록을 할 일의 "연결할 계획" 선택창에 표시
 async function loadTaskPlans() {
@@ -729,23 +730,47 @@ taskForm.addEventListener("submit", async (e) => {
   }
 
 
-  const { error } = await supabaseClient
+ let error;
+
+const taskData = {
+  plan_id: Number(planId),
+  task_name: taskName,
+  due_date: dueDate,
+  priority: priority,
+  tag: tag,
+  estimated_hours: estimatedHours
+};
+
+
+// ================================
+// 새 할 일 추가
+// ================================
+
+if (!editingTaskId) {
+
+  const result = await supabaseClient
     .from("tasks")
-    .insert({
+    .insert(taskData);
 
-      plan_id: Number(planId),
+  error = result.error;
 
-      task_name: taskName,
+}
 
-      due_date: dueDate,
 
-      priority: priority,
+// ================================
+// 기존 할 일 수정
+// ================================
 
-      tag: tag,
+else {
 
-      estimated_hours: estimatedHours
+  const result = await supabaseClient
+    .from("tasks")
+    .update(taskData)
+    .eq("id", editingTaskId);
 
-    });
+  error = result.error;
+
+}
 
 
   if (error) {
@@ -760,12 +785,32 @@ taskForm.addEventListener("submit", async (e) => {
     return;
   }
 
+if (editingTaskId) {
+
+  alert("할 일이 수정되었습니다!");
+
+} else {
 
   alert("할 일이 추가되었습니다!");
 
-  taskForm.reset();
+}
 
-  await loadTasks();
+
+// 수정 모드 종료
+editingTaskId = null;
+
+
+// 입력창 초기화
+taskForm.reset();
+
+
+// 버튼 원래대로
+taskForm.querySelector('button[type="submit"]').textContent =
+  "할 일 추가";
+
+
+// 목록 다시 불러오기
+await loadTasks();
 
 });
 
@@ -839,3 +884,64 @@ data.forEach(task => {
 loadTaskPlans();
 
 loadTasks();
+
+// ================================
+// Card 2 — 할 일 수정
+// ================================
+
+async function startTaskEdit(taskId) {
+
+  // 수정할 할 일 가져오기
+  const { data: task, error } = await supabaseClient
+    .from("tasks")
+    .select("*")
+    .eq("id", taskId)
+    .single();
+
+  if (error) {
+    console.error("TASK LOAD ERROR:", error);
+
+    alert(
+      "할 일을 불러오지 못했습니다.\n\n" +
+      error.message
+    );
+
+    return;
+  }
+
+
+  // 기존 값을 입력창에 넣기
+  document.getElementById("taskName").value =
+    task.task_name || "";
+
+  document.getElementById("taskPlanId").value =
+    task.plan_id || "";
+
+  document.getElementById("taskDueDate").value =
+    task.due_date || "";
+
+  document.getElementById("taskPriority").value =
+    task.priority || "보통";
+
+  document.getElementById("taskTag").value =
+    task.tag || "";
+
+  document.getElementById("taskEstimatedHours").value =
+    task.estimated_hours || 0;
+
+
+  // 수정 중인 task ID 저장
+  editingTaskId = taskId;
+
+
+  // 버튼 글자를 수정 저장으로 변경
+  taskForm.querySelector('button[type="submit"]').textContent =
+    "할 일 수정 저장";
+
+
+  // 화면 위쪽의 할 일 입력창으로 이동
+  taskForm.scrollIntoView({
+    behavior: "smooth"
+  });
+
+}
