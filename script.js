@@ -1,3 +1,4 @@
+
 // ==============================
 // Supabase 설정
 // ==============================
@@ -96,13 +97,6 @@ planListSection.parentElement.appendChild(
 
 const historyList =
   document.getElementById("historyList");
-
-
-// ==============================
-// 페이지 처음 열었을 때
-// ==============================
-
-loadPlans();
 
 
 // ==============================
@@ -1171,6 +1165,27 @@ async function loadTasks() {
   // C20 정렬
   // ==========================
 
+  // 최근 추가순
+  if (
+    selectedSort ===
+    "created_desc"
+  ) {
+
+    filteredTasks.sort(
+      (a, b) => {
+
+        return (
+          new Date(b.created_at) -
+          new Date(a.created_at)
+        );
+
+      }
+    );
+
+  }
+
+
+  // 마감일 빠른 순
   if (
     selectedSort ===
     "due_asc"
@@ -1197,6 +1212,7 @@ async function loadTasks() {
   }
 
 
+  // 우선순위 높은 순
   if (
     selectedSort ===
     "priority_desc"
@@ -1227,6 +1243,7 @@ async function loadTasks() {
   }
 
 
+  // 예상 시간 적은 순
   if (
     selectedSort ===
     "hours_asc"
@@ -1250,6 +1267,7 @@ async function loadTasks() {
   }
 
 
+  // 예상 시간 많은 순
   if (
     selectedSort ===
     "hours_desc"
@@ -1666,6 +1684,9 @@ window.deleteTask =
 // 페이지 처음 열었을 때
 // ==============================
 
+loadPlans();
+
 loadTaskPlans();
 
 loadTasks();
+
