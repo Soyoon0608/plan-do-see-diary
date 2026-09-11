@@ -790,45 +790,47 @@ async function loadTasks() {
   taskList.innerHTML = "";
 
 
-  data.forEach(task => {
+data.forEach(task => {
 
-    taskList.innerHTML += `
+  taskList.innerHTML += `
 
-      <div>
+    <div>
 
-        <strong>
-          ${escapeHTML(task.task_name)}
-        </strong>
+      <strong>
+        ${escapeHTML(task.task_name)}
+      </strong>
 
-        <p>
+      <p>
+        마감일:
+        ${task.due_date || "없음"}
 
-          마감일:
-          ${task.due_date || "없음"}
+        <br>
 
-          <br>
+        우선순위:
+        ${escapeHTML(task.priority || "보통")}
 
-          우선순위:
-          ${escapeHTML(task.priority || "보통")}
+        <br>
 
-          <br>
+        태그:
+        ${escapeHTML(task.tag || "없음")}
 
-          태그:
-          ${escapeHTML(task.tag || "없음")}
+        <br>
 
-          <br>
+        예상 시간:
+        ${task.estimated_hours || 0}시간
+      </p>
 
-          예상 시간:
-          ${task.estimated_hours || 0}시간
+      <button onclick="startTaskEdit(${task.id})">
+        수정
+      </button>
 
-        </p>
+    </div>
 
-      </div>
+    <hr>
 
-      <hr>
+  `;
 
-    `;
-
-  });
+});
 
 }
 
