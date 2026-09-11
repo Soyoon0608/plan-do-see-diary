@@ -361,6 +361,8 @@ form.addEventListener(
 
       await loadPlans();
 
+      await loadTaskPlans();
+
       return;
     }
 
@@ -517,6 +519,8 @@ form.addEventListener(
     form.reset();
 
     await loadPlans();
+
+    await loadTaskPlans();
 
   }
 );
@@ -744,6 +748,26 @@ const taskSearch =
   );
 
 
+// ==============================
+// C19 필터 요소
+// ==============================
+
+const taskPlanFilter =
+  document.getElementById(
+    "taskPlanFilter"
+  );
+
+const taskStatusFilter =
+  document.getElementById(
+    "taskStatusFilter"
+  );
+
+const taskPriorityFilter =
+  document.getElementById(
+    "taskPriorityFilter"
+  );
+
+
 let editingTaskId = null;
 
 
@@ -781,6 +805,7 @@ async function loadTaskPlans() {
   }
 
 
+  // 할 일 추가용 선택창
   taskPlanId.innerHTML = `
     <option value="">
       계획을 선택하세요
@@ -788,10 +813,29 @@ async function loadTaskPlans() {
   `;
 
 
+  // C19 계획 필터용 선택창
+  taskPlanFilter.innerHTML = `
+    <option value="">
+      전체 계획
+    </option>
+  `;
+
+
   data.forEach(
     (plan) => {
 
+      // 할 일 추가
       taskPlanId.innerHTML += `
+        <option value="${plan.id}">
+          ${escapeHTML(
+            plan.plan_name
+          )}
+        </option>
+      `;
+
+
+      // 계획 필터
+      taskPlanFilter.innerHTML += `
         <option value="${plan.id}">
           ${escapeHTML(
             plan.plan_name
@@ -1016,12 +1060,34 @@ taskForm.addEventListener(
 
 async function loadTasks() {
 
+  // ==========================
+  // 검색어
+  // ==========================
+
   const searchText =
     taskSearch
       .value
       .trim()
       .toLowerCase();
 
+
+  // ==========================
+  // C19 필터 값
+  // ==========================
+
+  const selectedPlanId =
+    taskPlanFilter.value;
+
+  const selectedStatus =
+    taskStatusFilter.value;
+
+  const selectedPriority =
+    taskPriorityFilter.value;
+
+
+  // ==========================
+  // Supabase에서 할 일 가져오기
+  // ==========================
 
   const {
     data,
@@ -1050,19 +1116,63 @@ async function loadTasks() {
 
 
   // ==========================
-  // C18 검색
+  // C18 + C19 검색 / 필터
   // ==========================
 
   const filteredTasks =
     data.filter(
-      (task) =>
-        task.task_name
-          .toLowerCase()
-          .includes(
-            searchText
-          )
+      (task) => {
+
+        // 검색어 조건
+        const matchesSearch =
+          task.task_name
+            .toLowerCase()
+            .includes(
+              searchText
+            );
+
+
+        // 계획 조건
+        const matchesPlan =
+          !selectedPlanId ||
+          String(task.plan_id) ===
+          String(selectedPlanId);
+
+
+        // 상태 조건
+        const taskStatus =
+          task.is_completed
+            ? "완료"
+            : "진행 중";
+
+
+        const matchesStatus =
+          !selectedStatus ||
+          taskStatus ===
+          selectedStatus;
+
+
+        // 우선순위 조건
+        const matchesPriority =
+          !selectedPriority ||
+          task.priority ===
+          selectedPriority;
+
+
+        return (
+          matchesSearch &&
+          matchesPlan &&
+          matchesStatus &&
+          matchesPriority
+        );
+
+      }
     );
 
+
+  // ==========================
+  // 결과 표시
+  // ==========================
 
   taskList.innerHTML = "";
 
@@ -1073,7 +1183,7 @@ async function loadTasks() {
 
     taskList.innerHTML = `
       <p>
-        검색 결과가 없습니다.
+        검색 또는 필터 결과가 없습니다.
       </p>
     `;
 
@@ -1172,11 +1282,45 @@ async function loadTasks() {
 
 
 // ==============================
-// 검색어 입력 즉시 검색
+// C18 검색
 // ==============================
 
 taskSearch.addEventListener(
   "input",
+  () => {
+
+    loadTasks();
+
+  }
+);
+
+
+// ==============================
+// C19 필터
+// ==============================
+
+taskPlanFilter.addEventListener(
+  "change",
+  () => {
+
+    loadTasks();
+
+  }
+);
+
+
+taskStatusFilter.addEventListener(
+  "change",
+  () => {
+
+    loadTasks();
+
+  }
+);
+
+
+taskPriorityFilter.addEventListener(
+  "change",
   () => {
 
     loadTasks();
