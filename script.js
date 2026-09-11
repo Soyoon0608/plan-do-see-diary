@@ -476,27 +476,6 @@ form.addEventListener(
         updateError
       );
 
-      console.error(
-        "message:",
-        updateError.message
-      );
-
-      console.error(
-        "details:",
-        updateError.details
-      );
-
-      console.error(
-        "hint:",
-        updateError.hint
-      );
-
-      console.error(
-        "code:",
-        updateError.code
-      );
-
-
       alert(
         "계획 수정에 실패했습니다.\n\n" +
         updateError.message
@@ -768,6 +747,16 @@ const taskPriorityFilter =
   );
 
 
+// ==============================
+// C20 정렬 요소
+// ==============================
+
+const taskSort =
+  document.getElementById(
+    "taskSort"
+  );
+
+
 let editingTaskId = null;
 
 
@@ -806,6 +795,7 @@ async function loadTaskPlans() {
 
 
   // 할 일 추가용 선택창
+
   taskPlanId.innerHTML = `
     <option value="">
       계획을 선택하세요
@@ -813,7 +803,8 @@ async function loadTaskPlans() {
   `;
 
 
-  // C19 계획 필터용 선택창
+  // C19 계획 필터
+
   taskPlanFilter.innerHTML = `
     <option value="">
       전체 계획
@@ -824,7 +815,6 @@ async function loadTaskPlans() {
   data.forEach(
     (plan) => {
 
-      // 할 일 추가
       taskPlanId.innerHTML += `
         <option value="${plan.id}">
           ${escapeHTML(
@@ -834,7 +824,6 @@ async function loadTaskPlans() {
       `;
 
 
-      // 계획 필터
       taskPlanFilter.innerHTML += `
         <option value="${plan.id}">
           ${escapeHTML(
@@ -1061,7 +1050,7 @@ taskForm.addEventListener(
 async function loadTasks() {
 
   // ==========================
-  // 검색어
+  // C18 검색
   // ==========================
 
   const searchText =
@@ -1072,7 +1061,7 @@ async function loadTasks() {
 
 
   // ==========================
-  // C19 필터 값
+  // C19 필터
   // ==========================
 
   const selectedPlanId =
@@ -1086,7 +1075,15 @@ async function loadTasks() {
 
 
   // ==========================
-  // Supabase에서 할 일 가져오기
+  // C20 정렬
+  // ==========================
+
+  const selectedSort =
+    taskSort.value;
+
+
+  // ==========================
+  // Supabase에서 데이터 가져오기
   // ==========================
 
   const {
@@ -1123,7 +1120,7 @@ async function loadTasks() {
     data.filter(
       (task) => {
 
-        // 검색어 조건
+        // 검색
         const matchesSearch =
           task.task_name
             .toLowerCase()
@@ -1132,14 +1129,14 @@ async function loadTasks() {
             );
 
 
-        // 계획 조건
+        // 계획
         const matchesPlan =
           !selectedPlanId ||
           String(task.plan_id) ===
           String(selectedPlanId);
 
 
-        // 상태 조건
+        // 상태
         const taskStatus =
           task.is_completed
             ? "완료"
@@ -1152,7 +1149,7 @@ async function loadTasks() {
           selectedStatus;
 
 
-        // 우선순위 조건
+        // 우선순위
         const matchesPriority =
           !selectedPriority ||
           task.priority ===
@@ -1168,6 +1165,112 @@ async function loadTasks() {
 
       }
     );
+
+
+  // ==========================
+  // C20 정렬
+  // ==========================
+
+  if (
+    selectedSort ===
+    "due_asc"
+  ) {
+
+    filteredTasks.sort(
+      (a, b) => {
+
+        if (!a.due_date) {
+          return 1;
+        }
+
+        if (!b.due_date) {
+          return -1;
+        }
+
+        return a.due_date.localeCompare(
+          b.due_date
+        );
+
+      }
+    );
+
+  }
+
+
+  if (
+    selectedSort ===
+    "priority_desc"
+  ) {
+
+    const priorityOrder = {
+
+      "높음": 3,
+
+      "보통": 2,
+
+      "낮음": 1
+
+    };
+
+
+    filteredTasks.sort(
+      (a, b) => {
+
+        return (
+          (priorityOrder[b.priority] || 0) -
+          (priorityOrder[a.priority] || 0)
+        );
+
+      }
+    );
+
+  }
+
+
+  if (
+    selectedSort ===
+    "hours_asc"
+  ) {
+
+    filteredTasks.sort(
+      (a, b) => {
+
+        return (
+          Number(
+            a.estimated_hours || 0
+          ) -
+          Number(
+            b.estimated_hours || 0
+          )
+        );
+
+      }
+    );
+
+  }
+
+
+  if (
+    selectedSort ===
+    "hours_desc"
+  ) {
+
+    filteredTasks.sort(
+      (a, b) => {
+
+        return (
+          Number(
+            b.estimated_hours || 0
+          ) -
+          Number(
+            a.estimated_hours || 0
+          )
+        );
+
+      }
+    );
+
+  }
 
 
   // ==========================
@@ -1282,7 +1385,7 @@ async function loadTasks() {
 
 
 // ==============================
-// C18 검색
+// C18 검색 즉시 실행
 // ==============================
 
 taskSearch.addEventListener(
@@ -1296,7 +1399,7 @@ taskSearch.addEventListener(
 
 
 // ==============================
-// C19 필터
+// C19 계획 필터
 // ==============================
 
 taskPlanFilter.addEventListener(
@@ -1309,6 +1412,10 @@ taskPlanFilter.addEventListener(
 );
 
 
+// ==============================
+// C19 상태 필터
+// ==============================
+
 taskStatusFilter.addEventListener(
   "change",
   () => {
@@ -1319,7 +1426,25 @@ taskStatusFilter.addEventListener(
 );
 
 
+// ==============================
+// C19 우선순위 필터
+// ==============================
+
 taskPriorityFilter.addEventListener(
+  "change",
+  () => {
+
+    loadTasks();
+
+  }
+);
+
+
+// ==============================
+// C20 정렬
+// ==============================
+
+taskSort.addEventListener(
   "change",
   () => {
 
@@ -1538,7 +1663,7 @@ window.deleteTask =
 
 
 // ==============================
-// 페이지 처음 열었을 때 실행
+// 페이지 처음 열었을 때
 // ==============================
 
 loadTaskPlans();
