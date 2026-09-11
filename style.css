@@ -568,3 +568,21 @@ small {
   }
 
 }
+/* ==================================================
+   Card 5 — 공개 접근 경고
+================================================== */
+
+.public-warning {
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+
+  background: #fff8e8;
+
+  border: 1px solid #f1dfb5;
+  border-radius: 12px;
+
+  color: #7a5a16;
+
+  font-size: 14px;
+  font-weight: 600;
+}
