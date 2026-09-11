@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>Plan · Do · See Diary</title>
-  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
 
 <body>
 
@@ -18,60 +31,102 @@
 
   <hr>
 
-  <!-- ============================== -->
-  <!-- Plan — 계획 세우기 -->
-  <!-- ============================== -->
+
+  <!-- ==================================================
+       Card 1
+       Plan — 계획 세우기
+  ================================================== -->
 
   <h2>Plan — 계획 세우기</h2>
 
-  <form>
 
-    <label>계획명</label><br>
+  <form id="planForm">
+
+    <label>계획명</label>
+    <br>
+
     <input
       type="text"
       id="planName"
       placeholder="오늘의 계획"
     >
+
     <br><br>
 
-    <label>시작일</label><br>
+
+    <label>시작일</label>
+    <br>
+
     <input
       type="date"
       id="startDate"
     >
+
     <br><br>
 
-    <label>종료일</label><br>
+
+    <label>종료일</label>
+    <br>
+
     <input
       type="date"
       id="endDate"
     >
+
     <br><br>
 
-    <label>우선순위</label><br>
+
+    <label>우선순위</label>
+    <br>
+
     <select id="priority">
-      <option value="높음">높음</option>
-      <option value="보통" selected>보통</option>
-      <option value="낮음">낮음</option>
+
+      <option value="높음">
+        높음
+      </option>
+
+      <option
+        value="보통"
+        selected
+      >
+        보통
+      </option>
+
+      <option value="낮음">
+        낮음
+      </option>
+
     </select>
+
     <br><br>
 
-    <label>성공 기준</label><br>
+
+    <label>성공 기준</label>
+    <br>
+
     <textarea
       id="successCriteria"
       placeholder="무엇을 하면 성공인가요?"
     ></textarea>
+
     <br><br>
 
-    <label>예상 시간</label><br>
+
+    <label>예상 시간</label>
+    <br>
+
     <input
       type="number"
       id="estimatedHours"
       min="0"
+      step="0.5"
       placeholder="시간"
     >
+
     시간
+
     <br><br>
+
 
     <button type="submit">
       계획 저장
@@ -79,60 +134,101 @@
 
   </form>
 
+
   <hr>
 
-  <!-- ============================== -->
-  <!-- Do — 할 일 관리 -->
-  <!-- ============================== -->
+
+  <!-- ==================================================
+       Card 2
+       Do — 할 일 관리
+  ================================================== -->
 
   <h2>Do — 할 일 관리</h2>
 
+
   <form id="taskForm">
 
-    <label>할 일</label><br>
+    <label>할 일</label>
+    <br>
+
     <input
       type="text"
       id="taskName"
       placeholder="예: SQL Injection 실습"
       required
     >
+
     <br><br>
 
-    <label>연결할 계획</label><br>
+
+    <label>연결할 계획</label>
+    <br>
+
     <select
       id="taskPlanId"
       required
     >
+
       <option value="">
         계획을 선택하세요
       </option>
+
     </select>
+
     <br><br>
 
-    <label>마감일</label><br>
+
+    <label>마감일</label>
+    <br>
+
     <input
       type="date"
       id="taskDueDate"
     >
+
     <br><br>
 
-    <label>우선순위</label><br>
+
+    <label>우선순위</label>
+    <br>
+
     <select id="taskPriority">
-      <option value="높음">높음</option>
-      <option value="보통" selected>보통</option>
-      <option value="낮음">낮음</option>
+
+      <option value="높음">
+        높음
+      </option>
+
+      <option
+        value="보통"
+        selected
+      >
+        보통
+      </option>
+
+      <option value="낮음">
+        낮음
+      </option>
+
     </select>
+
     <br><br>
 
-    <label>태그</label><br>
+
+    <label>태그</label>
+    <br>
+
     <input
       type="text"
       id="taskTag"
       placeholder="예: 보안, 공부"
     >
+
     <br><br>
 
-    <label>예상 시간</label><br>
+
+    <label>예상 시간</label>
+    <br>
+
     <input
       type="number"
       id="taskEstimatedHours"
@@ -140,8 +236,11 @@
       step="0.5"
       placeholder="시간"
     >
+
     시간
+
     <br><br>
+
 
     <button type="submit">
       할 일 추가
@@ -149,69 +248,306 @@
 
   </form>
 
+
   <hr>
 
-  <!-- ============================== -->
-  <!-- 할 일 검색 -->
-  <!-- ============================== -->
+
+  <!-- ==================================================
+       할 일 검색
+  ================================================== -->
 
   <h3>할 일 목록</h3>
 
+
   <div>
+
     <input
       type="text"
       id="taskSearch"
       placeholder="할 일 검색"
     >
+
   </div>
+
 
   <br>
 
+
   <div>
-  <label>계획 필터</label>
-  <select id="taskPlanFilter">
-    <option value="">전체 계획</option>
-  </select>
 
-  <label>상태 필터</label>
-  <select id="taskStatusFilter">
-    <option value="">전체</option>
-    <option value="진행 중">진행 중</option>
-    <option value="완료">완료</option>
-  </select>
+    <label>
+      계획 필터
+    </label>
 
-  <label>우선순위 필터</label>
-  <select id="taskPriorityFilter">
-    <option value="">전체</option>
-    <option value="높음">높음</option>
-    <option value="보통">보통</option>
-    <option value="낮음">낮음</option>
-  </select>
-</div>
+    <select id="taskPlanFilter">
 
-    <br>
+      <option value="">
+        전체 계획
+      </option>
+
+    </select>
+
+
+    <label>
+      상태 필터
+    </label>
+
+    <select id="taskStatusFilter">
+
+      <option value="">
+        전체
+      </option>
+
+      <option value="진행 중">
+        진행 중
+      </option>
+
+      <option value="완료">
+        완료
+      </option>
+
+    </select>
+
+
+    <label>
+      우선순위 필터
+    </label>
+
+    <select id="taskPriorityFilter">
+
+      <option value="">
+        전체
+      </option>
+
+      <option value="높음">
+        높음
+      </option>
+
+      <option value="보통">
+        보통
+      </option>
+
+      <option value="낮음">
+        낮음
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <br>
+
+
   <div>
-  <label>정렬</label>
-  <select id="taskSort">
-    <option value="created_desc">최근 추가순</option>
-    <option value="due_asc">마감일 빠른 순</option>
-    <option value="priority_desc">우선순위 높은 순</option>
-    <option value="hours_asc">예상 시간 적은 순</option>
-    <option value="hours_desc">예상 시간 많은 순</option>
-  </select>
-</div>
 
-<br>
+    <label>
+      정렬
+    </label>
+
+    <select id="taskSort">
+
+      <option value="created_desc">
+        최근 추가순
+      </option>
+
+      <option value="due_asc">
+        마감일 빠른 순
+      </option>
+
+      <option value="priority_desc">
+        우선순위 높은 순
+      </option>
+
+      <option value="hours_asc">
+        예상 시간 적은 순
+      </option>
+
+      <option value="hours_desc">
+        예상 시간 많은 순
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <br>
+
 
   <div id="taskList"></div>
 
 
-  <!-- ============================== -->
-  <!-- JavaScript -->
-  <!-- ============================== -->
+  <hr>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ==================================================
+       Card 3
+       See — 실제로 한 일 적기
+  ================================================== -->
+
+  <h2>
+    See — 실제로 한 일 적기
+  </h2>
+
+
+  <p>
+    계획한 할 일을 실제로 수행한 내용을 기록합니다.
+  </p>
+
+
+  <form id="executionForm">
+
+
+    <label>
+      실행할 할 일
+    </label>
+
+    <br>
+
+
+    <select
+      id="executionTaskId"
+      required
+    >
+
+      <option value="">
+        할 일을 선택하세요
+      </option>
+
+    </select>
+
+
+    <br><br>
+
+
+    <label>
+      시작 시간
+    </label>
+
+    <br>
+
+
+    <input
+      type="datetime-local"
+      id="executionStartedAt"
+      required
+    >
+
+
+    <br><br>
+
+
+    <label>
+      종료 시간
+    </label>
+
+    <br>
+
+
+    <input
+      type="datetime-local"
+      id="executionEndedAt"
+    >
+
+
+    <br><br>
+
+
+    <label>
+      실제 수행 시간
+    </label>
+
+    <br>
+
+
+    <input
+      type="number"
+      id="executionActualMinutes"
+      min="0"
+      placeholder="예: 60"
+    >
+
+    분
+
+
+    <br><br>
+
+
+    <label>
+      막힌 이유
+    </label>
+
+    <br>
+
+
+    <textarea
+      id="executionBlockedReason"
+      rows="4"
+      placeholder="예: 환경 설정 오류로 실습이 지연됨"
+    ></textarea>
+
+
+    <br><br>
+
+
+    <button type="submit">
+      실행 기록 저장
+    </button>
+
+
+  </form>
+
+
+  <hr>
+
+
+  <h3>
+    완료 기록 수
+  </h3>
+
+
+  <p>
+
+    현재 완료 처리된 기록:
+
+    <strong id="completionCount">
+      0
+    </strong>
+
+    건
+
+  </p>
+
+
+  <h3>
+    실행 기록
+  </h3>
+
+
+  <div id="executionList">
+
+    실행 기록을 불러오는 중입니다...
+
+  </div>
+
+
+  <!-- ==================================================
+       Supabase
+  ================================================== -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+
+  <!-- ==================================================
+       JavaScript
+  ================================================== -->
+
   <script src="script.js"></script>
 
+
 </body>
+
 </html>
