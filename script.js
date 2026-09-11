@@ -2,12 +2,11 @@
 // Supabase 설정
 // ==============================
 
-const SUPABASE_URL = "https://ptrsztelwuwrbounfpod.supabase.co";
+const SUPABASE_URL =
+  "https://ptrsztelwuwrbounfpod.supabase.co";
 
-// Supabase에서 Project Settings → API에서
-// Publishable key(또는 anon key)를 복사해서 넣어주세요.
-const SUPABASE_KEY = "sb_publishable_I1wduW_WYOxku9iIx6GhEA_10TGX4Dh";
-
+const SUPABASE_KEY =
+  "sb_publishable_I1wduW_WYOxku9iIx6GhEA_10TGX4Dh";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -16,17 +15,26 @@ const supabaseClient = supabase.createClient(
 
 
 // ==============================
-// HTML 요소 가져오기
+// Plan — HTML 요소
 // ==============================
 
 const form = document.querySelector("form");
 
-const planNameInput = document.getElementById("planName");
-const startDateInput = document.getElementById("startDate");
-const endDateInput = document.getElementById("endDate");
-const priorityInput = document.getElementById("priority");
+const planNameInput =
+  document.getElementById("planName");
+
+const startDateInput =
+  document.getElementById("startDate");
+
+const endDateInput =
+  document.getElementById("endDate");
+
+const priorityInput =
+  document.getElementById("priority");
+
 const successCriteriaInput =
   document.getElementById("successCriteria");
+
 const estimatedHoursInput =
   document.getElementById("estimatedHours");
 
@@ -39,10 +47,11 @@ let editingPlanId = null;
 
 
 // ==============================
-// 계획 목록 영역 만들기
+// 계획 목록 영역
 // ==============================
 
-const planListSection = document.createElement("section");
+const planListSection =
+  document.createElement("section");
 
 planListSection.className = "card";
 
@@ -54,14 +63,21 @@ planListSection.innerHTML = `
   </div>
 `;
 
-form.parentElement.appendChild(planListSection);
+form.parentElement.appendChild(
+  planListSection
+);
+
+
+const planList =
+  document.getElementById("planList");
 
 
 // ==============================
-// 계획 이력 영역 만들기
+// 계획 이력 영역
 // ==============================
 
-const historySection = document.createElement("section");
+const historySection =
+  document.createElement("section");
 
 historySection.className = "card";
 
@@ -73,14 +89,17 @@ historySection.innerHTML = `
   </div>
 `;
 
-planListSection.parentElement.appendChild(historySection);
+planListSection.parentElement.appendChild(
+  historySection
+);
 
-const planList = document.getElementById("planList");
-const historyList = document.getElementById("historyList");
+
+const historyList =
+  document.getElementById("historyList");
 
 
 // ==============================
-// 페이지 처음 열었을 때 계획 불러오기
+// 페이지 처음 열었을 때
 // ==============================
 
 loadPlans();
@@ -92,15 +111,17 @@ loadPlans();
 
 async function loadPlans() {
 
-  planList.innerHTML = "계획을 불러오는 중입니다...";
+  planList.innerHTML =
+    "계획을 불러오는 중입니다...";
 
 
-  const { data, error } = await supabaseClient
-    .from("plans")
-    .select("*")
-    .order("created_at", {
-      ascending: false
-    });
+  const { data, error } =
+    await supabaseClient
+      .from("plans")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
 
 
   if (error) {
@@ -137,15 +158,20 @@ async function loadPlans() {
     const planCard =
       document.createElement("div");
 
-    planCard.className = "plan-item";
+    planCard.className =
+      "plan-item";
 
 
     planCard.innerHTML = `
-      <h3>${escapeHTML(plan.plan_name)}</h3>
+      <h3>
+        ${escapeHTML(plan.plan_name)}
+      </h3>
 
       <p>
         <strong>기간</strong><br>
-        ${plan.start_date} ~ ${plan.end_date}
+        ${plan.start_date}
+        ~
+        ${plan.end_date}
       </p>
 
       <p>
@@ -181,12 +207,17 @@ async function loadPlans() {
     `;
 
 
-    planList.appendChild(planCard);
+    planList.appendChild(
+      planCard
+    );
 
   });
 
 
-  // 수정 버튼
+  // ==========================
+  // 계획 수정 버튼
+  // ==========================
+
   document
     .querySelectorAll(".edit-button")
     .forEach((button) => {
@@ -201,12 +232,15 @@ async function loadPlans() {
           const selectedPlan =
             data.find(
               (plan) =>
-                String(plan.id) === String(id)
+                String(plan.id) ===
+                String(id)
             );
 
           if (selectedPlan) {
 
-            startEdit(selectedPlan);
+            startEdit(
+              selectedPlan
+            );
 
           }
 
@@ -216,7 +250,10 @@ async function loadPlans() {
     });
 
 
+  // ==========================
   // 수정 이력 버튼
+  // ==========================
+
   document
     .querySelectorAll(".history-button")
     .forEach((button) => {
@@ -238,7 +275,7 @@ async function loadPlans() {
 
 
 // ==============================
-// 계획 저장 / 수정
+// Plan — 저장 / 수정
 // ==============================
 
 form.addEventListener(
@@ -273,9 +310,7 @@ form.addEventListener(
     };
 
 
-    // ==========================
     // 필수값 확인
-    // ==========================
 
     if (
       !planData.plan_name ||
@@ -290,7 +325,6 @@ form.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -315,7 +349,6 @@ form.addEventListener(
         );
 
         return;
-
       }
 
 
@@ -326,18 +359,20 @@ form.addEventListener(
 
       form.reset();
 
-      loadPlans();
+      await loadPlans();
 
       return;
-
     }
 
 
     // ==========================
-    // 수정 전 기존 계획 가져오기
+    // 기존 계획 가져오기
     // ==========================
 
-    const { data: oldPlan, error: oldPlanError } =
+    const {
+      data: oldPlan,
+      error: oldPlanError
+    } =
       await supabaseClient
         .from("plans")
         .select("*")
@@ -350,14 +385,15 @@ form.addEventListener(
 
     if (oldPlanError) {
 
-      console.error(oldPlanError);
+      console.error(
+        oldPlanError
+      );
 
       alert(
         "기존 계획을 불러오지 못했습니다."
       );
 
       return;
-
     }
 
 
@@ -391,22 +427,27 @@ form.addEventListener(
     };
 
 
-    const { error: historyError } =
+    const {
+      error: historyError
+    } =
       await supabaseClient
         .from("plan_history")
-        .insert([historyData]);
+        .insert([
+          historyData
+        ]);
 
 
     if (historyError) {
 
-      console.error(historyError);
+      console.error(
+        historyError
+      );
 
       alert(
         "수정 이력 저장에 실패했습니다."
       );
 
       return;
-
     }
 
 
@@ -414,7 +455,9 @@ form.addEventListener(
     // 현재 계획 수정
     // ==========================
 
-    const { error: updateError } =
+    const {
+      error: updateError
+    } =
       await supabaseClient
         .from("plans")
         .update(planData)
@@ -426,19 +469,38 @@ form.addEventListener(
 
     if (updateError) {
 
-       console.error("UPDATE ERROR:", updateError);
-      console.error("message:", updateError.message);
-      console.error("details:", updateError.details);
-      console.error("hint:", updateError.hint);
-      console.error("code:", updateError.code);
+      console.error(
+        "UPDATE ERROR:",
+        updateError
+      );
+
+      console.error(
+        "message:",
+        updateError.message
+      );
+
+      console.error(
+        "details:",
+        updateError.details
+      );
+
+      console.error(
+        "hint:",
+        updateError.hint
+      );
+
+      console.error(
+        "code:",
+        updateError.code
+      );
+
 
       alert(
         "계획 수정에 실패했습니다.\n\n" +
         updateError.message
       );
 
-  return;
-
+      return;
     }
 
 
@@ -447,31 +509,27 @@ form.addEventListener(
     );
 
 
-    // 수정 모드 종료
     editingPlanId = null;
 
     submitButton.textContent =
       "계획 저장";
 
-
     form.reset();
 
-
-    loadPlans();
+    await loadPlans();
 
   }
 );
 
 
 // ==============================
-// 수정 시작
+// 계획 수정 시작
 // ==============================
 
 function startEdit(plan) {
 
   editingPlanId =
     plan.id;
-
 
   planNameInput.value =
     plan.plan_name;
@@ -514,7 +572,10 @@ async function loadHistory(planId) {
     "수정 이력을 불러오는 중입니다...";
 
 
-  const { data, error } =
+  const {
+    data,
+    error
+  } =
     await supabaseClient
       .from("plan_history")
       .select("*")
@@ -541,7 +602,6 @@ async function loadHistory(planId) {
     `;
 
     return;
-
   }
 
 
@@ -554,7 +614,6 @@ async function loadHistory(planId) {
     `;
 
     return;
-
   }
 
 
@@ -629,11 +688,12 @@ async function loadHistory(planId) {
 // 날짜 표시
 // ==============================
 
-function formatDate(dateString) {
+function formatDate(
+  dateString
+) {
 
   const date =
     new Date(dateString);
-
 
   return date.toLocaleString(
     "ko-KR"
@@ -657,262 +717,502 @@ function escapeHTML(text) {
   return div.innerHTML;
 
 }
-// ================================
-// Card 2 — 할 일 관리
-// ================================
 
-const taskForm = document.getElementById("taskForm");
-const taskPlanId = document.getElementById("taskPlanId");
-const taskList = document.getElementById("taskList");
-const taskSearch = document.getElementById("taskSearch");
+
+// ==================================================
+// Card 2 — Do / 할 일 관리
+// ==================================================
+
+const taskForm =
+  document.getElementById(
+    "taskForm"
+  );
+
+const taskPlanId =
+  document.getElementById(
+    "taskPlanId"
+  );
+
+const taskList =
+  document.getElementById(
+    "taskList"
+  );
+
+const taskSearch =
+  document.getElementById(
+    "taskSearch"
+  );
+
 
 let editingTaskId = null;
 
-// 계획 목록을 할 일의 "연결할 계획" 선택창에 표시
+
+// ==============================
+// 계획 목록을 선택창에 표시
+// ==============================
+
 async function loadTaskPlans() {
 
-  const { data, error } = await supabaseClient
-    .from("plans")
-    .select("id, plan_name")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("계획 불러오기 오류:", error);
-    return;
-  }
-
-  taskPlanId.innerHTML = `
-    <option value="">계획을 선택하세요</option>
-  `;
-
-  data.forEach(plan => {
-
-    taskPlanId.innerHTML += `
-      <option value="${plan.id}">
-        ${escapeHTML(plan.plan_name)}
-      </option>
-    `;
-
-  });
-}
-
-
-// 할 일 추가
-taskForm.addEventListener("submit", async (e) => {
-
-  e.preventDefault();
-
-  const taskName =
-    document.getElementById("taskName").value.trim();
-
-  const planId =
-    taskPlanId.value;
-
-  const dueDate =
-    document.getElementById("taskDueDate").value || null;
-
-  const priority =
-    document.getElementById("taskPriority").value;
-
-  const tag =
-    document.getElementById("taskTag").value.trim() || null;
-
-  const estimatedHours =
-    Number(
-      document.getElementById("taskEstimatedHours").value
-    ) || 0;
-
-
-  if (!taskName || !planId) {
-
-    alert("할 일과 계획을 입력해주세요.");
-
-    return;
-  }
-
-
- let error;
-
-const taskData = {
-  plan_id: Number(planId),
-  task_name: taskName,
-  due_date: dueDate,
-  priority: priority,
-  tag: tag,
-  estimated_hours: estimatedHours
-};
-
-
-// ================================
-// 새 할 일 추가
-// ================================
-
-if (!editingTaskId) {
-
-  const result = await supabaseClient
-    .from("tasks")
-    .insert(taskData);
-
-  error = result.error;
-
-}
-
-
-// ================================
-// 기존 할 일 수정
-// ================================
-
-else {
-
-  const result = await supabaseClient
-    .from("tasks")
-    .update(taskData)
-    .eq("id", editingTaskId);
-
-  error = result.error;
-
-}
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("plans")
+      .select(
+        "id, plan_name"
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
 
 
   if (error) {
 
-    console.error("TASK INSERT ERROR:", error);
-
-    alert(
-      "할 일 추가에 실패했습니다.\n\n" +
-      error.message
+    console.error(
+      "계획 불러오기 오류:",
+      error
     );
 
     return;
   }
 
-if (editingTaskId) {
 
-  alert("할 일이 수정되었습니다!");
+  taskPlanId.innerHTML = `
+    <option value="">
+      계획을 선택하세요
+    </option>
+  `;
 
-} else {
 
-  alert("할 일이 추가되었습니다!");
+  data.forEach(
+    (plan) => {
+
+      taskPlanId.innerHTML += `
+        <option value="${plan.id}">
+          ${escapeHTML(
+            plan.plan_name
+          )}
+        </option>
+      `;
+
+    }
+  );
 
 }
 
 
-// 수정 모드 종료
-editingTaskId = null;
+// ==============================
+// 할 일 추가 / 수정
+// ==============================
+
+taskForm.addEventListener(
+  "submit",
+  async (e) => {
+
+    e.preventDefault();
 
 
-// 입력창 초기화
-taskForm.reset();
+    const taskName =
+      document
+        .getElementById(
+          "taskName"
+        )
+        .value
+        .trim();
 
 
-// 버튼 원래대로
-taskForm.querySelector('button[type="submit"]').textContent =
-  "할 일 추가";
+    const planId =
+      taskPlanId.value;
 
 
-// 목록 다시 불러오기
-await loadTasks();
+    const dueDate =
+      document
+        .getElementById(
+          "taskDueDate"
+        )
+        .value ||
+      null;
 
-});
+
+    const priority =
+      document
+        .getElementById(
+          "taskPriority"
+        )
+        .value;
 
 
+    const tag =
+      document
+        .getElementById(
+          "taskTag"
+        )
+        .value
+        .trim() ||
+      null;
+
+
+    const estimatedHours =
+      Number(
+        document
+          .getElementById(
+            "taskEstimatedHours"
+          )
+          .value
+      ) || 0;
+
+
+    if (
+      !taskName ||
+      !planId
+    ) {
+
+      alert(
+        "할 일과 계획을 입력해주세요."
+      );
+
+      return;
+    }
+
+
+    const taskData = {
+
+      plan_id:
+        Number(planId),
+
+      task_name:
+        taskName,
+
+      due_date:
+        dueDate,
+
+      priority:
+        priority,
+
+      tag:
+        tag,
+
+      estimated_hours:
+        estimatedHours
+
+    };
+
+
+    let error;
+
+
+    // ==========================
+    // 새 할 일 추가
+    // ==========================
+
+    if (!editingTaskId) {
+
+      const result =
+        await supabaseClient
+          .from("tasks")
+          .insert(
+            taskData
+          );
+
+      error =
+        result.error;
+
+    }
+
+
+    // ==========================
+    // 기존 할 일 수정
+    // ==========================
+
+    else {
+
+      const result =
+        await supabaseClient
+          .from("tasks")
+          .update(
+            taskData
+          )
+          .eq(
+            "id",
+            editingTaskId
+          );
+
+      error =
+        result.error;
+
+    }
+
+
+    if (error) {
+
+      console.error(
+        "TASK ERROR:",
+        error
+      );
+
+
+      if (editingTaskId) {
+
+        alert(
+          "할 일 수정에 실패했습니다.\n\n" +
+          error.message
+        );
+
+      } else {
+
+        alert(
+          "할 일 추가에 실패했습니다.\n\n" +
+          error.message
+        );
+
+      }
+
+      return;
+    }
+
+
+    if (editingTaskId) {
+
+      alert(
+        "할 일이 수정되었습니다!"
+      );
+
+    } else {
+
+      alert(
+        "할 일이 추가되었습니다!"
+      );
+
+    }
+
+
+    editingTaskId = null;
+
+
+    taskForm.reset();
+
+
+    taskForm
+      .querySelector(
+        'button[type="submit"]'
+      )
+      .textContent =
+      "할 일 추가";
+
+
+    await loadTasks();
+
+  }
+);
+
+
+// ==============================
 // 할 일 목록 불러오기
-async function loadTasks() {
-  const searchText =
-    taskSearch.value.trim().toLowerCase();
+// ==============================
 
-  const { data, error } = await supabaseClient
-    .from("tasks")
-    .select("*")
-    .order("created_at", { ascending: false });
+async function loadTasks() {
+
+  const searchText =
+    taskSearch
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
 
   if (error) {
-    console.error("TASK SELECT ERROR:", error);
+
+    console.error(
+      "TASK SELECT ERROR:",
+      error
+    );
+
     return;
   }
 
-  const filteredTasks = data.filter(task =>
-    task.task_name
-      .toLowerCase()
-      .includes(searchText)
-  );
+
+  // ==========================
+  // C18 검색
+  // ==========================
+
+  const filteredTasks =
+    data.filter(
+      (task) =>
+        task.task_name
+          .toLowerCase()
+          .includes(
+            searchText
+          )
+    );
+
 
   taskList.innerHTML = "";
 
-  filteredTasks.forEach(task => {
 
-  taskList.innerHTML += `
+  if (
+    filteredTasks.length === 0
+  ) {
 
-    <div>
-
-      <strong>
-        ${escapeHTML(task.task_name)}
-      </strong>
-
+    taskList.innerHTML = `
       <p>
-        마감일:
-        ${task.due_date || "없음"}
-
-        <br>
-
-        우선순위:
-        ${escapeHTML(task.priority || "보통")}
-
-        <br>
-
-        태그:
-        ${escapeHTML(task.tag || "없음")}
-
-        <br>
-
-        예상 시간:
-        ${task.estimated_hours || 0}시간
+        검색 결과가 없습니다.
       </p>
+    `;
 
-      <button onclick="startTaskEdit(${task.id})">
-        수정
-      </button>
-      <button onclick="toggleTaskComplete(${task.id}, ${task.is_completed})">
-    ${task.is_completed ? "진행 중으로 변경" : "완료"}
-    </button>
-<button onclick="deleteTask(${task.id})">
-  삭제
-</button>
-    </div>
+    return;
+  }
 
-    <hr>
 
-  `;
+  filteredTasks.forEach(
+    (task) => {
 
-});
+      taskList.innerHTML += `
+
+        <div>
+
+          <strong>
+            ${escapeHTML(
+              task.task_name
+            )}
+          </strong>
+
+          <p>
+
+            마감일:
+            ${task.due_date || "없음"}
+
+            <br>
+
+            우선순위:
+            ${escapeHTML(
+              task.priority ||
+              "보통"
+            )}
+
+            <br>
+
+            태그:
+            ${escapeHTML(
+              task.tag ||
+              "없음"
+            )}
+
+            <br>
+
+            예상 시간:
+            ${task.estimated_hours || 0}시간
+
+            <br>
+
+            상태:
+            ${
+              task.is_completed
+                ? "완료"
+                : "진행 중"
+            }
+
+          </p>
+
+
+          <button
+            onclick="startTaskEdit(${task.id})"
+          >
+            수정
+          </button>
+
+
+          <button
+            onclick="toggleTaskComplete(
+              ${task.id},
+              ${task.is_completed}
+            )"
+          >
+            ${
+              task.is_completed
+                ? "진행 중으로 변경"
+                : "완료"
+            }
+          </button>
+
+
+          <button
+            onclick="deleteTask(${task.id})"
+          >
+            삭제
+          </button>
+
+        </div>
+
+        <hr>
+
+      `;
+
+    }
+  );
 
 }
 
 
-// 페이지가 열리면 실행
-loadTaskPlans();
+// ==============================
+// 검색어 입력 즉시 검색
+// ==============================
 
-loadTasks();
+taskSearch.addEventListener(
+  "input",
+  () => {
 
-taskSearch.addEventListener("input", () => {
-  loadTasks();
-});
+    loadTasks();
 
-// ================================
-// Card 2 — 할 일 수정
-// ================================
+  }
+);
 
-async function startTaskEdit(taskId) {
 
-  // 수정할 할 일 가져오기
-  const { data: task, error } = await supabaseClient
-    .from("tasks")
-    .select("*")
-    .eq("id", taskId)
-    .single();
+// ==============================
+// 할 일 수정
+// ==============================
+
+async function startTaskEdit(
+  taskId
+) {
+
+  const {
+    data: task,
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq(
+        "id",
+        taskId
+      )
+      .single();
+
 
   if (error) {
-    console.error("TASK LOAD ERROR:", error);
+
+    console.error(
+      "TASK LOAD ERROR:",
+      error
+    );
 
     alert(
       "할 일을 불러오지 못했습니다.\n\n" +
@@ -923,87 +1223,180 @@ async function startTaskEdit(taskId) {
   }
 
 
-  // 기존 값을 입력창에 넣기
-  document.getElementById("taskName").value =
+  document.getElementById(
+    "taskName"
+  ).value =
     task.task_name || "";
 
-  document.getElementById("taskPlanId").value =
+
+  document.getElementById(
+    "taskPlanId"
+  ).value =
     task.plan_id || "";
 
-  document.getElementById("taskDueDate").value =
+
+  document.getElementById(
+    "taskDueDate"
+  ).value =
     task.due_date || "";
 
-  document.getElementById("taskPriority").value =
-    task.priority || "보통";
 
-  document.getElementById("taskTag").value =
+  document.getElementById(
+    "taskPriority"
+  ).value =
+    task.priority ||
+    "보통";
+
+
+  document.getElementById(
+    "taskTag"
+  ).value =
     task.tag || "";
 
-  document.getElementById("taskEstimatedHours").value =
-    task.estimated_hours || 0;
+
+  document.getElementById(
+    "taskEstimatedHours"
+  ).value =
+    task.estimated_hours ||
+    0;
 
 
-  // 수정 중인 task ID 저장
-  editingTaskId = taskId;
+  editingTaskId =
+    taskId;
 
 
-  // 버튼 글자를 수정 저장으로 변경
-  taskForm.querySelector('button[type="submit"]').textContent =
+  taskForm
+    .querySelector(
+      'button[type="submit"]'
+    )
+    .textContent =
     "할 일 수정 저장";
 
 
-  // 화면 위쪽의 할 일 입력창으로 이동
   taskForm.scrollIntoView({
     behavior: "smooth"
   });
 
 }
 
-window.startTaskEdit = startTaskEdit;
-async function toggleTaskComplete(taskId, currentStatus) {
-  const { error } = await supabaseClient
-    .from("tasks")
-    .update({
-      is_completed: !currentStatus
-    })
-    .eq("id", taskId);
+
+window.startTaskEdit =
+  startTaskEdit;
+
+
+// ==============================
+// 완료 / 진행 중 변경
+// ==============================
+
+async function toggleTaskComplete(
+  taskId,
+  currentStatus
+) {
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        is_completed:
+          !currentStatus
+      })
+      .eq(
+        "id",
+        taskId
+      );
+
 
   if (error) {
-    console.error("TASK COMPLETE ERROR:", error);
+
+    console.error(
+      "TASK COMPLETE ERROR:",
+      error
+    );
+
     alert(
       "완료 상태 변경에 실패했습니다.\n\n" +
       error.message
     );
+
     return;
   }
+
 
   await loadTasks();
+
 }
 
-window.toggleTaskComplete = toggleTaskComplete;
 
-async function deleteTask(taskId) {
-  if (!confirm("이 할 일을 삭제하시겠습니까?")) {
+window.toggleTaskComplete =
+  toggleTaskComplete;
+
+
+// ==============================
+// 할 일 삭제
+// ==============================
+
+async function deleteTask(
+  taskId
+) {
+
+  if (
+    !confirm(
+      "이 할 일을 삭제하시겠습니까?"
+    )
+  ) {
+
     return;
   }
 
-  const { error } = await supabaseClient
-    .from("tasks")
-    .delete()
-    .eq("id", taskId);
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .delete()
+      .eq(
+        "id",
+        taskId
+      );
+
 
   if (error) {
-    console.error("TASK DELETE ERROR:", error);
+
+    console.error(
+      "TASK DELETE ERROR:",
+      error
+    );
+
     alert(
       "할 일 삭제에 실패했습니다.\n\n" +
       error.message
     );
+
     return;
   }
 
-  alert("할 일이 삭제되었습니다.");
+
+  alert(
+    "할 일이 삭제되었습니다."
+  );
+
 
   await loadTasks();
+
 }
 
-window.deleteTask = deleteTask;
+
+window.deleteTask =
+  deleteTask;
+
+
+// ==============================
+// 페이지 처음 열었을 때 실행
+// ==============================
+
+loadTaskPlans();
+
+loadTasks();
