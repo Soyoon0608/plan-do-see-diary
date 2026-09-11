@@ -586,3 +586,22 @@ small {
   font-size: 14px;
   font-weight: 600;
 }
+/* ==================================================
+   Card 5 — 데이터 내보내기
+================================================== */
+
+.export-section {
+  margin-top: 24px;
+}
+
+.export-section p {
+  color: #667085;
+  font-size: 14px;
+}
+
+#exportResult {
+  margin-top: 14px;
+  color: #49614e;
+  font-size: 13px;
+  font-weight: 600;
+}
