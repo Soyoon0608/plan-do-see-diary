@@ -2244,16 +2244,171 @@ showTaskExecutions;
 
 // ==================================================
 // See — 돌아보기
+// Card 4
 // ==================================================
 
 const reviewSummary =
-document.getElementById(
-  "reviewSummary"
-);
+  document.getElementById(
+    "reviewSummary"
+  );
+
+const reviewEvidence =
+  document.getElementById(
+    "reviewEvidence"
+  );
+
+const reviewPlanFilter =
+  document.getElementById(
+    "reviewPlanFilter"
+  );
+
+const reviewStartDate =
+  document.getElementById(
+    "reviewStartDate"
+  );
+
+const reviewEndDate =
+  document.getElementById(
+    "reviewEndDate"
+  );
+
+const reviewLoadButton =
+  document.getElementById(
+    "reviewLoadButton"
+  );
+
+const nextActionInput =
+  document.getElementById(
+    "nextActionInput"
+  );
+
+const nextPlanSelect =
+  document.getElementById(
+    "nextPlanSelect"
+  );
+
+const saveNextActionButton =
+  document.getElementById(
+    "saveNextActionButton"
+  );
+
+const nextActionResult =
+  document.getElementById(
+    "nextActionResult"
+  );
 
 
 // ==================================================
-// 완료 수 집계
+// 서울 기준 오늘 날짜
+// ==================================================
+
+function getSeoulToday() {
+
+  return new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone: "Asia/Seoul"
+    }
+  ).format(
+    new Date()
+  );
+
+}
+
+
+// ==================================================
+// 돌아보기 날짜 기본값
+// ==================================================
+
+function setReviewDefaultDates() {
+
+  const today =
+    getSeoulToday();
+
+  reviewStartDate.value =
+    today;
+
+  reviewEndDate.value =
+    today;
+
+}
+
+
+// ==================================================
+// 돌아보기 계획 선택창
+// ==================================================
+
+async function loadReviewPlanOptions() {
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("plans")
+      .select(
+        "id, plan_name, start_date, end_date"
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
+  if (error) {
+
+    console.error(
+      "REVIEW PLAN SELECT ERROR:",
+      error
+    );
+
+    return;
+
+  }
+
+
+  reviewPlanFilter.innerHTML = `
+    <option value="">
+      전체 계획
+    </option>
+  `;
+
+
+  nextPlanSelect.innerHTML = `
+    <option value="">
+      다음 계획을 선택하세요
+    </option>
+  `;
+
+
+  data.forEach(
+    (plan) => {
+
+      const option = `
+        <option value="${plan.id}">
+          ${escapeHTML(
+            plan.plan_name
+          )}
+        </option>
+      `;
+
+
+      reviewPlanFilter.innerHTML +=
+        option;
+
+
+      nextPlanSelect.innerHTML +=
+        option;
+
+    }
+  );
+
+}
+
+
+// ==================================================
+// 돌아보기 집계
 // ==================================================
 
 async function loadReviewSummary() {
@@ -2262,109 +2417,449 @@ async function loadReviewSummary() {
     "돌아보기 정보를 불러오는 중입니다...";
 
 
-  // 완료 기록만 조회
-  const {
-    data: completionRecords,
-    error: completionError
-  } =
-    await supabaseClient
-      .from("execution_records")
-      .select("id, task_id")
-      .eq(
-        "is_completion_record",
-        true
+  reviewEvidence.innerHTML =
+    "집계 숫자를 클릭하면 해당 기록이 표시됩니다.";
+
+
+  const selectedPlanId =
+    reviewPlanFilter.value;
+
+
+  const startDate =
+    reviewStartDate.value;
+
+
+  const endDate =
+    reviewEndDate.value;
+
+
+  if (
+    startDate &&
+    endDate &&
+    startDate > endDate
+  ) {
+
+    reviewSummary.innerHTML =
+      "시작일은 종료일보다 늦을 수 없습니다.";
+
+    return;
+
+  }
+
+
+  // ==================================================
+  // 할 일 조회
+  // ==================================================
+
+  let taskQuery =
+    supabaseClient
+      .from("tasks")
+      .select(`
+        *,
+        plans (
+          id,
+          plan_name
+        )
+      `);
+
+
+  if (selectedPlanId) {
+
+    taskQuery =
+      taskQuery.eq(
+        "plan_id",
+        Number(
+          selectedPlanId
+        )
       );
 
+  }
 
-  if (completionError) {
+
+  const {
+    data: tasks,
+    error: taskError
+  } =
+    await taskQuery;
+
+
+  if (taskError) {
 
     console.error(
-      "REVIEW COMPLETION SELECT ERROR:",
-      completionError
+      "REVIEW TASK SELECT ERROR:",
+      taskError
     );
 
     reviewSummary.innerHTML =
-      "완료 현황을 불러오지 못했습니다.";
+      "돌아보기 할 일을 불러오지 못했습니다.";
 
     return;
 
   }
 
 
-  // 전체 완료 수
-  const completionCount =
-    completionRecords
-      ? completionRecords.length
-      : 0;
+  // ==================================================
+  // 기간 필터
+  // ==================================================
+
+  const filteredTasks =
+    (tasks || []).filter(
+      (task) => {
+
+        // 삭제된 데이터는 현재 tasks에 없으므로
+        // 존재하는 task만 대상으로 함
+
+        if (
+          startDate &&
+          task.due_date &&
+          task.due_date < startDate
+        ) {
+
+          return false;
+
+        }
 
 
-  // 실제 실행 기록 수
-  const {
-    data: executionRecords,
-    error: executionError
-  } =
-    await supabaseClient
-      .from("execution_records")
-      .select("id")
-      .eq(
-        "is_completion_record",
-        false
-      );
+        if (
+          endDate &&
+          task.due_date &&
+          task.due_date > endDate
+        ) {
+
+          return false;
+
+        }
 
 
-  if (executionError) {
+        return true;
 
-    console.error(
-      "REVIEW EXECUTION SELECT ERROR:",
-      executionError
+      }
     );
 
-    reviewSummary.innerHTML = `
 
-      <p>
-        완료한 할 일:
-        <strong>
-          ${completionCount}개
-        </strong>
-      </p>
+  // ==================================================
+  // 계획 수
+  // = 대상 계획에 딸린 현재 task 수
+  // ==================================================
 
-      <p>
-        실행 기록:
-        불러오지 못했습니다.
-      </p>
+  const planCount =
+    filteredTasks.length;
 
-    `;
 
-    return;
+  // ==================================================
+  // 완료 수
+  // ==================================================
+
+  const completedTasks =
+    filteredTasks.filter(
+      (task) =>
+        task.is_completed === true
+    );
+
+
+  const completedCount =
+    completedTasks.length;
+
+
+  // ==================================================
+  // 지연 수
+  //
+  // 완료되지 않았고
+  // 서울 기준 오늘보다 마감일이 이전인 task
+  // ==================================================
+
+  const today =
+    getSeoulToday();
+
+
+  const delayedTasks =
+    filteredTasks.filter(
+      (task) => {
+
+        if (
+          task.is_completed
+        ) {
+
+          return false;
+
+        }
+
+
+        if (
+          !task.due_date
+        ) {
+
+          return false;
+
+        }
+
+
+        return (
+          task.due_date <
+          today
+        );
+
+      }
+    );
+
+
+  const delayedCount =
+    delayedTasks.length;
+
+
+  // ==================================================
+  // 실행 기록 조회
+  // ==================================================
+
+  const taskIds =
+    filteredTasks.map(
+      (task) =>
+        task.id
+    );
+
+
+  let executionRecords =
+    [];
+
+
+  if (
+    taskIds.length > 0
+  ) {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("execution_records")
+        .select(`
+          *,
+          tasks (
+            id,
+            task_name,
+            plan_id,
+            estimated_hours,
+            due_date,
+            is_completed
+          )
+        `)
+        .in(
+          "task_id",
+          taskIds
+        )
+        .eq(
+          "is_completion_record",
+          false
+        );
+
+
+    if (error) {
+
+      console.error(
+        "REVIEW EXECUTION SELECT ERROR:",
+        error
+      );
+
+      reviewSummary.innerHTML =
+        "실행 기록을 불러오지 못했습니다.";
+
+      return;
+
+    }
+
+
+    executionRecords =
+      data || [];
 
   }
 
 
-  const executionCount =
-    executionRecords
-      ? executionRecords.length
-      : 0;
+  // ==================================================
+  // 막힘 수
+  //
+  // 막힌 이유가 하나라도 있는 task를
+  // 한 번만 계산
+  // ==================================================
 
+  const blockedTaskIds =
+    new Set();
+
+
+  executionRecords.forEach(
+    (record) => {
+
+      if (
+        record.blocked_reason &&
+        record.blocked_reason.trim()
+      ) {
+
+        blockedTaskIds.add(
+          record.task_id
+        );
+
+      }
+
+    }
+  );
+
+
+  const blockedTasks =
+    filteredTasks.filter(
+      (task) =>
+        blockedTaskIds.has(
+          task.id
+        )
+    );
+
+
+  const blockedCount =
+    blockedTasks.length;
+
+
+  // ==================================================
+  // 예상 시간
+  // ==================================================
+
+  const estimatedHours =
+    filteredTasks.reduce(
+      (
+        total,
+        task
+      ) =>
+        total +
+        Number(
+          task.estimated_hours || 0
+        ),
+      0
+    );
+
+
+  // ==================================================
+  // 실제 시간
+  //
+  // 실행 기록 actual_minutes 합계
+  // 분 → 시간
+  // ==================================================
+
+  const actualMinutesTotal =
+    executionRecords.reduce(
+      (
+        total,
+        record
+      ) =>
+        total +
+        Number(
+          record.actual_minutes || 0
+        ),
+      0
+    );
+
+
+  const actualHours =
+    actualMinutesTotal /
+    60;
+
+
+  // ==================================================
+  // 예상 대비 실제 차이
+  // ==================================================
+
+  const differenceHours =
+    actualHours -
+    estimatedHours;
+
+
+  // ==================================================
+  // 숫자 표시
+  // ==================================================
 
   reviewSummary.innerHTML = `
 
     <div>
 
       <h3>
-        오늘의 돌아보기
+        돌아보기 결과
       </h3>
 
       <p>
-        완료한 할 일:
+        기간:
+        ${startDate || "전체"}
+        ~
+        ${endDate || "전체"}
+      </p>
+
+      <p>
+        계획 수:
+        <button
+          type="button"
+          onclick="showReviewEvidence('plan')"
+        >
+          <strong>
+            ${planCount}개
+          </strong>
+        </button>
+      </p>
+
+      <p>
+        완료 수:
+        <button
+          type="button"
+          onclick="showReviewEvidence('completed')"
+        >
+          <strong>
+            ${completedCount}개
+          </strong>
+        </button>
+      </p>
+
+      <p>
+        지연 수:
+        <button
+          type="button"
+          onclick="showReviewEvidence('delayed')"
+        >
+          <strong>
+            ${delayedCount}개
+          </strong>
+        </button>
+      </p>
+
+      <p>
+        막힘 수:
+        <button
+          type="button"
+          onclick="showReviewEvidence('blocked')"
+        >
+          <strong>
+            ${blockedCount}개
+          </strong>
+        </button>
+      </p>
+
+      <hr>
+
+      <p>
+        예상 시간:
         <strong>
-          ${completionCount}개
+          ${estimatedHours.toFixed(1)}시간
         </strong>
       </p>
 
       <p>
-        실제 실행 기록:
+        실제 시간:
         <strong>
-          ${executionCount}개
+          ${actualHours.toFixed(1)}시간
+        </strong>
+      </p>
+
+      <p>
+        차이:
+        <strong>
+          ${
+            differenceHours >= 0
+              ? "+"
+              : ""
+          }${differenceHours.toFixed(1)}시간
         </strong>
       </p>
 
@@ -2372,7 +2867,328 @@ async function loadReviewSummary() {
 
   `;
 
+
+  // ==================================================
+  // 현재 집계 데이터를 저장
+  // 숫자 클릭 시 사용
+  // ==================================================
+
+  window.currentReviewData = {
+
+    tasks:
+      filteredTasks,
+
+    completedTasks,
+
+    delayedTasks,
+
+    blockedTasks,
+
+    executionRecords
+
+  };
+
 }
+
+
+// ==================================================
+// 숫자 클릭 → 근거 기록
+// T06-C83
+// ==================================================
+
+async function showReviewEvidence(
+  type
+) {
+
+  const data =
+    window.currentReviewData;
+
+
+  if (!data) {
+
+    reviewEvidence.innerHTML =
+      "먼저 돌아보기를 불러와 주세요.";
+
+    return;
+
+  }
+
+
+  let title =
+    "";
+
+  let tasks =
+    [];
+
+
+  if (
+    type === "plan"
+  ) {
+
+    title =
+      "대상 할 일";
+
+    tasks =
+      data.tasks;
+
+  }
+
+
+  if (
+    type === "completed"
+  ) {
+
+    title =
+      "완료한 할 일";
+
+    tasks =
+      data.completedTasks;
+
+  }
+
+
+  if (
+    type === "delayed"
+  ) {
+
+    title =
+      "지연된 할 일";
+
+    tasks =
+      data.delayedTasks;
+
+  }
+
+
+  if (
+    type === "blocked"
+  ) {
+
+    title =
+      "막힌 할 일";
+
+    tasks =
+      data.blockedTasks;
+
+  }
+
+
+  if (
+    !tasks ||
+    tasks.length === 0
+  ) {
+
+    reviewEvidence.innerHTML = `
+
+      <h4>
+        ${title}
+      </h4>
+
+      <p>
+        해당 기록이 없습니다.
+      </p>
+
+    `;
+
+    reviewEvidence.scrollIntoView({
+      behavior: "smooth"
+    });
+
+    return;
+
+  }
+
+
+  reviewEvidence.innerHTML = `
+
+    <h4>
+      ${title}
+    </h4>
+
+  `;
+
+
+  tasks.forEach(
+    (task) => {
+
+      const executionCount =
+        data.executionRecords.filter(
+          (record) =>
+            record.task_id ===
+            task.id
+        ).length;
+
+
+      reviewEvidence.innerHTML += `
+
+        <div>
+
+          <h4>
+            ${escapeHTML(
+              task.task_name
+            )}
+          </h4>
+
+          <p>
+            계획:
+            ${escapeHTML(
+              task.plans?.plan_name ||
+              "계획 없음"
+            )}
+          </p>
+
+          <p>
+            마감일:
+            ${task.due_date || "없음"}
+          </p>
+
+          <p>
+            예상 시간:
+            ${Number(
+              task.estimated_hours || 0
+            ).toFixed(1)}시간
+          </p>
+
+          <p>
+            상태:
+            ${
+              task.is_completed
+                ? "완료"
+                : "진행 중"
+            }
+          </p>
+
+          <p>
+            실행 기록:
+            ${executionCount}건
+          </p>
+
+          <button
+            type="button"
+            onclick="showTaskExecutions(${task.id})"
+          >
+            이 할 일의 실행 기록 보기
+          </button>
+
+          <hr>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+
+  reviewEvidence.scrollIntoView({
+    behavior: "smooth"
+  });
+
+}
+
+
+window.showReviewEvidence =
+  showReviewEvidence;
+
+
+// ==================================================
+// 다음 계획에 고칠 점 저장
+// T06-C33
+// ==================================================
+
+saveNextActionButton.addEventListener(
+  "click",
+  async () => {
+
+    const action =
+      nextActionInput
+        .value
+        .trim();
+
+
+    const nextPlanId =
+      nextPlanSelect.value;
+
+
+    if (!action) {
+
+      alert(
+        "고칠 점을 한 줄 입력해주세요."
+      );
+
+      return;
+
+    }
+
+
+    if (!nextPlanId) {
+
+      alert(
+        "고칠 점을 반영할 다음 계획을 선택해주세요."
+      );
+
+      return;
+
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("plans")
+        .update({
+          next_action:
+            action
+        })
+        .eq(
+          "id",
+          Number(
+            nextPlanId
+          )
+        );
+
+
+    if (error) {
+
+      console.error(
+        "NEXT ACTION UPDATE ERROR:",
+        error
+      );
+
+      alert(
+        "다음 계획에 반영하지 못했습니다.\n\n" +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    nextActionResult.innerHTML = `
+
+      <p>
+        ✅ 다음 계획에 반영했습니다.
+      </p>
+
+      <p>
+        <strong>
+          ${escapeHTML(
+            action
+          )}
+        </strong>
+      </p>
+
+    `;
+
+
+    nextActionInput.value = "";
+
+    await loadPlans();
+
+  }
+);
 
 
 // ==================================================
@@ -2380,6 +3196,8 @@ async function loadReviewSummary() {
 // ==================================================
 
 async function initializePage() {
+
+  setReviewDefaultDates();
 
   await loadPlans();
 
@@ -2390,6 +3208,8 @@ async function initializePage() {
   await loadExecutionTaskOptions();
 
   await loadExecutionRecords();
+
+  await loadReviewPlanOptions();
 
   await loadReviewSummary();
 
