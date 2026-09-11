@@ -426,13 +426,18 @@ form.addEventListener(
 
     if (updateError) {
 
-      console.error(updateError);
+       console.error("UPDATE ERROR:", updateError);
+      console.error("message:", updateError.message);
+      console.error("details:", updateError.details);
+      console.error("hint:", updateError.hint);
+      console.error("code:", updateError.code);
 
       alert(
-        "계획 수정에 실패했습니다."
+        "계획 수정에 실패했습니다.\n\n" +
+        updateError.message
       );
 
-      return;
+  return;
 
     }
 
