@@ -1,70 +1,672 @@
+```css
+/* ==================================================
+   Plan · Do · See Diary
+   전체 디자인
+================================================== */
+
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  padding: 40px 20px;
-  font-family: Arial, sans-serif;
-  background: #f5f7fb;
-  color: #222;
+  padding: 0;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Noto Sans KR",
+    sans-serif;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f6f8fc 0%,
+      #eef2f7 100%
+    );
+
+  color: #1f2937;
+  line-height: 1.6;
 }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
+
+/* ==================================================
+   전체 컨테이너
+================================================== */
+
+body > * {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
+
+/* ==================================================
+   제목
+================================================== */
 
 h1 {
+  margin-top: 50px;
   margin-bottom: 10px;
+
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1px;
+
+  color: #111827;
 }
 
-.notice {
-  padding: 15px;
-  background: #fff3cd;
-  border-radius: 8px;
-  margin-bottom: 30px;
+h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+
+  color: #111827;
 }
 
-.card {
-  background: white;
-  padding: 25px;
-  margin-bottom: 25px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+
+  font-size: 19px;
+  font-weight: 700;
+
+  color: #1f2937;
 }
+
+h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  color: #374151;
+}
+
+p {
+  margin: 7px 0;
+  color: #4b5563;
+}
+
+
+/* ==================================================
+   상단 설명
+================================================== */
+
+header,
+body > p:first-of-type {
+  color: #6b7280;
+}
+
+
+/* ==================================================
+   Section
+================================================== */
+
+section {
+  margin-top: 28px;
+  margin-bottom: 28px;
+
+  padding: 28px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+
+/* ==================================================
+   Plan / Do / See 제목 강조
+================================================== */
+
+section > h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+section > h2::before {
+  content: "";
+
+  display: inline-block;
+
+  width: 6px;
+  height: 24px;
+
+  border-radius: 999px;
+
+  background: #6366f1;
+}
+
+
+/* ==================================================
+   입력 폼
+================================================== */
+
+form {
+  display: grid;
+  gap: 14px;
+
+  margin-top: 18px;
+}
+
+
+/* label */
 
 label {
   display: block;
-  margin-bottom: 7px;
-  font-weight: bold;
+
+  margin-bottom: 5px;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  color: #374151;
 }
+
+
+/* input / select / textarea */
 
 input,
 select,
 textarea {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+
+  padding: 12px 14px;
+
+  font-family: inherit;
   font-size: 15px;
+
+  color: #1f2937;
+
+  background: #ffffff;
+
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 textarea {
-  min-height: 100px;
+  min-height: 110px;
   resize: vertical;
 }
 
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.12);
+
+  background: #fcfcff;
+}
+
+
+/* ==================================================
+   버튼
+================================================== */
+
 button {
-  padding: 11px 18px;
+  padding: 10px 15px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+
+  color: #ffffff;
+
+  background: #4f46e5;
+
   border: none;
-  border-radius: 6px;
-  background: #333;
-  color: white;
+  border-radius: 9px;
+
   cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
 button:hover {
-  opacity: 0.85;
+  background: #4338ca;
+
+  box-shadow:
+    0 5px 12px rgba(79, 70, 229, 0.22);
+
+  transform: translateY(-1px);
 }
+
+button:active {
+  transform: translateY(0);
+}
+
+
+/* ==================================================
+   폼의 저장 버튼
+================================================== */
+
+form button[type="submit"] {
+  width: fit-content;
+
+  min-width: 120px;
+
+  margin-top: 5px;
+
+  padding: 12px 20px;
+
+  font-size: 15px;
+
+  background: #4f46e5;
+}
+
+
+/* ==================================================
+   목록 카드
+================================================== */
+
+#planList,
+#taskList,
+#executionList,
+#historyList,
+#reviewEvidence {
+  margin-top: 18px;
+}
+
+
+/* JS가 생성하는 div 카드 */
+
+#planList > div,
+#taskList > div,
+#executionList > div,
+#historyList > div,
+#reviewEvidence > div {
+  margin-bottom: 14px;
+  padding: 20px;
+
+  background: #f9fafb;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+#planList > div:hover,
+#taskList > div:hover,
+#executionList > div:hover,
+#historyList > div:hover,
+#reviewEvidence > div:hover {
+  border-color: #c7d2fe;
+
+  box-shadow:
+    0 6px 18px rgba(15, 23, 42, 0.06);
+
+  transform: translateY(-1px);
+}
+
+
+/* ==================================================
+   카드 내부 버튼
+================================================== */
+
+#planList button,
+#taskList button,
+#executionList button,
+#reviewEvidence button {
+  margin-top: 10px;
+  margin-right: 6px;
+}
+
+
+/* ==================================================
+   수정 버튼
+================================================== */
+
+.edit-plan-button,
+#taskList button:first-of-type {
+  background: #6366f1;
+}
+
+
+/* ==================================================
+   삭제 버튼
+================================================== */
+
+#taskList button:nth-of-type(3) {
+  background: #ef4444;
+}
+
+#taskList button:nth-of-type(3):hover {
+  background: #dc2626;
+
+  box-shadow:
+    0 5px 12px rgba(239, 68, 68, 0.2);
+}
+
+
+/* ==================================================
+   실행 기록 보기
+================================================== */
+
+#taskList button:last-of-type,
+#reviewEvidence button {
+  background: #0f766e;
+}
+
+#taskList button:last-of-type:hover,
+#reviewEvidence button:hover {
+  background: #0d9488;
+}
+
+
+/* ==================================================
+   필터 영역
+================================================== */
+
+#taskSearch,
+#taskPlanFilter,
+#taskStatusFilter,
+#taskPriorityFilter,
+#taskSort {
+  margin-bottom: 8px;
+}
+
+
+/* ==================================================
+   계획 목록 정보
+================================================== */
+
+#planList h3 {
+  color: #3730a3;
+}
+
+#planList p {
+  margin: 5px 0;
+}
+
+
+/* 다음에 고칠 점 */
+
+#planList p:has(+ button) {
+  color: #374151;
+}
+
+
+/* ==================================================
+   실행 기록
+================================================== */
+
+#executionList h3 {
+  color: #0f766e;
+}
+
+
+/* ==================================================
+   돌아보기 영역
+================================================== */
+
+#reviewSummary {
+  margin-top: 18px;
+  padding: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff,
+      #f5f3ff
+    );
+
+  border: 1px solid #c7d2fe;
+  border-radius: 16px;
+}
+
+#reviewSummary h3 {
+  color: #3730a3;
+}
+
+
+/* ==================================================
+   돌아보기 숫자 버튼
+================================================== */
+
+#reviewSummary button {
+  margin-left: 5px;
+  padding: 3px 9px;
+
+  color: #4338ca;
+
+  background: #ffffff;
+
+  border: 1px solid #c7d2fe;
+  border-radius: 7px;
+
+  box-shadow: none;
+}
+
+#reviewSummary button:hover {
+  background: #eef2ff;
+
+  box-shadow:
+    0 3px 8px rgba(79, 70, 229, 0.12);
+}
+
+#reviewSummary button strong {
+  font-size: 16px;
+}
+
+
+/* ==================================================
+   예상 / 실제 / 차이
+================================================== */
+
+#reviewSummary hr {
+  margin: 20px 0;
+
+  border: 0;
+  border-top: 1px solid #dbe2ea;
+}
+
+#reviewSummary p {
+  font-size: 15px;
+}
+
+#reviewSummary p strong {
+  color: #111827;
+  font-size: 16px;
+}
+
+
+/* ==================================================
+   돌아보기 근거
+================================================== */
+
+#reviewEvidence {
+  margin-top: 20px;
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+}
+
+#reviewEvidence > h4 {
+  color: #3730a3;
+}
+
+
+/* ==================================================
+   다음 계획 개선사항
+================================================== */
+
+#nextActionInput {
+  margin-top: 10px;
+}
+
+#nextPlanSelect {
+  margin-top: 8px;
+}
+
+#saveNextActionButton {
+  margin-top: 10px;
+
+  background: #059669;
+}
+
+#saveNextActionButton:hover {
+  background: #047857;
+
+  box-shadow:
+    0 5px 12px rgba(5, 150, 105, 0.2);
+}
+
+#nextActionResult {
+  margin-top: 15px;
+  padding: 14px 16px;
+
+  background: #ecfdf5;
+
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+
+  color: #065f46;
+}
+
+
+/* ==================================================
+   구분선
+================================================== */
+
+hr {
+  margin: 25px 0;
+
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+
+/* ==================================================
+   빈 데이터 메시지
+================================================== */
+
+#planList:empty,
+#taskList:empty,
+#executionList:empty {
+  color: #9ca3af;
+}
+
+
+/* ==================================================
+   상단 여백
+================================================== */
+
+body {
+  padding: 0 20px 60px;
+}
+
+
+/* ==================================================
+   카드 내부 상태 표시
+================================================== */
+
+#taskList p {
+  font-size: 14px;
+}
+
+#taskList p:nth-of-type(5) {
+  font-weight: 700;
+}
+
+
+/* ==================================================
+   모바일
+================================================== */
+
+@media (max-width: 700px) {
+
+  body {
+    padding:
+      0 12px 40px;
+  }
+
+  h1 {
+    margin-top: 28px;
+
+    font-size: 27px;
+  }
+
+  h2 {
+    font-size: 21px;
+  }
+
+  section {
+    padding: 20px 16px;
+
+    border-radius: 14px;
+  }
+
+  #planList > div,
+  #taskList > div,
+  #executionList > div,
+  #historyList > div,
+  #reviewEvidence > div {
+    padding: 16px;
+  }
+
+  button {
+    padding: 9px 12px;
+  }
+
+}
+
+
+/* ==================================================
+   아주 작은 화면
+================================================== */
+
+@media (max-width: 430px) {
+
+  body {
+    padding:
+      0 9px 30px;
+  }
+
+  section {
+    padding: 17px 13px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 13px;
+  }
+
+}
+```
