@@ -42,7 +42,7 @@ return date.toLocaleString(
 }
 
 // ==================================================
-// Plan
+// Plan — 계획 세우기
 // ==================================================
 
 const planForm =
@@ -85,10 +85,11 @@ planForm.querySelector(
 'button[type="submit"]'
 );
 
-let editingPlanId = null;
+let editingPlanId =
+null;
 
 // ==================================================
-// 계획 목록 생성
+// 계획 목록 영역 생성
 // ==================================================
 
 const planListSection =
@@ -98,13 +99,13 @@ document.createElement(
 
 planListSection.innerHTML = `
 
-  <hr>
-
   <h2>내 계획</h2>
 
   <div id="planList">
     계획을 불러오는 중입니다...
   </div>
+
+  <hr>
 `;
 
 planForm.insertAdjacentElement(
@@ -128,13 +129,13 @@ document.createElement(
 
 historySection.innerHTML = `
 
-  <hr>
-
   <h2>수정 이력</h2>
 
   <div id="historyList">
     계획의 수정 이력을 선택하면 표시됩니다.
   </div>
+
+  <hr>
 `;
 
 planListSection.insertAdjacentElement(
@@ -172,7 +173,7 @@ ascending: false
 
 if (error) {
 
-```
+
 console.error(
   "PLAN SELECT ERROR:",
   error
@@ -182,7 +183,6 @@ planList.innerHTML =
   "계획을 불러오지 못했습니다.";
 
 return;
-```
 
 }
 
@@ -191,21 +191,19 @@ if (
 data.length === 0
 ) {
 
-```
 planList.innerHTML =
   "아직 저장된 계획이 없습니다.";
 
 return;
-```
 
 }
 
-planList.innerHTML = "";
+planList.innerHTML =
+"";
 
 data.forEach(
 (plan) => {
 
-```
   const item =
     document.createElement(
       "div"
@@ -247,6 +245,7 @@ data.forEach(
     </p>
 
     <button
+      type="button"
       class="edit-plan-button"
       data-id="${plan.id}"
     >
@@ -254,6 +253,7 @@ data.forEach(
     </button>
 
     <button
+      type="button"
       class="history-plan-button"
       data-id="${plan.id}"
     >
@@ -270,7 +270,6 @@ data.forEach(
   );
 
 }
-```
 
 );
 
@@ -281,30 +280,20 @@ document
 .forEach(
 (button) => {
 
-```
+
     button.addEventListener(
       "click",
       () => {
 
-        const id =
-          button.dataset.id;
-
-
         const selectedPlan =
           data.find(
             (plan) =>
-              String(
-                plan.id
-              ) ===
-              String(
-                id
-              )
+              String(plan.id) ===
+              String(button.dataset.id)
           );
 
 
-        if (
-          selectedPlan
-        ) {
+        if (selectedPlan) {
 
           startPlanEdit(
             selectedPlan
@@ -317,7 +306,6 @@ document
 
   }
 );
-```
 
 document
 .querySelectorAll(
@@ -326,7 +314,6 @@ document
 .forEach(
 (button) => {
 
-```
     button.addEventListener(
       "click",
       () => {
@@ -340,7 +327,6 @@ document
 
   }
 );
-```
 
 }
 
@@ -352,38 +338,30 @@ planForm.addEventListener(
 "submit",
 async (event) => {
 
-```
+
 event.preventDefault();
 
 
 const planData = {
 
   plan_name:
-    planNameInput
-      .value
-      .trim(),
+    planNameInput.value.trim(),
 
   start_date:
-    startDateInput
-      .value,
+    startDateInput.value,
 
   end_date:
-    endDateInput
-      .value,
+    endDateInput.value,
 
   priority:
-    priorityInput
-      .value,
+    priorityInput.value,
 
   success_criteria:
-    successCriteriaInput
-      .value
-      .trim(),
+    successCriteriaInput.value.trim(),
 
   estimated_hours:
     Number(
-      estimatedHoursInput
-        .value
+      estimatedHoursInput.value
     )
 
 };
@@ -406,11 +384,9 @@ if (
 }
 
 
-// 새 계획
+// 새 계획 저장
 
-if (
-  !editingPlanId
-) {
+if (!editingPlanId) {
 
   const {
     error
@@ -425,11 +401,13 @@ if (
   if (error) {
 
     console.error(
+      "PLAN INSERT ERROR:",
       error
     );
 
     alert(
-      "계획 저장에 실패했습니다."
+      "계획 저장에 실패했습니다.\n\n" +
+      error.message
     );
 
     return;
@@ -444,7 +422,6 @@ if (
 
   planForm.reset();
 
-
   await loadPlans();
 
   await loadTaskPlans();
@@ -454,7 +431,7 @@ if (
 }
 
 
-// 기존 계획 가져오기
+// 기존 계획 불러오기
 
 const {
   data: oldPlan,
@@ -470,11 +447,10 @@ const {
     .single();
 
 
-if (
-  oldPlanError
-) {
+if (oldPlanError) {
 
   console.error(
+    "PLAN LOAD ERROR:",
     oldPlanError
   );
 
@@ -487,7 +463,7 @@ if (
 }
 
 
-// 수정 이력 저장
+// 수정 전 데이터를 이력에 저장
 
 const {
   error: historyError
@@ -520,16 +496,16 @@ const {
     ]);
 
 
-if (
-  historyError
-) {
+if (historyError) {
 
   console.error(
+    "HISTORY INSERT ERROR:",
     historyError
   );
 
   alert(
-    "수정 이력 저장에 실패했습니다."
+    "수정 이력 저장에 실패했습니다.\n\n" +
+    historyError.message
   );
 
   return;
@@ -537,7 +513,7 @@ if (
 }
 
 
-// 계획 수정
+// 현재 계획 수정
 
 const {
   error: updateError
@@ -553,16 +529,16 @@ const {
     );
 
 
-if (
-  updateError
-) {
+if (updateError) {
 
   console.error(
+    "PLAN UPDATE ERROR:",
     updateError
   );
 
   alert(
-    "계획 수정에 실패했습니다."
+    "계획 수정에 실패했습니다.\n\n" +
+    updateError.message
   );
 
   return;
@@ -575,7 +551,8 @@ alert(
 );
 
 
-editingPlanId = null;
+editingPlanId =
+  null;
 
 
 planSubmitButton.textContent =
@@ -588,7 +565,7 @@ planForm.reset();
 await loadPlans();
 
 await loadTaskPlans();
-```
+
 
 }
 );
@@ -631,12 +608,10 @@ behavior: "smooth"
 }
 
 // ==================================================
-// 수정 이력
+// 수정 이력 불러오기
 // ==================================================
 
-async function loadHistory(
-planId
-) {
+async function loadHistory(planId) {
 
 historyList.innerHTML =
 "수정 이력을 불러오는 중입니다...";
@@ -646,9 +621,7 @@ data,
 error
 } =
 await supabaseClient
-.from(
-"plan_history"
-)
+.from("plan_history")
 .select("*")
 .eq(
 "plan_id",
@@ -661,12 +634,11 @@ ascending: false
 }
 );
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
+  "HISTORY SELECT ERROR:",
   error
 );
 
@@ -674,7 +646,7 @@ historyList.innerHTML =
   "수정 이력을 불러오지 못했습니다.";
 
 return;
-```
+
 
 }
 
@@ -683,30 +655,31 @@ if (
 data.length === 0
 ) {
 
-```
+
 historyList.innerHTML =
   "아직 수정 이력이 없습니다.";
 
 return;
-```
+
 
 }
 
-historyList.innerHTML = "";
+historyList.innerHTML =
+"";
 
 data.forEach(
 (history) => {
 
-```
+
   historyList.innerHTML += `
 
     <div>
 
-      <strong>
+      <h3>
         ${escapeHTML(
           history.plan_name
         )}
-      </strong>
+      </h3>
 
       <p>
         기간:
@@ -748,7 +721,6 @@ data.forEach(
   `;
 
 }
-```
 
 );
 
@@ -802,7 +774,7 @@ let editingTaskId =
 null;
 
 // ==================================================
-// 계획 목록을 Task 선택창에 표시
+// 계획 목록을 할 일 선택창에 표시
 // ==================================================
 
 async function loadTaskPlans() {
@@ -823,17 +795,16 @@ ascending: false
 }
 );
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
+  "TASK PLAN SELECT ERROR:",
   error
 );
 
 return;
-```
+
 
 }
 
@@ -848,7 +819,7 @@ taskPlanFilter.innerHTML = `     <option value="">
 data.forEach(
 (plan) => {
 
-```
+
   const option = `
     <option value="${plan.id}">
       ${escapeHTML(
@@ -866,7 +837,6 @@ data.forEach(
     option;
 
 }
-```
 
 );
 
@@ -880,7 +850,7 @@ taskForm.addEventListener(
 "submit",
 async (event) => {
 
-```
+
 event.preventDefault();
 
 
@@ -952,9 +922,7 @@ if (
 let error;
 
 
-if (
-  !editingTaskId
-) {
+if (!editingTaskId) {
 
   const result =
     await supabaseClient
@@ -987,11 +955,10 @@ if (
 }
 
 
-if (
-  error
-) {
+if (error) {
 
   console.error(
+    "TASK SAVE ERROR:",
     error
   );
 
@@ -1003,6 +970,13 @@ if (
   return;
 
 }
+
+
+alert(
+  editingTaskId
+    ? "할 일이 수정되었습니다!"
+    : "할 일이 추가되었습니다!"
+);
 
 
 editingTaskId =
@@ -1023,13 +997,12 @@ taskForm
 await loadTasks();
 
 await loadExecutionTaskOptions();
-```
 
 }
 );
 
 // ==================================================
-// 할 일 불러오기
+// 할 일 목록 불러오기
 // ==================================================
 
 async function loadTasks() {
@@ -1060,17 +1033,19 @@ await supabaseClient
 .from("tasks")
 .select("*");
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
+  "TASK SELECT ERROR:",
   error
 );
 
+taskList.innerHTML =
+  "할 일을 불러오지 못했습니다.";
+
 return;
-```
+
 
 }
 
@@ -1078,7 +1053,7 @@ const filteredTasks =
 data.filter(
 (task) => {
 
-```
+
     const matchesSearch =
       task.task_name
         .toLowerCase()
@@ -1089,12 +1064,8 @@ data.filter(
 
     const matchesPlan =
       !selectedPlanId ||
-      String(
-        task.plan_id
-      ) ===
-      String(
-        selectedPlanId
-      );
+      String(task.plan_id) ===
+      String(selectedPlanId);
 
 
     const taskStatus =
@@ -1124,37 +1095,28 @@ data.filter(
 
   }
 );
-```
 
-// 최근 추가순
 
 if (
 selectedSort ===
 "created_desc"
 ) {
 
-```
+
 filteredTasks.sort(
   (a, b) =>
-    new Date(
-      b.created_at
-    ) -
-    new Date(
-      a.created_at
-    )
+    new Date(b.created_at) -
+    new Date(a.created_at)
 );
-```
 
 }
-
-// 마감일 빠른 순
 
 if (
 selectedSort ===
 "due_asc"
 ) {
 
-```
+
 filteredTasks.sort(
   (a, b) => {
 
@@ -1172,18 +1134,16 @@ filteredTasks.sort(
 
   }
 );
-```
+
 
 }
-
-// 우선순위
 
 if (
 selectedSort ===
 "priority_desc"
 ) {
 
-```
+
 const priorityOrder = {
 
   "높음": 3,
@@ -1195,25 +1155,19 @@ const priorityOrder = {
 
 filteredTasks.sort(
   (a, b) =>
-    priorityOrder[
-      b.priority
-    ] -
-    priorityOrder[
-      a.priority
-    ]
+    (priorityOrder[b.priority] || 0) -
+    (priorityOrder[a.priority] || 0)
 );
-```
+
 
 }
-
-// 예상 시간 적은 순
 
 if (
 selectedSort ===
 "hours_asc"
 ) {
 
-```
+
 filteredTasks.sort(
   (a, b) =>
     Number(
@@ -1223,18 +1177,16 @@ filteredTasks.sort(
       b.estimated_hours || 0
     )
 );
-```
+
 
 }
-
-// 예상 시간 많은 순
 
 if (
 selectedSort ===
 "hours_desc"
 ) {
 
-```
+
 filteredTasks.sort(
   (a, b) =>
     Number(
@@ -1244,7 +1196,7 @@ filteredTasks.sort(
       a.estimated_hours || 0
     )
 );
-```
+
 
 }
 
@@ -1255,19 +1207,19 @@ if (
 filteredTasks.length === 0
 ) {
 
-```
+
 taskList.innerHTML =
   "<p>검색 또는 필터 결과가 없습니다.</p>";
 
 return;
-```
+
 
 }
 
 filteredTasks.forEach(
 (task) => {
 
-```
+
   taskList.innerHTML += `
 
     <div>
@@ -1311,15 +1263,15 @@ filteredTasks.forEach(
         }
       </p>
 
-
       <button
+        type="button"
         onclick="startTaskEdit(${task.id})"
       >
         수정
       </button>
 
-
       <button
+        type="button"
         onclick="toggleTaskComplete(${task.id})"
       >
         ${
@@ -1329,20 +1281,19 @@ filteredTasks.forEach(
         }
       </button>
 
-
       <button
+        type="button"
         onclick="deleteTask(${task.id})"
       >
         삭제
       </button>
 
-
       <button
+        type="button"
         onclick="showTaskExecutions(${task.id})"
       >
         실행 기록 보기
       </button>
-
 
       <hr>
 
@@ -1351,7 +1302,7 @@ filteredTasks.forEach(
   `;
 
 }
-```
+
 
 );
 
@@ -1407,17 +1358,20 @@ taskId
 )
 .single();
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
+  "TASK LOAD ERROR:",
   error
 );
 
+alert(
+  "할 일을 불러오지 못했습니다."
+);
+
 return;
-```
+
 
 }
 
@@ -1436,8 +1390,7 @@ document
 "taskDueDate"
 )
 .value =
-task.due_date ||
-"";
+task.due_date || "";
 
 document
 .getElementById(
@@ -1451,16 +1404,14 @@ document
 "taskTag"
 )
 .value =
-task.tag ||
-"";
+task.tag || "";
 
 document
 .getElementById(
 "taskEstimatedHours"
 )
 .value =
-task.estimated_hours ||
-0;
+task.estimated_hours || 0;
 
 editingTaskId =
 taskId;
@@ -1482,7 +1433,8 @@ window.startTaskEdit =
 startTaskEdit;
 
 // ==================================================
-// 완료 처리 + 중복 완료 기록 방지
+// 완료 처리
+// 중복 클릭으로 완료 기록이 여러 번 생성되는 것 방지
 // ==================================================
 
 let completingTaskIds =
@@ -1492,18 +1444,12 @@ async function toggleTaskComplete(
 taskId
 ) {
 
-// 연속 클릭 방지
-
 if (
 completingTaskIds.has(
 taskId
 )
 ) {
-
-```
 return;
-```
-
 }
 
 completingTaskIds.add(
@@ -1512,7 +1458,7 @@ taskId
 
 try {
 
-```
+
 const {
   data: task,
   error: taskError
@@ -1529,25 +1475,14 @@ const {
     .single();
 
 
-if (
-  taskError
-) {
-
+if (taskError) {
   throw taskError;
-
 }
 
 
-// ==================================================
 // 진행 중 → 완료
-// ==================================================
 
-if (
-  !task.is_completed
-) {
-
-  // 먼저 완료 상태 변경
-  // 조건까지 걸어서 중복 완료 방지
+if (!task.is_completed) {
 
   const {
     data: updatedTasks,
@@ -1570,17 +1505,13 @@ if (
       .select();
 
 
-  if (
-    updateError
-  ) {
-
+  if (updateError) {
     throw updateError;
-
   }
 
 
-  // 이미 다른 클릭이 완료했다면
-  // 완료 기록 추가하지 않음
+  // 이미 다른 요청에서 완료했다면
+  // 완료 기록을 추가하지 않음
 
   if (
     !updatedTasks ||
@@ -1597,13 +1528,11 @@ if (
   // 기존 완료 기록 확인
 
   const {
-    data: existingRecord,
+    data: existingRecords,
     error: recordCheckError
   } =
     await supabaseClient
-      .from(
-        "execution_records"
-      )
+      .from("execution_records")
       .select(
         "id"
       )
@@ -1620,20 +1549,16 @@ if (
       );
 
 
-  if (
-    recordCheckError
-  ) {
-
+  if (recordCheckError) {
     throw recordCheckError;
-
   }
 
 
   // 완료 기록이 없을 때만 생성
 
   if (
-    !existingRecord ||
-    existingRecord.length === 0
+    !existingRecords ||
+    existingRecords.length === 0
   ) {
 
     const now =
@@ -1645,9 +1570,7 @@ if (
       error: insertError
     } =
       await supabaseClient
-        .from(
-          "execution_records"
-        )
+        .from("execution_records")
         .insert([
           {
             task_id:
@@ -1671,12 +1594,8 @@ if (
         ]);
 
 
-    if (
-      insertError
-    ) {
-
+    if (insertError) {
       throw insertError;
-
     }
 
   }
@@ -1689,9 +1608,7 @@ if (
 }
 
 
-// ==================================================
 // 완료 → 진행 중
-// ==================================================
 
 else {
 
@@ -1710,12 +1627,8 @@ else {
       );
 
 
-  if (
-    error
-  ) {
-
+  if (error) {
     throw error;
-
   }
 
 
@@ -1729,13 +1642,11 @@ else {
 await loadTasks();
 
 await loadExecutionRecords();
-```
 
-} catch (
-error
-) {
 
-```
+} catch (error) {
+
+
 console.error(
   "COMPLETE ERROR:",
   error
@@ -1746,15 +1657,15 @@ alert(
   "완료 상태 변경에 실패했습니다.\n\n" +
   error.message
 );
-```
+
 
 } finally {
 
-```
+
 completingTaskIds.delete(
   taskId
 );
-```
+
 
 }
 
@@ -1776,11 +1687,7 @@ if (
 "이 할 일을 삭제하시겠습니까?"
 )
 ) {
-
-```
 return;
-```
-
 }
 
 const {
@@ -1794,21 +1701,21 @@ await supabaseClient
 taskId
 );
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
+  "TASK DELETE ERROR:",
   error
 );
 
 alert(
-  "삭제에 실패했습니다."
+  "삭제에 실패했습니다.\n\n" +
+  error.message
 );
 
 return;
-```
+
 
 }
 
@@ -1886,17 +1793,15 @@ ascending: false
 }
 );
 
-if (
-error
-) {
+if (error) {
 
-```
 console.error(
+  "EXECUTION TASK SELECT ERROR:",
   error
 );
 
 return;
-```
+
 
 }
 
@@ -1907,7 +1812,7 @@ executionTaskId.innerHTML = `     <option value="">
 data.forEach(
 (task) => {
 
-```
+
   executionTaskId.innerHTML += `
 
     <option value="${task.id}">
@@ -1919,7 +1824,7 @@ data.forEach(
   `;
 
 }
-```
+
 
 );
 
@@ -1933,7 +1838,7 @@ executionForm.addEventListener(
 "submit",
 async (event) => {
 
-```
+
 event.preventDefault();
 
 
@@ -2030,23 +1935,17 @@ const {
   error
 } =
   await supabaseClient
-    .from(
-      "execution_records"
-    )
+    .from("execution_records")
     .insert([
       {
         task_id:
-          Number(
-            taskId
-          ),
+          Number(taskId),
 
         started_at:
-          startDate
-            .toISOString(),
+          startDate.toISOString(),
 
         ended_at:
-          endDate
-            .toISOString(),
+          endDate.toISOString(),
 
         actual_minutes:
           finalMinutes,
@@ -2060,9 +1959,7 @@ const {
     ]);
 
 
-if (
-  error
-) {
+if (error) {
 
   console.error(
     "EXECUTION INSERT ERROR:",
@@ -2088,7 +1985,7 @@ executionForm.reset();
 
 
 await loadExecutionRecords();
-```
+
 
 }
 );
@@ -2107,9 +2004,7 @@ data,
 error
 } =
 await supabaseClient
-.from(
-"execution_records"
-)
+.from("execution_records")
 .select(`         *,
         tasks (
           task_name
@@ -2122,11 +2017,9 @@ ascending: false
 }
 );
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
   "EXECUTION SELECT ERROR:",
   error
@@ -2136,7 +2029,7 @@ executionList.innerHTML =
   "실행 기록을 불러오지 못했습니다.";
 
 return;
-```
+
 
 }
 
@@ -2145,12 +2038,12 @@ if (
 data.length === 0
 ) {
 
-```
+
 executionList.innerHTML =
   "아직 실행 기록이 없습니다.";
 
 return;
-```
+
 
 }
 
@@ -2160,7 +2053,7 @@ executionList.innerHTML =
 data.forEach(
 (record) => {
 
-```
+
   const typeText =
     record.is_completion_record
       ? "완료 기록"
@@ -2172,20 +2065,16 @@ data.forEach(
     <div>
 
       <h3>
-        ${
-          escapeHTML(
-            record.tasks?.task_name ||
-            "삭제된 할 일"
-          )
-        }
+        ${escapeHTML(
+          record.tasks?.task_name ||
+          "삭제된 할 일"
+        )}
       </h3>
-
 
       <p>
         기록 종류:
         ${typeText}
       </p>
-
 
       <p>
         시작 시각:
@@ -2194,7 +2083,6 @@ data.forEach(
         )}
       </p>
 
-
       <p>
         끝난 시각:
         ${formatDate(
@@ -2202,23 +2090,18 @@ data.forEach(
         )}
       </p>
 
-
       <p>
         실제 걸린 시간:
         ${record.actual_minutes || 0}분
       </p>
 
-
       <p>
         막혔던 이유:
-        ${
-          escapeHTML(
-            record.blocked_reason ||
-            "없음"
-          )
-        }
+        ${escapeHTML(
+          record.blocked_reason ||
+          "없음"
+        )}
       </p>
-
 
       <hr>
 
@@ -2227,7 +2110,7 @@ data.forEach(
   `;
 
 }
-```
+
 
 );
 
@@ -2246,9 +2129,7 @@ data,
 error
 } =
 await supabaseClient
-.from(
-"execution_records"
-)
+.from("execution_records")
 .select("*")
 .eq(
 "task_id",
@@ -2261,12 +2142,11 @@ ascending: false
 }
 );
 
-if (
-error
-) {
+if (error) {
 
-```
+
 console.error(
+  "TASK EXECUTION SELECT ERROR:",
   error
 );
 
@@ -2275,7 +2155,7 @@ alert(
 );
 
 return;
-```
+
 
 }
 
@@ -2284,13 +2164,13 @@ if (
 data.length === 0
 ) {
 
-```
+
 alert(
   "이 할 일에는 아직 실행 기록이 없습니다."
 );
 
 return;
-```
+
 
 }
 
@@ -2300,10 +2180,21 @@ executionList.innerHTML =
 data.forEach(
 (record) => {
 
-```
+
+  const typeText =
+    record.is_completion_record
+      ? "완료 기록"
+      : "실행 기록";
+
+
   executionList.innerHTML += `
 
     <div>
+
+      <p>
+        기록 종류:
+        ${typeText}
+      </p>
 
       <p>
         시작:
@@ -2326,12 +2217,10 @@ data.forEach(
 
       <p>
         막힌 이유:
-        ${
-          escapeHTML(
-            record.blocked_reason ||
-            "없음"
-          )
-        }
+        ${escapeHTML(
+          record.blocked_reason ||
+          "없음"
+        )}
       </p>
 
       <hr>
@@ -2341,15 +2230,10 @@ data.forEach(
   `;
 
 }
-```
 
 );
 
-document
-.getElementById(
-"executionList"
-)
-.scrollIntoView({
+executionList.scrollIntoView({
 behavior: "smooth"
 });
 
