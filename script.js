@@ -243,6 +243,18 @@ data.forEach(
       예상 시간:
       ${plan.estimated_hours}시간
     </p>
+    ${
+  plan.next_action
+    ? `
+      <p>
+        다음에 고칠 점:
+        ${escapeHTML(
+          plan.next_action
+        )}
+      </p>
+    `
+    : ""
+}
 
     <button
       type="button"
