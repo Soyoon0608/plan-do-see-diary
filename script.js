@@ -868,6 +868,9 @@ data.forEach(task => {
       <button onclick="startTaskEdit(${task.id})">
         수정
       </button>
+      <button onclick="toggleTaskComplete(${task.id}, ${task.is_completed})">
+    ${task.is_completed ? "진행 중으로 변경" : "완료"}
+    </button>
 
     </div>
 
@@ -947,3 +950,24 @@ async function startTaskEdit(taskId) {
 }
 
 window.startTaskEdit = startTaskEdit;
+async function toggleTaskComplete(taskId, currentStatus) {
+  const { error } = await supabaseClient
+    .from("tasks")
+    .update({
+      is_completed: !currentStatus
+    })
+    .eq("id", taskId);
+
+  if (error) {
+    console.error("TASK COMPLETE ERROR:", error);
+    alert(
+      "완료 상태 변경에 실패했습니다.\n\n" +
+      error.message
+    );
+    return;
+  }
+
+  await loadTasks();
+}
+
+window.toggleTaskComplete = toggleTaskComplete;
