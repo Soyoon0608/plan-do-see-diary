@@ -1,14 +1,14 @@
 const SUPABASE_URL =
-"https://ptrsztelwuwrbounfpod.supabase.co";
+  "https://ptrsztelwuwrbounfpod.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_I1wduW_WYOxku9iIx6GhEA_10TGX4Dh";
+  "sb_publishable_I1wduW_WYOxku9iIx6GhEA_10TGX4Dh";
 
 const supabaseClient =
-supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
 // ==================================================
@@ -16,31 +16,20 @@ SUPABASE_KEY
 // ==================================================
 
 function escapeHTML(text) {
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    text ?? "";
-
+  const div = document.createElement("div");
+  div.textContent = text ?? "";
   return div.innerHTML;
-
 }
 
 
 function formatDate(dateString) {
-
   if (!dateString) {
     return "없음";
   }
 
-  const date =
-    new Date(dateString);
+  const date = new Date(dateString);
 
-  return date.toLocaleString(
-    "ko-KR"
-  );
-
+  return date.toLocaleString("ko-KR");
 }
 
 
@@ -49,47 +38,32 @@ function formatDate(dateString) {
 // ==================================================
 
 const planForm =
-document.getElementById(
-  "planForm"
-);
+  document.getElementById("planForm");
 
 const planNameInput =
-document.getElementById(
-  "planName"
-);
+  document.getElementById("planName");
 
 const startDateInput =
-document.getElementById(
-  "startDate"
-);
+  document.getElementById("startDate");
 
 const endDateInput =
-document.getElementById(
-  "endDate"
-);
+  document.getElementById("endDate");
 
 const priorityInput =
-document.getElementById(
-  "priority"
-);
+  document.getElementById("priority");
 
 const successCriteriaInput =
-document.getElementById(
-  "successCriteria"
-);
+  document.getElementById("successCriteria");
 
 const estimatedHoursInput =
-document.getElementById(
-  "estimatedHours"
-);
+  document.getElementById("estimatedHours");
 
 const planSubmitButton =
-planForm.querySelector(
-  'button[type="submit"]'
-);
+  planForm.querySelector(
+    'button[type="submit"]'
+  );
 
-let editingPlanId =
-null;
+let editingPlanId = null;
 
 
 // ==================================================
@@ -97,9 +71,7 @@ null;
 // ==================================================
 
 const planListSection =
-document.createElement(
-  "section"
-);
+  document.createElement("section");
 
 planListSection.innerHTML = `
 
@@ -118,9 +90,7 @@ planForm.insertAdjacentElement(
 );
 
 const planList =
-document.getElementById(
-  "planList"
-);
+  document.getElementById("planList");
 
 
 // ==================================================
@@ -128,9 +98,7 @@ document.getElementById(
 // ==================================================
 
 const historySection =
-document.createElement(
-  "section"
-);
+  document.createElement("section");
 
 historySection.innerHTML = `
 
@@ -149,9 +117,7 @@ planListSection.insertAdjacentElement(
 );
 
 const historyList =
-document.getElementById(
-  "historyList"
-);
+  document.getElementById("historyList");
 
 
 // ==================================================
@@ -201,16 +167,13 @@ async function loadPlans() {
     return;
   }
 
-  planList.innerHTML =
-    "";
+  planList.innerHTML = "";
 
   data.forEach(
     (plan) => {
 
       const item =
-        document.createElement(
-          "div"
-        );
+        document.createElement("div");
 
       item.innerHTML = `
 
@@ -279,9 +242,7 @@ async function loadPlans() {
 
       `;
 
-      planList.appendChild(
-        item
-      );
+      planList.appendChild(item);
 
     }
   );
@@ -561,8 +522,7 @@ planForm.addEventListener(
       "계획이 수정되었습니다!"
     );
 
-    editingPlanId =
-      null;
+    editingPlanId = null;
 
     planSubmitButton.textContent =
       "계획 저장";
@@ -736,47 +696,30 @@ async function loadHistory(planId) {
 // ==================================================
 
 const taskForm =
-document.getElementById(
-  "taskForm"
-);
+  document.getElementById("taskForm");
 
 const taskPlanId =
-document.getElementById(
-  "taskPlanId"
-);
+  document.getElementById("taskPlanId");
 
 const taskList =
-document.getElementById(
-  "taskList"
-);
+  document.getElementById("taskList");
 
 const taskSearch =
-document.getElementById(
-  "taskSearch"
-);
+  document.getElementById("taskSearch");
 
 const taskPlanFilter =
-document.getElementById(
-  "taskPlanFilter"
-);
+  document.getElementById("taskPlanFilter");
 
 const taskStatusFilter =
-document.getElementById(
-  "taskStatusFilter"
-);
+  document.getElementById("taskStatusFilter");
 
 const taskPriorityFilter =
-document.getElementById(
-  "taskPriorityFilter"
-);
+  document.getElementById("taskPriorityFilter");
 
 const taskSort =
-document.getElementById(
-  "taskSort"
-);
+  document.getElementById("taskSort");
 
-let editingTaskId =
-null;
+let editingTaskId = null;
 
 
 // ==================================================
@@ -1438,7 +1381,7 @@ async function startTaskEdit(
 
 
 window.startTaskEdit =
-startTaskEdit;
+  startTaskEdit;
 
 
 // ==================================================
@@ -1447,7 +1390,7 @@ startTaskEdit;
 // ==================================================
 
 let completingTaskIds =
-new Set();
+  new Set();
 
 
 async function toggleTaskComplete(
@@ -1522,9 +1465,6 @@ async function toggleTaskComplete(
         throw updateError;
       }
 
-
-      // 이미 다른 요청에서 완료했다면
-      // 완료 기록을 추가하지 않음
 
       if (
         !updatedTasks ||
@@ -1685,7 +1625,7 @@ async function toggleTaskComplete(
 
 
 window.toggleTaskComplete =
-toggleTaskComplete;
+  toggleTaskComplete;
 
 
 // ==================================================
@@ -1751,7 +1691,7 @@ async function deleteTask(
 
 
 window.deleteTask =
-deleteTask;
+  deleteTask;
 
 
 // ==================================================
@@ -1759,39 +1699,39 @@ deleteTask;
 // ==================================================
 
 const executionForm =
-document.getElementById(
-  "executionForm"
-);
+  document.getElementById(
+    "executionForm"
+  );
 
 const executionTaskId =
-document.getElementById(
-  "executionTaskId"
-);
+  document.getElementById(
+    "executionTaskId"
+  );
 
 const startedAt =
-document.getElementById(
-  "startedAt"
-);
+  document.getElementById(
+    "startedAt"
+  );
 
 const endedAt =
-document.getElementById(
-  "endedAt"
-);
+  document.getElementById(
+    "endedAt"
+  );
 
 const actualMinutes =
-document.getElementById(
-  "actualMinutes"
-);
+  document.getElementById(
+    "actualMinutes"
+  );
 
 const blockedReason =
-document.getElementById(
-  "blockedReason"
-);
+  document.getElementById(
+    "blockedReason"
+  );
 
 const executionList =
-document.getElementById(
-  "executionList"
-);
+  document.getElementById(
+    "executionList"
+  );
 
 
 // ==================================================
@@ -1903,14 +1843,10 @@ executionForm.addEventListener(
 
 
     const startDate =
-      new Date(
-        start
-      );
+      new Date(start);
 
     const endDate =
-      new Date(
-        end
-      );
+      new Date(end);
 
 
     if (
@@ -1930,8 +1866,6 @@ executionForm.addEventListener(
     let finalMinutes =
       minutes;
 
-
-    // 실제 시간 미입력 시 자동 계산
 
     if (
       !finalMinutes ||
@@ -2261,7 +2195,7 @@ async function showTaskExecutions(
 
 
 window.showTaskExecutions =
-showTaskExecutions;
+  showTaskExecutions;
 
 
 // ==================================================
@@ -2270,54 +2204,54 @@ showTaskExecutions;
 // ==================================================
 
 const reviewSummary =
-document.getElementById(
-  "reviewSummary"
-);
+  document.getElementById(
+    "reviewSummary"
+  );
 
 const reviewEvidence =
-document.getElementById(
-  "reviewEvidence"
-);
+  document.getElementById(
+    "reviewEvidence"
+  );
 
 const reviewPlanFilter =
-document.getElementById(
-  "reviewPlanFilter"
-);
+  document.getElementById(
+    "reviewPlanFilter"
+  );
 
 const reviewStartDate =
-document.getElementById(
-  "reviewStartDate"
-);
+  document.getElementById(
+    "reviewStartDate"
+  );
 
 const reviewEndDate =
-document.getElementById(
-  "reviewEndDate"
-);
+  document.getElementById(
+    "reviewEndDate"
+  );
 
 const reviewLoadButton =
-document.getElementById(
-  "reviewLoadButton"
-);
+  document.getElementById(
+    "reviewLoadButton"
+  );
 
 const nextActionInput =
-document.getElementById(
-  "nextActionInput"
-);
+  document.getElementById(
+    "nextActionInput"
+  );
 
 const nextPlanSelect =
-document.getElementById(
-  "nextPlanSelect"
-);
+  document.getElementById(
+    "nextPlanSelect"
+  );
 
 const saveNextActionButton =
-document.getElementById(
-  "saveNextActionButton"
-);
+  document.getElementById(
+    "saveNextActionButton"
+  );
 
 const nextActionResult =
-document.getElementById(
-  "nextActionResult"
-);
+  document.getElementById(
+    "nextActionResult"
+  );
 
 
 // ==================================================
@@ -2581,7 +2515,6 @@ async function loadReviewSummary() {
 
   // ==================================================
   // 지연 수
-  //
   // 완료되지 않았고
   // 서울 기준 오늘보다 마감일이 이전인 task
   // ==================================================
@@ -2694,7 +2627,6 @@ async function loadReviewSummary() {
 
   // ==================================================
   // 막힘 수
-  //
   // 같은 task에 막힌 기록이 여러 개 있어도
   // task 하나로 계산
   // ==================================================
@@ -2789,122 +2721,74 @@ async function loadReviewSummary() {
   // ==================================================
   // 숫자 표시
   // ==================================================
-reviewSummary.innerHTML = `
 
-  <div>
+  reviewSummary.innerHTML = `
 
-    <h3>
-      돌아보기 결과
-    </h3>
+    <div>
 
-    <p>
-      기간:
-      ${startDate || "전체"}
-      ~
-      ${endDate || "전체"}
-    </p>
+      <h3>
+        돌아보기 결과
+      </h3>
 
-    <p>
-      계획 수:
-      <button
-        type="button"
-        class="review-evidence-button"
-        data-review-type="plan"
-      >
-        <strong>
-          ${planCount}개
-        </strong>
-      </button>
-    </p>
+      <p>
+        기간:
+        ${startDate || "전체"}
+        ~
+        ${endDate || "전체"}
+      </p>
 
-    <p>
-      완료 수:
-      <button
-        type="button"
-        class="review-evidence-button"
-        data-review-type="completed"
-      >
-        <strong>
-          ${completedCount}개
-        </strong>
-      </button>
-    </p>
+      <p>
+        계획 수:
+        <button
+          type="button"
+          class="review-evidence-button"
+          data-review-type="plan"
+        >
+          <strong>
+            ${planCount}개
+          </strong>
+        </button>
+      </p>
 
-    <p>
-      지연 수:
-      <button
-        type="button"
-        class="review-evidence-button"
-        data-review-type="delayed"
-      >
-        <strong>
-          ${delayedCount}개
-        </strong>
-      </button>
-    </p>
+      <p>
+        완료 수:
+        <button
+          type="button"
+          class="review-evidence-button"
+          data-review-type="completed"
+        >
+          <strong>
+            ${completedCount}개
+          </strong>
+        </button>
+      </p>
 
-    <p>
-      막힘 수:
-      <button
-        type="button"
-        class="review-evidence-button"
-        data-review-type="blocked"
-      >
-        <strong>
-          ${blockedCount}개
-        </strong>
-      </button>
-    </p>
+      <p>
+        지연 수:
+        <button
+          type="button"
+          class="review-evidence-button"
+          data-review-type="delayed"
+        >
+          <strong>
+            ${delayedCount}개
+          </strong>
+        </button>
+      </p>
 
-    <hr>
+      <p>
+        막힘 수:
+        <button
+          type="button"
+          class="review-evidence-button"
+          data-review-type="blocked"
+        >
+          <strong>
+            ${blockedCount}개
+          </strong>
+        </button>
+      </p>
 
-    <p>
-      예상 시간:
-      <strong>
-        ${estimatedHours.toFixed(1)}시간
-      </strong>
-    </p>
-
-    <p>
-      실제 시간:
-      <strong>
-        ${actualHours.toFixed(1)}시간
-      </strong>
-    </p>
-
-    <p>
-      차이:
-      <strong>
-        ${
-          differenceHours >= 0
-            ? "+"
-            : ""
-        }${differenceHours.toFixed(1)}시간
-      </strong>
-    </p>
-
-  </div>
-
-`;
-  // 숫자 버튼 클릭 이벤트 연결
-  document
-  .querySelectorAll(".review-evidence-button")
-  .forEach((button) => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        const type =
-          button.dataset.reviewType;
-
-        showReviewEvidence(type);
-
-      }
-    );
-
-  });
- 
       <hr>
 
       <p>
@@ -2935,6 +2819,33 @@ reviewSummary.innerHTML = `
     </div>
 
   `;
+
+
+  // ==================================================
+  // 숫자 버튼 클릭 이벤트 연결
+  // ==================================================
+
+  document
+    .querySelectorAll(
+      ".review-evidence-button"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const type =
+              button.dataset.reviewType;
+
+            showReviewEvidence(type);
+
+          }
+        );
+
+      }
+    );
 
 
   // ==================================================
@@ -3167,7 +3078,7 @@ async function showReviewEvidence(
 
 
 window.showReviewEvidence =
-showReviewEvidence;
+  showReviewEvidence;
 
 
 // ==================================================
