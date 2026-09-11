@@ -871,7 +871,9 @@ data.forEach(task => {
       <button onclick="toggleTaskComplete(${task.id}, ${task.is_completed})">
     ${task.is_completed ? "진행 중으로 변경" : "완료"}
     </button>
-
+<button onclick="deleteTask(${task.id})">
+  삭제
+</button>
     </div>
 
     <hr>
@@ -971,3 +973,29 @@ async function toggleTaskComplete(taskId, currentStatus) {
 }
 
 window.toggleTaskComplete = toggleTaskComplete;
+
+async function deleteTask(taskId) {
+  if (!confirm("이 할 일을 삭제하시겠습니까?")) {
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("tasks")
+    .delete()
+    .eq("id", taskId);
+
+  if (error) {
+    console.error("TASK DELETE ERROR:", error);
+    alert(
+      "할 일 삭제에 실패했습니다.\n\n" +
+      error.message
+    );
+    return;
+  }
+
+  alert("할 일이 삭제되었습니다.");
+
+  await loadTasks();
+}
+
+window.deleteTask = deleteTask;
