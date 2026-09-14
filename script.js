@@ -682,7 +682,7 @@ function openTaskModal() {
           return `
             <option value="${esc(plan.id)}">
               ${esc(
-                plan.title ||
+                plan.plan_name ||
                 "제목 없음"
               )}
             </option>
@@ -1382,7 +1382,7 @@ function renderPlans() {
 
                   <h4 class="plan-title">
                     ${esc(
-                      plan.title ||
+                      plan.plan_name ||
                       "제목 없음"
                     )}
                   </h4>
