@@ -548,18 +548,10 @@ async function loadAll() {
            ------------------------- */
 
         supabaseClient
-          .from("plans")
-          .select("*")
-          .eq(
-            "user_id",
-            userId
-          )
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          ),
+          .from("plan_history")
+  .select("*")
+  .eq("user_id", userId)
+  .order("changed_at", { ascending: false }),
 
 
         /* -------------------------
