@@ -307,40 +307,47 @@ if (signupForm) {
               password
             });
 
+if (error) {
 
-        if (error) {
+  console.error(
+    "SIGNUP ERROR:",
+    error
+  );
 
-          console.error(
-            "SIGNUP ERROR:",
-            error
-          );
+  const errorMessage =
+    error.message?.toLowerCase() || "";
 
+  if (
+    errorMessage.includes("rate limit") ||
+    error.status === 429
+  ) {
 
-          /*
-           * 중복 이메일 등 가입 실패
-           */
+    showMessage(
+      signupMessage,
+      "회원가입 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+    );
 
-          if (
-            error.message
-              .toLowerCase()
-              .includes("already registered")
-          ) {
+  } else if (
+    errorMessage.includes("already registered") ||
+    errorMessage.includes("already exists")
+  ) {
 
-            showMessage(
-              signupMessage,
-              "이미 가입된 이메일입니다."
-            );
+    showMessage(
+      signupMessage,
+      "이미 가입된 이메일입니다."
+    );
 
-          } else {
+  } else {
 
-            showMessage(
-              signupMessage,
-              "회원가입에 실패했습니다. 입력한 정보를 확인해주세요."
-            );
-          }
+    showMessage(
+      signupMessage,
+      "회원가입에 실패했습니다. 입력한 정보를 확인해주세요."
+    );
+  }
 
-          return;
-        }
+  return;
+}
+
 
 
         /*
