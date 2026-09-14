@@ -40,6 +40,7 @@ let plans = [];
 let tasks = [];
 let histories = [];
 let currentTask = null;
+let currentUser = null;
 
 
 /* =========================================================
