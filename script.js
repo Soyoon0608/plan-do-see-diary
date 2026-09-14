@@ -566,7 +566,7 @@ async function loadAll() {
             userId
           )
           .order(
-            "created_at",
+            "changed_at",
             {
               ascending: true
             }
@@ -585,7 +585,7 @@ async function loadAll() {
             userId
           )
           .order(
-            "created_at",
+            "changed_at_at",
             {
               ascending: false
             }
