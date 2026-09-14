@@ -605,3 +605,27 @@ small {
   font-size: 13px;
   font-weight: 600;
 }
+/* =========================
+   페이지 제목 가운데 정렬
+   ========================= */
+
+h1 {
+  text-align: center;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Plan — 계획 세우기 제목 */
+h2 {
+  text-align: center;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 단, 카드 내부 제목은 왼쪽 정렬 */
+.card h2,
+.card h3 {
+  text-align: left;
+}
