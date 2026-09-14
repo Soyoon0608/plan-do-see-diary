@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>회원가입 | Plan Do See Diary</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* 인증 화면 전용 스타일 */
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .auth-card {
+      background: #ffffff;
+      border: 1px solid #e5e9f0;
+      border-radius: 18px;
+      padding: 36px;
+      box-shadow: 0 8px 28px rgba(30, 41, 59, 0.08);
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .auth-logo h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #1e293b;
+    }
+
+    .auth-logo p {
+      margin: 0;
+      color: #7a8493;
+      font-size: 14px;
+    }
+
+    .auth-card form {
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 17px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 650;
+      color: #374151;
+    }
+
+    .form-group input {
+      width: 100%;
+      min-height: 45px;
+      padding: 11px 13px;
+      border: 1px solid #d9dee8;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: #4f7cff;
+      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.12);
+    }
+
+    .auth-button {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 5px;
+      border: 0;
+      border-radius: 8px;
+      background: #4f7cff;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .auth-button:hover {
+      background: #3f6eea;
+    }
+
+    .auth-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .auth-message {
+      display: none;
+      margin-top: 15px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .auth-message.show {
+      display: block;
+    }
+
+    .auth-message.error {
+      background: #fff4f4;
+      color: #d33b3b;
+    }
+
+    .auth-message.success {
+      background: #effaf5;
+      color: #087443;
+    }
+
+    .auth-footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .auth-footer a {
+      color: #4f7cff;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .password-help {
+      margin-top: 5px;
+      color: #8a93a1;
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 25px 20px;
+      }
+
+      .auth-logo h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="auth-container">
+
+    <section class="auth-card">
+
+      <div class="auth-logo">
+        <h1>Plan Do See Diary</h1>
+        <p>새 계정을 만들어 시작하세요</p>
+      </div>
+
+      <form id="signupForm">
+
+        <div class="form-group">
+          <label for="signupEmail">이메일</label>
+          <input
+            type="email"
+            id="signupEmail"
+            placeholder="이메일을 입력하세요"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">비밀번호</label>
+          <input
+            type="password"
+            id="signupPassword"
+            placeholder="비밀번호를 입력하세요"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          >
+
+          <div class="password-help">
+            비밀번호는 6자 이상 입력해주세요.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPasswordConfirm">
+            비밀번호 확인
+          </label>
+
+          <input
+            type="password"
+            id="signupPasswordConfirm"
+            placeholder="비밀번호를 다시 입력하세요"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="auth-button"
+          id="signupButton"
+        >
+          회원가입
+        </button>
+
+      </form>
+
+      <div
+        id="signupMessage"
+        class="auth-message"
+        role="alert"
+      ></div>
+
+      <div class="auth-footer">
+        이미 계정이 있나요?
+        <a href="login.html">로그인</a>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 인증 코드 -->
+  <script src="auth.js"></script>
+
+</body>
+</html>
