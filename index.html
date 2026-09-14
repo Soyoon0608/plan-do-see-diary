@@ -4,45 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plan · Do · See Diary</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">PDS</span><div><h1>Plan · Do · See Diary</h1><p>계획하고, 실행하고, 돌아보기</p></div></div>
+  <button id="refreshBtn" class="btn ghost">새로고침</button>
+</header>
+<main class="container">
+  <section class="hero">
+    <div><span class="eyebrow">MY STUDY DIARY</span><h2>오늘의 계획을 세우고<br>실행 기록을 남겨보세요.</h2><p>계획 기간, 할 일, 실제 실행 시간과 막힌 이유까지 한 곳에서 기록합니다.</p></div>
+    <div class="hero-stat"><strong id="totalPlans">0</strong><span>전체 계획</span></div>
+  </section>
+  <div id="message" class="message hidden"></div>
+  <section class="grid">
+    <article class="card">
+      <div class="card-head"><div><span class="step">PLAN</span><h3>계획 만들기</h3></div></div>
+      <form id="planForm">
+        <label>계획 제목<input id="planTitle" maxlength="100" placeholder="예: 정보보안 공부" required></label>
+        <label>계획 설명<textarea id="planDescription" rows="3" maxlength="500" placeholder="이번 계획에서 달성하고 싶은 내용을 적어주세요."></textarea></label>
+        <div class="two-col"><label>시작일<input id="startDate" type="date" required></label><label>종료일<input id="endDate" type="date" required></label></div>
+        <label>예상 시간(시간)<input id="estimatedHours" type="number" min="0" step="0.5" placeholder="예: 10"></label>
+        <button class="btn primary full" type="submit">계획 저장</button>
+      </form>
+    </article>
 
-  <h1>Plan · Do · See Diary</h1>
+    <article class="card wide">
+      <div class="card-head"><div><span class="step">DO</span><h3>할 일 & 실행 기록</h3><p>실제로 언제 시작했고 얼마나 걸렸는지, 진행하면서 어디서 막혔는지를 기록합니다.</p></div><button id="addTaskBtn" class="btn secondary">+ 할 일 추가</button></div>
+      <div id="planList" class="plan-list"><div class="empty">저장된 계획을 불러오는 중입니다.</div></div>
+    </article>
 
-  <p>
-    ⚠️ 현재 로그인 기능이 없습니다.
-    링크를 아는 사람은 누구나 볼 수 있습니다.
-  </p>
+    <article class="card full-width">
+      <div class="card-head"><div><span class="step">SEE</span><h3>실행 기록</h3><p>완료한 할 일의 실제 실행 결과를 확인합니다.</p></div><div id="historyCount" class="count-badge">0건</div></div>
+      <div id="historyList" class="history-list"><div class="empty">실행 기록이 없습니다.</div></div>
+    </article>
+  </section>
+</main>
 
-  <hr>
+<div id="taskModal" class="modal hidden"><div class="backdrop" data-close-task></div><div class="modal-panel"><button class="close" data-close-task>×</button><span class="step">TASK</span><h3>할 일 추가</h3><form id="taskForm"><label>계획 선택<select id="taskPlanId" required></select></label><label>할 일<input id="taskTitle" maxlength="150" placeholder="예: SQL Injection 실습" required></label><label>실행 메모<textarea id="taskMemo" rows="3" maxlength="500" placeholder="이번 할 일에서 확인할 내용을 적어주세요."></textarea></label><button class="btn primary full">할 일 저장</button></form></div></div>
 
-  <h2>Plan — 계획 세우기</h2>
+<div id="executeModal" class="modal hidden"><div class="backdrop" data-close-execute></div><div class="modal-panel"><button class="close" data-close-execute>×</button><span class="step">DO</span><h3 id="executeTitle">실행 기록</h3><form id="executeForm"><input id="executeTaskId" type="hidden"><label>시작 시간<input id="startedAt" type="datetime-local" required></label><label>종료 시간<input id="endedAt" type="datetime-local"></label><label>실제 소요 시간(분)<input id="actualMinutes" type="number" min="0" step="1" placeholder="예: 60"></label><label>진행하면서 막힌 이유<textarea id="blockedReason" rows="4" maxlength="1000" placeholder="없다면 비워두세요."></textarea></label><div class="modal-actions"><button class="btn secondary" type="button" data-close-execute>취소</button><button class="btn primary" type="submit">실행 기록 저장</button></div></form></div></div>
 
-  <form>
-    <label>계획명</label><br>
-    <input type="text" id="planName" placeholder="오늘의 계획"><br><br>
-
-    <label>시작일</label><br>
-    <input type="date" id="startDate"><br><br>
-
-    <label>종료일</label><br>
-    <input type="date" id="endDate"><br><br>
-
-    <label>우선순위</label><br>
-    <select id="priority">
-      <option value="높음">높음</option>
-      <option value="보통" selected>보통</option>
-      <option value="낮음">낮음</option>
-    </select><br><br>
-
-    <label>성공 기준</label><br>
-    <textarea id="successCriteria" placeholder="무엇을 하면 성공인가요?"></textarea><br><br>
-
-    <label>예상 시간</label><br>
-    <input type="number" id="estimatedHours" min="0" placeholder="시간"> 시간<br><br>
-
-    <button type="submit">계획 저장</button>
-  </form>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>
