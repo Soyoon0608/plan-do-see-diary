@@ -1,11 +1,12 @@
-
+```css
 /* =========================================================
-   Plan - Do - See Diary
-   최종 CSS
+   Plan · Do · See Diary
+   Clean UI CSS
+   기존 HTML / JS 기능 유지용
    ========================================================= */
 
 /* ---------------------------------------------------------
-   기본 설정
+   1. 기본 설정
    --------------------------------------------------------- */
 
 * {
@@ -16,11 +17,17 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
   background: #f5f7fb;
-  color: #222;
+  color: #1f2937;
   font-family:
     "Pretendard",
     "Noto Sans KR",
@@ -31,6 +38,7 @@ body {
   line-height: 1.6;
 }
 
+/* 모든 폼 요소 */
 button,
 input,
 select,
@@ -47,15 +55,16 @@ select,
 textarea {
   width: 100%;
   border: 1px solid #d9dee8;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #fff;
-  color: #222;
+  color: #1f2937;
   font-size: 14px;
   padding: 11px 13px;
   outline: none;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 input:focus,
@@ -77,16 +86,15 @@ textarea::placeholder {
 
 
 /* ---------------------------------------------------------
-   페이지 전체
+   2. 페이지 전체 컨테이너
    --------------------------------------------------------- */
 
 main,
 .container,
 .page-container {
-  width: 100%;
-  max-width: 1100px;
+  width: min(1100px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 40px 24px 70px;
+  padding: 42px 0 80px;
 }
 
 body > div {
@@ -95,30 +103,33 @@ body > div {
 
 
 /* ---------------------------------------------------------
-   제목 영역
+   3. 제목
    --------------------------------------------------------- */
 
 h1 {
   margin: 0 0 10px;
+  color: #172033;
   font-size: 32px;
   font-weight: 800;
-  color: #1e293b;
+  line-height: 1.3;
   letter-spacing: -0.8px;
 }
 
 h2 {
   margin: 0 0 20px;
+  color: #1f2937;
   font-size: 22px;
   font-weight: 750;
-  color: #1f2937;
+  line-height: 1.35;
   letter-spacing: -0.4px;
 }
 
 h3 {
   margin: 0 0 10px;
+  color: #25324a;
   font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  line-height: 1.4;
 }
 
 p {
@@ -133,27 +144,32 @@ strong {
 
 
 /* ---------------------------------------------------------
-   카드 공통
+   4. 카드
    --------------------------------------------------------- */
 
 .card {
   width: 100%;
   margin: 0 0 28px;
   padding: 30px;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #e5e9f0;
   border-radius: 16px;
-  box-shadow: 0 5px 18px rgba(30, 41, 59, 0.06);
+  box-shadow: 0 6px 22px rgba(30, 41, 59, 0.06);
+}
+
+.card:last-child {
+  margin-bottom: 0;
 }
 
 .card > h2 {
-  padding-bottom: 15px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #edf0f5;
 }
 
 
 /* ---------------------------------------------------------
-   폼
+   5. 폼
    --------------------------------------------------------- */
 
 form {
@@ -161,6 +177,7 @@ form {
 }
 
 form > div {
+  width: 100%;
   margin-bottom: 17px;
 }
 
@@ -178,18 +195,19 @@ form button[type="submit"] {
 
 
 /* ---------------------------------------------------------
-   버튼 공통
+   6. 버튼
    --------------------------------------------------------- */
 
 button {
   min-height: 40px;
-  padding: 9px 15px;
+  padding: 9px 16px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #4f7cff;
-  color: #fff;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 650;
+  line-height: 1.2;
   transition:
     transform 0.15s ease,
     background 0.15s ease,
@@ -198,16 +216,21 @@ button {
 
 button:hover {
   background: #3f6eea;
-  box-shadow: 0 4px 10px rgba(79, 124, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(79, 124, 255, 0.2);
 }
 
 button:active {
   transform: translateY(1px);
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 
 /* ---------------------------------------------------------
-   버튼 종류
+   7. 버튼 색상
    --------------------------------------------------------- */
 
 .edit-button {
@@ -252,47 +275,55 @@ button[onclick*="toggleTaskComplete"]:hover {
 
 
 /* ---------------------------------------------------------
-   계획 목록
+   8. PLAN - 계획 목록
    --------------------------------------------------------- */
 
 #planList {
   width: 100%;
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 .plan-item {
   width: 100%;
-  margin-bottom: 16px;
-  padding: 22px;
+  margin: 0 0 16px;
+  padding: 22px 24px;
+  background: #fafbfc;
   border: 1px solid #e2e7ef;
   border-radius: 12px;
-  background: #fafbfc;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .plan-item:hover {
+  background: #ffffff;
   border-color: #cdd6e5;
-  background: #fff;
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.05);
 }
 
 .plan-item h3 {
-  margin-bottom: 15px;
+  margin: 0 0 14px;
   color: #25324a;
   font-size: 19px;
+  font-weight: 750;
 }
 
 .plan-item p {
-  margin: 9px 0;
+  margin: 8px 0;
   color: #5f6b7a;
 }
 
 .plan-item strong {
   display: inline-block;
-  min-width: 85px;
+  min-width: 88px;
   color: #374151;
+  font-weight: 700;
 }
 
 .plan-item button {
-  margin-top: 12px;
+  margin-top: 13px;
   margin-right: 7px;
 }
 
@@ -304,38 +335,7 @@ button[onclick*="toggleTaskComplete"]:hover {
 
 
 /* ---------------------------------------------------------
-   수정 이력
-   --------------------------------------------------------- */
-
-#historyList {
-  width: 100%;
-}
-
-#historyList > div {
-  padding: 20px;
-  margin-bottom: 14px;
-  border: 1px solid #e4e8ef;
-  border-radius: 10px;
-  background: #fafbfc;
-}
-
-#historyList h3 {
-  color: #374151;
-}
-
-#historyList p {
-  line-height: 1.9;
-}
-
-#historyList hr {
-  margin: 18px 0 0;
-  border: 0;
-  border-top: 1px solid #e5e9ef;
-}
-
-
-/* ---------------------------------------------------------
-   Card 2 - 할 일 관리
+   9. DO - 할 일 목록
    --------------------------------------------------------- */
 
 #taskList {
@@ -345,22 +345,26 @@ button[onclick*="toggleTaskComplete"]:hover {
 
 #taskList > div {
   width: 100%;
-  margin-bottom: 16px;
-  padding: 22px;
+  margin: 0 0 16px;
+  padding: 22px 24px;
+  background: #ffffff;
   border: 1px solid #e2e7ef;
   border-radius: 12px;
-  background: #fff;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 #taskList > div:hover {
   border-color: #cdd6e5;
-  box-shadow: 0 3px 12px rgba(30, 41, 59, 0.05);
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.05);
 }
 
 #taskList h3 {
-  margin-bottom: 14px;
-  font-size: 18px;
+  margin: 0 0 14px;
   color: #25324a;
+  font-size: 18px;
 }
 
 #taskList p {
@@ -380,7 +384,7 @@ button[onclick*="toggleTaskComplete"]:hover {
 
 
 /* ---------------------------------------------------------
-   검색 / 필터 영역
+   10. 검색 / 필터
    --------------------------------------------------------- */
 
 #taskSearch,
@@ -397,7 +401,7 @@ button[onclick*="toggleTaskComplete"]:hover {
 
 
 /* ---------------------------------------------------------
-   Card 3 - 실제 실행 기록
+   11. SEE - 실행 기록
    --------------------------------------------------------- */
 
 #executionForm {
@@ -409,25 +413,30 @@ button[onclick*="toggleTaskComplete"]:hover {
   margin-top: 24px;
 }
 
-
-/* 실행 기록 각각의 항목 */
-
 #executionList > div {
   width: 100%;
   margin-bottom: 15px;
-  padding: 20px;
+  padding: 20px 22px;
+  background: #fafbfc;
   border: 1px solid #e1e6ee;
   border-radius: 11px;
-  background: #fafbfc;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
 #executionList > div:hover {
+  background: #ffffff;
   border-color: #cbd5e1;
-  background: #fff;
 }
 
 #executionList p {
   margin: 8px 0;
+}
+
+#executionList p strong {
+  color: #374151;
 }
 
 #executionList hr {
@@ -438,55 +447,90 @@ button[onclick*="toggleTaskComplete"]:hover {
 
 
 /* ---------------------------------------------------------
-   실행 기록 강조
+   12. 수정 이력
    --------------------------------------------------------- */
 
-#executionList p strong {
+#historyList {
+  width: 100%;
+}
+
+#historyList > div {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 20px 22px;
+  background: #fafbfc;
+  border: 1px solid #e4e8ef;
+  border-radius: 10px;
+  text-align: left;
+}
+
+#historyList h3 {
   color: #374151;
 }
 
-#executionList > p {
-  padding: 20px;
-  border-radius: 10px;
-  background: #f8fafc;
-  text-align: center;
-  color: #7a8493;
+#historyList p {
+  line-height: 1.9;
+}
+
+#historyList hr {
+  margin: 18px 0 0;
+  border: 0;
+  border-top: 1px solid #e5e9ef;
 }
 
 
 /* ---------------------------------------------------------
-   select
+   13. 입력 요소
    --------------------------------------------------------- */
 
 select {
-  appearance: auto;
   min-height: 42px;
+  appearance: auto;
 }
-
-
-/* ---------------------------------------------------------
-   날짜 / 시간 입력
-   --------------------------------------------------------- */
 
 input[type="date"],
 input[type="datetime-local"],
-input[type="time"] {
-  min-height: 42px;
-}
-
-
-/* ---------------------------------------------------------
-   숫자 입력
-   --------------------------------------------------------- */
-
+input[type="time"],
 input[type="number"] {
   min-height: 42px;
 }
 
 
 /* ---------------------------------------------------------
-   구분선
+   14. 빈 상태
    --------------------------------------------------------- */
+
+#planList > p,
+#historyList > p,
+#taskList > p,
+#executionList > p {
+  width: 100%;
+  margin: 0;
+  padding: 25px;
+  background: #f8fafc;
+  border-radius: 10px;
+  color: #7a8493;
+  text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   15. 완료된 할 일
+   --------------------------------------------------------- */
+
+#taskList .completed,
+#taskList [data-completed="true"] {
+  opacity: 0.68;
+}
+
+
+/* ---------------------------------------------------------
+   16. 공통 section
+   --------------------------------------------------------- */
+
+section {
+  width: 100%;
+}
 
 hr {
   border: 0;
@@ -495,59 +539,68 @@ hr {
 
 
 /* ---------------------------------------------------------
-   빈 상태 / 메시지
+   17. 모달
    --------------------------------------------------------- */
 
-#planList > p,
-#historyList > p,
-#taskList > p,
-#executionList > p {
-  margin: 0;
-  padding: 25px;
-  border-radius: 10px;
-  background: #f8fafc;
-  color: #7a8493;
-  text-align: center;
+.modal,
+#taskModal,
+#executeModal {
+  z-index: 1000;
 }
 
-
-/* ---------------------------------------------------------
-   완료된 할 일
-   --------------------------------------------------------- */
-
-#taskList .completed,
-#taskList [data-completed="true"] {
-  opacity: 0.72;
+#taskModal,
+#executeModal {
+  position: fixed;
+  inset: 0;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.45);
 }
 
-
-/* ---------------------------------------------------------
-   페이지 내 섹션 간격
-   --------------------------------------------------------- */
-
-section {
+#taskModal > div,
+#executeModal > div {
+  max-width: 600px;
   width: 100%;
+  margin: 7vh auto 0;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e5e9f0;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
 }
 
 
 /* ---------------------------------------------------------
-   모바일
+   18. 긴 텍스트
+   --------------------------------------------------------- */
+
+.plan-item,
+#historyList > div,
+#taskList > div,
+#executionList > div {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   19. 모바일
    --------------------------------------------------------- */
 
 @media (max-width: 768px) {
   main,
   .container,
   .page-container {
-    padding: 25px 15px 50px;
+    width: min(100% - 30px, 680px);
+    padding: 28px 0 55px;
   }
 
   .card {
-    padding: 20px;
-    border-radius: 12px;
+    padding: 22px;
+    border-radius: 13px;
   }
 
   h1 {
-    font-size: 26px;
+    font-size: 27px;
   }
 
   h2 {
@@ -556,8 +609,9 @@ section {
 
   .plan-item,
   #taskList > div,
-  #executionList > div {
-    padding: 17px;
+  #executionList > div,
+  #historyList > div {
+    padding: 18px;
   }
 
   .plan-item button,
@@ -565,22 +619,35 @@ section {
     margin-top: 8px;
     margin-right: 4px;
   }
+
+  #taskModal,
+  #executeModal {
+    padding: 15px;
+  }
+
+  #taskModal > div,
+  #executeModal > div {
+    margin-top: 4vh;
+    padding: 22px;
+  }
 }
 
 
 /* ---------------------------------------------------------
-   작은 모바일
+   20. 작은 모바일
    --------------------------------------------------------- */
 
 @media (max-width: 480px) {
   main,
   .container,
   .page-container {
-    padding: 18px 10px 40px;
+    width: calc(100% - 20px);
+    padding: 20px 0 40px;
   }
 
   .card {
-    padding: 16px;
+    padding: 17px;
+    border-radius: 11px;
   }
 
   h1 {
@@ -589,6 +656,10 @@ section {
 
   h2 {
     font-size: 18px;
+  }
+
+  h3 {
+    font-size: 17px;
   }
 
   button {
@@ -601,14 +672,30 @@ section {
   #taskList button {
     width: 100%;
   }
+
+  #taskModal,
+  #executeModal {
+    padding: 10px;
+  }
+
+  #taskModal > div,
+  #executeModal > div {
+    width: 100%;
+    margin-top: 2vh;
+    padding: 18px;
+    border-radius: 12px;
+  }
 }
 
 
 /* ---------------------------------------------------------
-   가로 스크롤 방지
+   21. 가로 스크롤 방지
    --------------------------------------------------------- */
 
-body,
+body {
+  overflow-x: hidden;
+}
+
 main,
 .card,
 section,
@@ -623,33 +710,17 @@ form,
 
 
 /* ---------------------------------------------------------
-   긴 텍스트 처리
+   22. 최종 정렬
    --------------------------------------------------------- */
 
 .plan-item,
 #historyList > div,
 #taskList > div,
 #executionList > div {
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-
-/* ---------------------------------------------------------
-   버튼 정렬
-   --------------------------------------------------------- */
-
-.plan-item,
-#taskList > div {
   text-align: left;
 }
-
-
-/* ---------------------------------------------------------
-   최종 여백 보정
-   --------------------------------------------------------- */
 
 .card:last-child {
   margin-bottom: 0;
 }
-
+```
