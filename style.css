@@ -3,9 +3,8 @@
    style.css
    ========================================================= */
 
-
 /* =========================================================
-   기본 설정
+   기본
    ========================================================= */
 
 * {
@@ -19,15 +18,19 @@ html {
 
 body {
   margin: 0;
-  padding: 0;
+  min-height: 100vh;
+
   background: #f5f7fb;
-  color: #202124;
+  color: #1f2937;
+
   font-family:
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     "Noto Sans KR",
+    Arial,
     sans-serif;
+
   line-height: 1.5;
 }
 
@@ -50,190 +53,97 @@ select {
 
 
 /* =========================================================
-   공통
+   HEADER
    ========================================================= */
 
-.container {
-  width: min(1100px, calc(100% - 40px));
-  margin: 0 auto;
-}
-
-.card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-}
-
-
-/* =========================================================
-   헤더
-   ========================================================= */
-
-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.header-inner {
-  width: min(1100px, calc(100% - 40px));
-  min-height: 72px;
-  margin: 0 auto;
+.topbar {
+  width: 100%;
+  min-height: 76px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
+
+  padding: 14px 32px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  position: sticky;
+  top: 0;
+
+  z-index: 100;
 }
 
-.logo,
-.logo a {
-  color: #111827;
-  text-decoration: none;
-  font-size: 21px;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #4f46e5;
+  color: #ffffff;
+
+  font-size: 13px;
   font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
-.header-actions {
+.brand h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  letter-spacing: -0.3px;
+}
+
+.brand p {
+  margin: 2px 0 0;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   HEADER 버튼 영역
+   ========================================================= */
+
+.topbar > div:last-child {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  flex-shrink: 0;
 }
 
+#userEmail {
+  max-width: 230px;
 
-/* =========================================================
-   제목
-   ========================================================= */
-
-.page-title {
-  margin: 0 0 8px;
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.page-subtitle {
-  margin: 0;
-  color: #6b7280;
-  font-size: 15px;
-}
-
-
-/* =========================================================
-   메인
-   ========================================================= */
-
-main {
-  width: min(1100px, calc(100% - 40px));
-  margin: 32px auto 60px;
-}
-
-
-/* =========================================================
-   통계 영역
-   ========================================================= */
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.stat-value {
-  color: #111827;
-  font-size: 28px;
-  font-weight: 800;
-}
-
-
-/* =========================================================
-   섹션 제목
-   ========================================================= */
-
-.section-title {
-  margin: 0 0 18px;
-  font-size: 20px;
-  font-weight: 800;
-  color: #111827;
-}
-
-.section-description {
-  margin: -8px 0 18px;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-
-/* =========================================================
-   폼
-   ========================================================= */
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-
-label {
-  display: block;
-  margin-bottom: 7px;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-input[type="text"],
-input[type="date"],
-input[type="number"],
-input[type="datetime-local"],
-input[type="email"],
-input[type="password"],
-textarea,
-select {
-  width: 100%;
-  padding: 11px 13px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-
-  background: #ffffff;
-  color: #111827;
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
@@ -241,275 +151,176 @@ select:focus {
    버튼
    ========================================================= */
 
-button {
+.btn {
+  min-height: 40px;
+
+  padding: 9px 15px;
+
   border: 0;
   border-radius: 9px;
-  padding: 10px 15px;
+
+  font-size: 13px;
   font-weight: 700;
+
   transition:
-    transform 0.1s ease,
     opacity 0.15s ease,
+    transform 0.1s ease,
     background 0.15s ease;
 }
 
-button:hover {
+.btn:hover {
   opacity: 0.9;
 }
 
-button:active {
+.btn:active {
   transform: translateY(1px);
 }
 
-.primary {
+.btn.primary {
   background: #4f46e5;
   color: #ffffff;
 }
 
-.danger {
-  background: #fee2e2;
-  color: #b91c1c;
+.btn.secondary {
+  background: #eef2ff;
+  color: #4338ca;
 }
 
-.secondary {
+.btn.ghost {
   background: #f3f4f6;
   color: #374151;
 }
 
-.mini-btn {
-  padding: 7px 11px;
-  border-radius: 8px;
-  font-size: 13px;
+.btn.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn.full {
+  width: 100%;
 }
 
 
 /* =========================================================
-   계획 목록
+   MAIN
    ========================================================= */
 
-#planList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.container {
+  width: min(1180px, calc(100% - 48px));
 
-.plan-item {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 15px;
-  padding: 20px;
-}
+  margin: 0 auto;
 
-.plan-main {
-  min-width: 0;
-}
-
-.plan-title {
-  margin-bottom: 8px;
-  color: #111827;
-  font-size: 19px;
-  font-weight: 800;
-  word-break: break-word;
-}
-
-.plan-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-
-  padding: 3px 8px;
-
-  border-radius: 999px;
-
-  background: #eef2ff;
-  color: #4338ca;
-
-  font-size: 12px;
-  font-weight: 700;
+  padding: 34px 0 70px;
 }
 
 
 /* =========================================================
-   계획 액션
+   HERO
    ========================================================= */
 
-.plan-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 14px;
-}
-
-
-/* =========================================================
-   할 일 영역
-   ========================================================= */
-
-.task-box {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid #eef0f3;
-}
-
-.task-box-title {
-  margin-bottom: 12px;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.task-row {
+.hero {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
 
-  padding: 13px 0;
+  gap: 30px;
 
-  border-bottom: 1px solid #f0f1f3;
-}
+  margin-bottom: 24px;
 
-.task-row:last-of-type {
-  border-bottom: 0;
-}
+  padding: 34px;
 
-.task-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  min-width: 0;
-  flex: 1;
-}
-
-.task-check {
-  width: 17px;
-  height: 17px;
-  margin-top: 3px;
-  flex-shrink: 0;
-}
-
-.task-name {
-  color: #111827;
-  font-size: 14px;
-  font-weight: 700;
-  word-break: break-word;
-}
-
-.task-name.done {
-  color: #9ca3af;
-  text-decoration: line-through;
-}
-
-.task-actions {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-}
-
-
-/* =========================================================
-   할 일 추가
-   ========================================================= */
-
-.task-add {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 8px;
-
-  margin-top: 15px;
-  padding-top: 15px;
-
-  border-top: 1px solid #f0f1f3;
-}
-
-
-/* =========================================================
-   설명 / 상태
-   ========================================================= */
-
-.plan-desc {
-  margin-top: 4px;
-  color: #6b7280;
-  font-size: 12px;
-  word-break: break-word;
-}
-
-.blocked {
-  margin-top: 7px;
-  padding: 8px 10px;
-
-  border-radius: 8px;
-
-  background: #fff7ed;
-  color: #c2410c;
-
-  font-size: 12px;
-}
-
-
-/* =========================================================
-   실행 기록
-   ========================================================= */
-
-#historyList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.history-item {
-  padding: 16px;
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8f9ff 100%
+    );
 
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 20px;
+
+  box-shadow:
+    0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.eyebrow {
+  display: inline-block;
+
+  margin-bottom: 9px;
+
+  color: #4f46e5;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+}
+
+.hero h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 30px;
+  line-height: 1.35;
+
+  letter-spacing: -0.8px;
+}
+
+.hero p {
+  margin: 14px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+.hero-stat {
+  width: 150px;
+  min-width: 150px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 22px 16px;
 
   background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
 }
 
-.history-time {
-  margin-bottom: 5px;
-  color: #6b7280;
-  font-size: 12px;
-}
+.hero-stat strong {
+  color: #4f46e5;
 
-.history-title {
-  color: #111827;
-  font-size: 15px;
+  font-size: 34px;
   font-weight: 800;
+
+  line-height: 1;
+}
+
+.hero-stat span {
+  margin-top: 8px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+  font-weight: 700;
 }
 
 
 /* =========================================================
-   빈 상태
-   ========================================================= */
-
-.empty {
-  padding: 30px 15px;
-
-  text-align: center;
-
-  color: #9ca3af;
-  font-size: 14px;
-
-  border: 1px dashed #d1d5db;
-  border-radius: 12px;
-}
-
-
-/* =========================================================
-   메시지
+   MESSAGE
    ========================================================= */
 
 .message {
-  min-height: 20px;
-  margin: 10px 0;
+  min-height: 0;
+
+  margin: 0 0 18px;
+
+  padding: 0;
 
   font-size: 13px;
   font-weight: 700;
@@ -523,99 +334,618 @@ button:active {
   color: #dc2626;
 }
 
+.message.hidden {
+  display: none;
+}
+
 
 /* =========================================================
-   모달
+   GRID
    ========================================================= */
 
-#executionModal {
+.grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(320px, 0.85fr)
+    minmax(0, 1.5fr);
+
+  gap: 20px;
+}
+
+.card {
+  min-width: 0;
+
+  padding: 25px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 17px;
+
+  box-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.card.wide {
+  min-width: 0;
+}
+
+.card.full-width {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 22px;
+}
+
+.card-head h3 {
+  margin: 3px 0 5px;
+
+  color: #111827;
+
+  font-size: 20px;
+  font-weight: 800;
+
+  letter-spacing: -0.3px;
+}
+
+.card-head p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.step {
+  display: inline-block;
+
+  color: #4f46e5;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+label {
+  display: block;
+
+  margin-bottom: 15px;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input,
+textarea,
+select {
+  display: block;
+
+  width: 100%;
+
+  margin-top: 7px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font-size: 14px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+textarea {
+  min-height: 90px;
+
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.two-col {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+
+/* =========================================================
+   PLAN LIST
+   ========================================================= */
+
+.plan-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+}
+
+.plan-item {
+  padding: 19px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.plan-main {
+  min-width: 0;
+}
+
+.plan-title {
+  margin-bottom: 8px;
+
+  color: #111827;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  word-break: break-word;
+}
+
+.plan-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 3px 8px;
+
+  border-radius: 999px;
+
+  background: #eef2ff;
+  color: #4338ca;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.plan-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 12px;
+}
+
+
+/* =========================================================
+   TASK BOX
+   ========================================================= */
+
+.task-box {
+  margin-top: 18px;
+
+  padding-top: 17px;
+
+  border-top: 1px solid #eef0f3;
+}
+
+.task-box-title {
+  margin-bottom: 9px;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid #f0f1f3;
+}
+
+.task-row:last-of-type {
+  border-bottom: 0;
+}
+
+.task-left {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  min-width: 0;
+
+  flex: 1;
+}
+
+.task-check {
+  width: 17px !important;
+  height: 17px !important;
+
+  margin: 3px 0 0 !important;
+
+  padding: 0 !important;
+
+  flex-shrink: 0;
+}
+
+.task-name {
+  color: #111827;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  word-break: break-word;
+}
+
+.task-name.done {
+  color: #9ca3af;
+
+  text-decoration: line-through;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+.mini-btn {
+  padding: 7px 10px;
+
+  border: 0;
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mini-btn.primary {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.mini-btn.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+
+/* =========================================================
+   TASK ADD
+   ========================================================= */
+
+.task-add {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 0.7fr)
+    auto;
+
+  gap: 7px;
+
+  margin-top: 12px;
+  padding-top: 13px;
+
+  border-top: 1px solid #f0f1f3;
+}
+
+.task-add input {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   DESCRIPTION / BLOCKED
+   ========================================================= */
+
+.plan-desc {
+  margin-top: 4px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+
+  word-break: break-word;
+}
+
+.blocked {
+  margin-top: 7px;
+
+  padding: 8px 10px;
+
+  background: #fff7ed;
+
+  border-radius: 8px;
+
+  color: #c2410c;
+
+  font-size: 12px;
+
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.empty {
+  padding: 28px 15px;
+
+  text-align: center;
+
+  color: #9ca3af;
+
+  font-size: 13px;
+
+  border: 1px dashed #d1d5db;
+  border-radius: 11px;
+
+  background: #fafafa;
+}
+
+
+/* =========================================================
+   SEE / HISTORY
+   ========================================================= */
+
+.count-badge {
+  min-width: 48px;
+
+  padding: 6px 10px;
+
+  text-align: center;
+
+  background: #eef2ff;
+
+  border-radius: 999px;
+
+  color: #4338ca;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 11px;
+}
+
+.history-item {
+  padding: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.history-time {
+  margin-bottom: 4px;
+
+  color: #6b7280;
+
+  font-size: 11px;
+}
+
+.history-title {
+  color: #111827;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.modal {
   position: fixed;
+
   inset: 0;
+
   z-index: 1000;
 
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
 
   padding: 20px;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.backdrop {
+  position: absolute;
+
+  inset: 0;
 
   background: rgba(15, 23, 42, 0.5);
 }
 
-#executionModal.show {
-  display: flex;
-}
+.modal-panel {
+  position: relative;
 
-.modal-content {
+  z-index: 2;
+
   width: min(520px, 100%);
+
   max-height: 90vh;
+
   overflow-y: auto;
 
+  padding: 27px;
+
   background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
 
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  border-radius: 17px;
+
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.2);
 }
 
-.modal-title {
-  margin: 0 0 5px;
+.modal-panel h3 {
+  margin: 5px 0 20px;
+
   color: #111827;
-  font-size: 20px;
-  font-weight: 800;
+
+  font-size: 21px;
 }
 
-.modal-description {
-  margin: 0 0 20px;
-  color: #6b7280;
-  font-size: 13px;
+.close {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border-radius: 50%;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  font-size: 21px;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
+
   gap: 8px;
+
   margin-top: 20px;
 }
 
 
 /* =========================================================
-   푸터
+   MOBILE
    ========================================================= */
 
-footer {
-  padding: 30px 20px 50px;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 12px;
-}
+@media (max-width: 900px) {
 
-
-/* =========================================================
-   모바일
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-  .container,
-  main,
-  .header-inner {
-    width: calc(100% - 28px);
-  }
-
-  main {
-    margin-top: 22px;
-  }
-
-  .page-title {
-    font-size: 25px;
-  }
-
-  .stats {
+  .grid {
     grid-template-columns: 1fr;
   }
 
-  .form-row {
+  .card.full-width {
+    grid-column: auto;
+  }
+
+  .topbar {
+    padding: 13px 20px;
+  }
+
+}
+
+
+@media (max-width: 680px) {
+
+  .container {
+    width: calc(100% - 28px);
+
+    padding-top: 22px;
+  }
+
+  .topbar {
+    position: static;
+
+    flex-direction: column;
+    align-items: stretch;
+
+    padding: 14px;
+  }
+
+  .topbar > div:last-child {
+    justify-content: flex-end;
+  }
+
+  #userEmail {
+    max-width: 170px;
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+
+    padding: 24px;
+  }
+
+  .hero h2 {
+    font-size: 25px;
+  }
+
+  .hero-stat {
+    width: 100%;
+  }
+
+  .two-col {
     grid-template-columns: 1fr;
   }
 
@@ -624,62 +954,57 @@ footer {
   }
 
   .task-row {
-    align-items: flex-start;
-  }
-
-  .task-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .task-actions .mini-btn {
-    white-space: nowrap;
-  }
-
-  .card,
-  .plan-item {
-    padding: 17px;
-  }
-}
-
-
-/* =========================================================
-   작은 모바일
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-  .header-inner {
-    min-height: 60px;
-  }
-
-  .logo,
-  .logo a {
-    font-size: 18px;
-  }
-
-  .page-title {
-    font-size: 22px;
-  }
-
-  .plan-title {
-    font-size: 17px;
-  }
-
-  .task-row {
     flex-direction: column;
   }
 
   .task-actions {
     width: 100%;
-    flex-direction: row;
   }
 
-  .task-actions button {
+  .task-actions .mini-btn {
     flex: 1;
   }
 
-  .modal-content {
-    padding: 18px;
+  .card {
+    padding: 20px;
   }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .brand h1 {
+    font-size: 16px;
+  }
+
+  .brand p {
+    font-size: 11px;
+  }
+
+  .topbar > div:last-child {
+    flex-wrap: wrap;
+  }
+
+  #userEmail {
+    width: 100%;
+    max-width: none;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .hero h2 {
+    font-size: 22px;
+  }
+
+  .card-head {
+    flex-direction: column;
+  }
+
+  .modal-panel {
+    padding: 22px 18px;
+  }
+
 }
