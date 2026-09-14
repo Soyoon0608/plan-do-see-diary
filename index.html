@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,603 +11,512 @@
 
 <body>
 
-  <h1>Plan · Do · See Diary</h1>
+<header class="topbar">
 
-  <!-- ============================== -->
-  <!-- Card 5 — 공개 접근 경고 -->
-  <!-- ============================== -->
+  <div class="brand">
+    <span class="brand-mark">PDS</span>
 
-  <p class="public-warning">
-    ⚠️ 지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다.
-    남이 봐도 괜찮은 내용만 넣으세요.
-  </p>
+    <div>
+      <h1>Plan · Do · See Diary</h1>
+      <p>계획하고, 실행하고, 돌아보기</p>
+    </div>
+  </div>
 
-  <!-- ============================== -->
-  <!-- Card 5 — 데이터 내보내기 -->
-  <!-- ============================== -->
 
-  <section class="export-section">
+  <div style="
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  ">
 
-    <h2>Card 5 — 내 데이터 보관</h2>
-
-    <p>
-      현재 저장된 계획, 수정 이력, 할 일, 실행 기록을
-      하나의 JSON 파일로 내보냅니다.
-    </p>
+    <span
+      id="userEmail"
+      style="
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 600;
+      "
+    >
+      로그인 확인 중...
+    </span>
 
     <button
+      id="refreshBtn"
+      class="btn ghost"
       type="button"
-      id="exportDataButton"
     >
-      내 데이터 내보내기
+      새로고침
     </button>
 
-    <div id="exportResult"></div>
+    <button
+      id="logoutBtn"
+      class="btn ghost"
+      type="button"
+    >
+      로그아웃
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+  <section class="hero">
+
+    <div>
+
+      <span class="eyebrow">
+        MY STUDY DIARY
+      </span>
+
+      <h2>
+        오늘의 계획을 세우고<br>
+        실행 기록을 남겨보세요.
+      </h2>
+
+      <p>
+        계획 기간, 할 일, 실제 실행 시간과
+        막힌 이유까지 한 곳에서 기록합니다.
+      </p>
+
+    </div>
+
+
+    <div class="hero-stat">
+
+      <strong id="totalPlans">
+        0
+      </strong>
+
+      <span>
+        전체 계획
+      </span>
+
+    </div>
 
   </section>
 
-  <hr>
 
-  <!-- ============================== -->
-  <!-- Plan — 계획 세우기 -->
-  <!-- ============================== -->
+  <div
+    id="message"
+    class="message hidden"
+  ></div>
 
-  <h2>Plan — 계획 세우기</h2>
 
-  <form id="planForm">
+  <section class="grid">
 
-    <label for="planName">
-      계획명
-    </label>
+    <!-- =========================
+         PLAN
+         ========================= -->
 
-    <input
-      type="text"
-      id="planName"
-      placeholder="오늘의 계획"
-      required
-    >
+    <article class="card">
 
-    <label for="startDate">
-      시작일
-    </label>
+      <div class="card-head">
 
-    <input
-      type="date"
-      id="startDate"
-      required
-    >
+        <div>
 
-    <label for="endDate">
-      종료일
-    </label>
+          <span class="step">
+            PLAN
+          </span>
 
-    <input
-      type="date"
-      id="endDate"
-      required
-    >
+          <h3>
+            계획 만들기
+          </h3>
 
-    <label for="priority">
-      우선순위
-    </label>
+        </div>
 
-    <select id="priority">
+      </div>
 
-      <option value="높음">
-        높음
-      </option>
 
-      <option
-        value="보통"
-        selected
+      <form id="planForm">
+
+        <label>
+          계획 제목
+
+          <input
+            id="planTitle"
+            maxlength="100"
+            placeholder="예: 정보보안 공부"
+            required
+          >
+        </label>
+
+
+        <label>
+          계획 설명
+
+          <textarea
+            id="planDescription"
+            rows="3"
+            maxlength="500"
+            placeholder="이번 계획에서 달성하고 싶은 내용을 적어주세요."
+          ></textarea>
+        </label>
+
+
+        <div class="two-col">
+
+          <label>
+            시작일
+
+            <input
+              id="startDate"
+              type="date"
+              required
+            >
+          </label>
+
+
+          <label>
+            종료일
+
+            <input
+              id="endDate"
+              type="date"
+              required
+            >
+          </label>
+
+        </div>
+
+
+        <label>
+          예상 시간(시간)
+
+          <input
+            id="estimatedHours"
+            type="number"
+            min="0"
+            step="0.5"
+            placeholder="예: 10"
+          >
+        </label>
+
+
+        <button
+          class="btn primary full"
+          type="submit"
+        >
+          계획 저장
+        </button>
+
+      </form>
+
+    </article>
+
+
+    <!-- =========================
+         DO
+         ========================= -->
+
+    <article class="card wide">
+
+      <div class="card-head">
+
+        <div>
+
+          <span class="step">
+            DO
+          </span>
+
+          <h3>
+            할 일 & 실행 기록
+          </h3>
+
+          <p>
+            실제로 언제 시작했고 얼마나 걸렸는지,
+            진행하면서 어디서 막혔는지를 기록합니다.
+          </p>
+
+        </div>
+
+
+        <button
+          id="addTaskBtn"
+          class="btn secondary"
+          type="button"
+        >
+          + 할 일 추가
+        </button>
+
+      </div>
+
+
+      <div
+        id="planList"
+        class="plan-list"
       >
-        보통
-      </option>
+        <div class="empty">
+          저장된 계획을 불러오는 중입니다.
+        </div>
+      </div>
 
-      <option value="낮음">
-        낮음
-      </option>
+    </article>
 
-    </select>
 
-    <label for="successCriteria">
-      성공 기준
-    </label>
+    <!-- =========================
+         SEE
+         ========================= -->
 
-    <textarea
-      id="successCriteria"
-      placeholder="무엇을 하면 성공인가요?"
-      required
-    ></textarea>
+    <article class="card full-width">
 
-    <label for="estimatedHours">
-      예상 시간
-    </label>
+      <div class="card-head">
 
-    <input
-      type="number"
-      id="estimatedHours"
-      min="0"
-      step="0.5"
-      placeholder="시간"
-      required
+        <div>
+
+          <span class="step">
+            SEE
+          </span>
+
+          <h3>
+            실행 기록
+          </h3>
+
+          <p>
+            완료한 할 일의 실제 실행 결과를 확인합니다.
+          </p>
+
+        </div>
+
+
+        <div
+          id="historyCount"
+          class="count-badge"
+        >
+          0건
+        </div>
+
+      </div>
+
+
+      <div
+        id="historyList"
+        class="history-list"
+      >
+        <div class="empty">
+          실행 기록이 없습니다.
+        </div>
+      </div>
+
+    </article>
+
+  </section>
+
+</main>
+
+
+<!-- =========================
+     할 일 추가 Modal
+     ========================= -->
+
+<div
+  id="taskModal"
+  class="modal hidden"
+>
+
+  <div
+    class="backdrop"
+    data-close-task
+  ></div>
+
+
+  <div class="modal-panel">
+
+    <button
+      class="close"
+      type="button"
+      data-close-task
     >
-
-    <button type="submit">
-      계획 저장
+      ×
     </button>
 
-  </form>
 
-  <hr>
+    <span class="step">
+      TASK
+    </span>
 
-  <!-- ============================== -->
-  <!-- 계획 목록 -->
-  <!-- ============================== -->
 
-  <h3>계획 목록</h3>
-
-  <div id="planList">
-    계획을 불러오는 중입니다...
-  </div>
-
-  <hr>
-
-  <!-- ============================== -->
-  <!-- Do — 할 일 관리 -->
-  <!-- ============================== -->
-
-  <h2>Do — 할 일 관리</h2>
-
-  <form id="taskForm">
-
-    <label for="taskName">
-      할 일
-    </label>
-
-    <input
-      type="text"
-      id="taskName"
-      placeholder="예: SQL Injection 실습"
-      required
-    >
-
-    <label for="taskPlanId">
-      연결할 계획
-    </label>
-
-    <select
-      id="taskPlanId"
-      required
-    >
-
-      <option value="">
-        계획을 선택하세요
-      </option>
-
-    </select>
-
-    <label for="taskDueDate">
-      마감일
-    </label>
-
-    <input
-      type="date"
-      id="taskDueDate"
-    >
-
-    <label for="taskPriority">
-      우선순위
-    </label>
-
-    <select id="taskPriority">
-
-      <option value="높음">
-        높음
-      </option>
-
-      <option
-        value="보통"
-        selected
-      >
-        보통
-      </option>
-
-      <option value="낮음">
-        낮음
-      </option>
-
-    </select>
-
-    <label for="taskTag">
-      태그
-    </label>
-
-    <input
-      type="text"
-      id="taskTag"
-      placeholder="예: 보안, 공부"
-    >
-
-    <label for="taskEstimatedHours">
-      예상 시간
-    </label>
-
-    <input
-      type="number"
-      id="taskEstimatedHours"
-      min="0"
-      step="0.5"
-      placeholder="시간"
-      required
-    >
-
-    <button type="submit">
+    <h3>
       할 일 추가
+    </h3>
+
+
+    <form id="taskForm">
+
+      <label>
+        계획 선택
+
+        <select
+          id="taskPlanId"
+          required
+        ></select>
+      </label>
+
+
+      <label>
+        할 일
+
+        <input
+          id="taskTitle"
+          maxlength="150"
+          placeholder="예: SQL Injection 실습"
+          required
+        >
+      </label>
+
+
+      <label>
+        실행 메모
+
+        <textarea
+          id="taskMemo"
+          rows="3"
+          maxlength="500"
+          placeholder="이번 할 일에서 확인할 내용을 적어주세요."
+        ></textarea>
+      </label>
+
+
+      <button
+        class="btn primary full"
+        type="submit"
+      >
+        할 일 저장
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     실행 기록 Modal
+     ========================= -->
+
+<div
+  id="executeModal"
+  class="modal hidden"
+>
+
+  <div
+    class="backdrop"
+    data-close-execute
+  ></div>
+
+
+  <div class="modal-panel">
+
+    <button
+      class="close"
+      type="button"
+      data-close-execute
+    >
+      ×
     </button>
 
-  </form>
 
-  <hr>
+    <span class="step">
+      DO
+    </span>
 
-  <!-- ============================== -->
-  <!-- 할 일 검색 / 필터 / 정렬 -->
-  <!-- ============================== -->
 
-  <h3>할 일 목록</h3>
+    <h3 id="executeTitle">
+      실행 기록
+    </h3>
 
-  <div>
 
-    <input
-      type="text"
-      id="taskSearch"
-      placeholder="할 일 검색"
-    >
+    <form id="executeForm">
 
-  </div>
+      <input
+        id="executeTaskId"
+        type="hidden"
+      >
 
-  <br>
 
-  <div>
+      <label>
+        시작 시간
 
-    <label for="taskPlanFilter">
-      계획 필터
-    </label>
+        <input
+          id="startedAt"
+          type="datetime-local"
+          required
+        >
+      </label>
 
-    <select id="taskPlanFilter">
 
-      <option value="">
-        전체 계획
-      </option>
+      <label>
+        종료 시간
 
-    </select>
+        <input
+          id="endedAt"
+          type="datetime-local"
+        >
+      </label>
 
-    <label for="taskStatusFilter">
-      상태 필터
-    </label>
 
-    <select id="taskStatusFilter">
+      <label>
+        실제 소요 시간(분)
 
-      <option value="">
-        전체
-      </option>
+        <input
+          id="actualMinutes"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="예: 60"
+        >
+      </label>
 
-      <option value="진행 중">
-        진행 중
-      </option>
 
-      <option value="완료">
-        완료
-      </option>
+      <label>
+        진행하면서 막힌 이유
 
-    </select>
+        <textarea
+          id="blockedReason"
+          rows="4"
+          maxlength="1000"
+          placeholder="없다면 비워두세요."
+        ></textarea>
+      </label>
 
-    <label for="taskPriorityFilter">
-      우선순위 필터
-    </label>
 
-    <select id="taskPriorityFilter">
+      <div class="modal-actions">
 
-      <option value="">
-        전체
-      </option>
+        <button
+          class="btn secondary"
+          type="button"
+          data-close-execute
+        >
+          취소
+        </button>
 
-      <option value="높음">
-        높음
-      </option>
 
-      <option value="보통">
-        보통
-      </option>
+        <button
+          class="btn primary"
+          type="submit"
+        >
+          실행 기록 저장
+        </button>
 
-      <option value="낮음">
-        낮음
-      </option>
+      </div>
 
-    </select>
-
-  </div>
-
-  <br>
-
-  <div>
-
-    <label for="taskSort">
-      정렬
-    </label>
-
-    <select id="taskSort">
-
-      <option value="created_desc">
-        최근 추가순
-      </option>
-
-      <option value="due_asc">
-        마감일 빠른 순
-      </option>
-
-      <option value="priority_desc">
-        우선순위 높은 순
-      </option>
-
-      <option value="hours_asc">
-        예상 시간 적은 순
-      </option>
-
-      <option value="hours_desc">
-        예상 시간 많은 순
-      </option>
-
-    </select>
+    </form>
 
   </div>
 
-  <br>
+</div>
 
-  <div id="taskList">
-    할 일을 불러오는 중입니다...
-  </div>
 
-  <hr>
+<!-- Supabase -->
 
-  <!-- ============================== -->
-  <!-- See — 실제로 한 일 기록 -->
-  <!-- ============================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <h2>See — 실제로 한 일 기록</h2>
+<!-- Diary JS -->
 
-  <p>
-    실제로 언제 시작했고 얼마나 걸렸는지,
-    진행하면서 어디서 막혔는지를 기록합니다.
-  </p>
-
-  <form id="executionForm">
-
-    <label for="executionTaskId">
-      할 일 선택
-    </label>
-
-    <select
-      id="executionTaskId"
-      required
-    >
-
-      <option value="">
-        할 일을 선택하세요
-      </option>
-
-    </select>
-
-    <label for="startedAt">
-      시작 시각
-    </label>
-
-    <input
-      type="datetime-local"
-      id="startedAt"
-      required
-    >
-
-    <label for="endedAt">
-      끝난 시각
-    </label>
-
-    <input
-      type="datetime-local"
-      id="endedAt"
-      required
-    >
-
-    <label for="actualMinutes">
-      실제로 걸린 시간
-    </label>
-
-    <input
-      type="number"
-      id="actualMinutes"
-      min="0"
-      placeholder="분"
-      required
-    >
-
-    <label for="blockedReason">
-      막혔던 이유
-    </label>
-
-    <textarea
-      id="blockedReason"
-      placeholder="예: 오류 원인을 찾는 데 시간이 걸렸습니다."
-    ></textarea>
-
-    <button type="submit">
-      실행 기록 저장
-    </button>
-
-  </form>
-
-  <br>
-
-  <h3>실행 기록</h3>
-
-  <div id="executionList">
-    실행 기록을 불러오는 중입니다...
-  </div>
-
-  <hr>
-
-  <!-- ============================== -->
-  <!-- Card 4 — 돌아보기 -->
-  <!-- ============================== -->
-
-  <h2>See — 돌아보기</h2>
-
-  <p>
-    계획 기간의 할 일을 기준으로 예상과 실제의 차이를 확인합니다.
-  </p>
-
-  <div>
-
-    <label for="reviewPlanFilter">
-      계획 선택
-    </label>
-
-    <select id="reviewPlanFilter">
-
-      <option value="">
-        전체 계획
-      </option>
-
-    </select>
-
-  </div>
-
-  <br>
-
-  <div>
-
-    <label for="reviewStartDate">
-      시작일
-    </label>
-
-    <input
-      type="date"
-      id="reviewStartDate"
-    >
-
-  </div>
-
-  <br>
-
-  <div>
-
-    <label for="reviewEndDate">
-      종료일
-    </label>
-
-    <input
-      type="date"
-      id="reviewEndDate"
-    >
-
-  </div>
-
-  <br>
-
-  <button
-    type="button"
-    id="reviewLoadButton"
-  >
-    돌아보기 불러오기
-  </button>
-
-  <hr>
-
-  <!-- ============================== -->
-  <!-- 집계 결과 -->
-  <!-- ============================== -->
-
-  <div id="reviewSummary">
-
-    돌아보기 정보를 불러오는 중입니다...
-
-  </div>
-
-  <hr>
-
-  <!-- ============================== -->
-  <!-- 근거 기록 -->
-  <!-- ============================== -->
-
-  <h3>
-    근거 기록
-  </h3>
-
-  <div id="reviewEvidence">
-
-    집계 숫자를 클릭하면
-    해당 기록이 표시됩니다.
-
-  </div>
-
-  <hr>
-
-  <!-- ============================== -->
-  <!-- 다음 계획으로 넘기기 -->
-  <!-- ============================== -->
-
-  <h3>
-    다음 계획으로 넘기기
-  </h3>
-
-  <p>
-    이번 돌아보기에서 고칠 점 한 가지를 적고
-    다음 계획에 반영합니다.
-  </p>
-
-  <label for="nextActionInput">
-    고칠 점
-  </label>
-
-  <textarea
-    id="nextActionInput"
-    placeholder="예: SQL 실습 전에 환경 설정 시간을 먼저 확보하기"
-  ></textarea>
-
-  <br>
-
-  <label for="nextPlanSelect">
-    반영할 다음 계획
-  </label>
-
-  <select id="nextPlanSelect">
-
-    <option value="">
-      다음 계획을 선택하세요
-    </option>
-
-  </select>
-
-  <br>
-
-  <button
-    type="button"
-    id="saveNextActionButton"
-  >
-    다음 계획에 반영
-  </button>
-
-  <div id="nextActionResult"></div>
-
-  <hr>
-
-  <!-- ============================== -->
-  <!-- Supabase -->
-  <!-- ============================== -->
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script src="script.js"></script>
+<script src="script.js"></script>
 
 </body>
-
 </html>
