@@ -1,104 +1,48 @@
-<!-- Do -->
-<section class="content-section">
-  <h2>Do — 실행하기</h2>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan · Do · See Diary</title>
+</head>
+<body>
 
-  <p class="section-description">
-    할 일 목록, 실제로 언제 시작했고 얼마나 걸렸는지,
-    진행하면서 어디서 막혔는지를 기록합니다.
+  <h1>Plan · Do · See Diary</h1>
+
+  <p>
+    ⚠️ 현재 로그인 기능이 없습니다.
+    링크를 아는 사람은 누구나 볼 수 있습니다.
   </p>
 
-  <div class="content-card">
-    <!-- 기존 할 일 목록 내용 -->
-    <h3>할 일 목록</h3>
+  <hr>
 
-    <!-- 기존 할 일 입력/목록 코드가 있다면 여기에 유지 -->
-  </div>
-</section>
+  <h2>Plan — 계획 세우기</h2>
 
+  <form>
+    <label>계획명</label><br>
+    <input type="text" id="planName" placeholder="오늘의 계획"><br><br>
 
-<!-- 실행 기록 -->
-<section class="content-section">
-  <h2>실행 기록</h2>
+    <label>시작일</label><br>
+    <input type="date" id="startDate"><br><br>
 
-  <p class="section-description">
-    계획 기간의 할 일을 기준으로 예상과 실제의 차이를 확인합니다.
-  </p>
+    <label>종료일</label><br>
+    <input type="date" id="endDate"><br><br>
 
-  <div class="content-card">
-    <!-- 기존 실행 기록 내용 -->
-  </div>
-</section>
+    <label>우선순위</label><br>
+    <select id="priority">
+      <option value="높음">높음</option>
+      <option value="보통" selected>보통</option>
+      <option value="낮음">낮음</option>
+    </select><br><br>
 
+    <label>성공 기준</label><br>
+    <textarea id="successCriteria" placeholder="무엇을 하면 성공인가요?"></textarea><br><br>
 
-<!-- See -->
-<section class="content-section">
-  <h2>See — 돌아보기</h2>
+    <label>예상 시간</label><br>
+    <input type="number" id="estimatedHours" min="0" placeholder="시간"> 시간<br><br>
 
-  <button type="button" class="center-button">
-    돌아보기 불러오기
-  </button>
+    <button type="submit">계획 저장</button>
+  </form>
 
-  <div class="evidence-box">
-    <h3>근거 기록</h3>
-
-    <p>
-      집계 숫자를 클릭하면 해당 기록이 표시됩니다.
-    </p>
-
-    <!-- 기존 집계/근거 기록 내용 -->
-  </div>
-</section>
-
-
-<!-- 다음 계획으로 넘기기 -->
-<section class="content-section next-plan-section">
-
-  <h2>다음 계획으로 넘기기</h2>
-
-  <p class="section-description">
-    이번 돌아보기에서 고칠 점 한 가지를 적고
-    다음 계획에 반영합니다.
-  </p>
-
-  <div class="next-plan-form">
-
-    <label for="improvement">
-      고칠 점
-    </label>
-
-    <textarea
-      id="improvement"
-      name="improvement"
-      placeholder="이번 계획에서 고칠 점을 적어주세요."
-    ></textarea>
-
-
-    <label for="next-plan">
-      반영할 다음 계획
-    </label>
-
-    <select id="next-plan" name="next-plan">
-      <option value="">다음 계획을 선택하세요</option>
-      <option value="정보보안 공부">정보보안 공부</option>
-      <option value="SQL Injection 실습">
-        SQL Injection 실습
-      </option>
-      <option value="웹보안 포트폴리오 완성">
-        웹보안 포트폴리오 완성
-      </option>
-      <option value="plan-do-see">
-        Plan · Do · See Diary 카드 5 완성
-      </option>
-    </select>
-
-
-    <button
-      type="button"
-      class="center-button"
-    >
-      다음 계획에 반영
-    </button>
-
-  </div>
-
-</section>
+</body>
+</html>
