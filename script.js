@@ -14,16 +14,11 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_I1wduW_WYOxku9iIx6GhEA_10TGX4Dh";
 
-
 const hasPlaceholderKey =
   !SUPABASE_KEY ||
   SUPABASE_KEY.includes("여기에_");
 
-
-const {
-  createClient
-} = window.supabase;
-
+const { createClient } = window.supabase;
 
 const supabaseClient =
   createClient(
@@ -39,12 +34,13 @@ const supabaseClient =
 let plans = [];
 let tasks = [];
 let histories = [];
+
 let currentTask = null;
 let currentUser = null;
 
 
 /* =========================================================
-   간단한 DOM 선택 함수
+   DOM 선택
    ========================================================= */
 
 const $ = (selector) =>
@@ -92,6 +88,9 @@ async function requireLogin() {
     }
 
 
+    currentUser =
+      data.session.user;
+
     return true;
 
   } catch (error) {
@@ -106,6 +105,7 @@ async function requireLogin() {
 
     return false;
   }
+
 }
 
 
@@ -137,6 +137,14 @@ async function loadCurrentUser() {
     data?.user;
 
 
+  if (user) {
+
+    currentUser =
+      user;
+
+  }
+
+
   const userEmail =
     $("#userEmail");
 
@@ -147,7 +155,8 @@ async function loadCurrentUser() {
   ) {
 
     userEmail.textContent =
-      user.email || "로그인 사용자";
+      user.email ||
+      "로그인 사용자";
 
   }
 
@@ -194,8 +203,13 @@ async function logout() {
   }
 
 
+  currentUser =
+    null;
+
+
   window.location.href =
     "login.html";
+
 }
 
 
@@ -207,9 +221,7 @@ document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
-    /*
-     * Supabase Publishable Key 확인
-     */
+    /* Publishable Key 확인 */
 
     if (hasPlaceholderKey) {
 
@@ -222,48 +234,33 @@ document.addEventListener(
     }
 
 
-    /*
-     * 로그인 여부 확인
-     */
+    /* 로그인 확인 */
 
     const loggedIn =
       await requireLogin();
 
-
-    /*
-     * 로그인하지 않은 경우
-     * login.html로 이동했으므로 종료
-     */
 
     if (!loggedIn) {
       return;
     }
 
 
-    /*
-     * 로그인 사용자 표시
-     */
+    /* 현재 사용자 */
 
     await loadCurrentUser();
 
 
-    /*
-     * 기본 날짜 설정
-     */
+    /* 기본 날짜 */
 
     setDefaultDates();
 
 
-    /*
-     * 버튼 및 폼 이벤트 연결
-     */
+    /* 이벤트 연결 */
 
     bindEvents();
 
 
-    /*
-     * 데이터 불러오기
-     */
+    /* 데이터 불러오기 */
 
     await loadAll();
 
@@ -280,22 +277,17 @@ function bindEvents() {
   const planForm =
     $("#planForm");
 
-
   const taskForm =
     $("#taskForm");
-
 
   const executeForm =
     $("#executeForm");
 
-
   const refreshBtn =
     $("#refreshBtn");
 
-
   const logoutBtn =
     $("#logoutBtn");
-
 
   const addTaskBtn =
     $("#addTaskBtn");
@@ -361,13 +353,14 @@ function bindEvents() {
   }
 
 
-  /*
-   * 동적으로 생성되는 버튼 처리
-   */
+  /* 동적으로 생성되는 버튼 */
 
   document.addEventListener(
     "click",
     (event) => {
+
+
+      /* Task Modal 닫기 */
 
       if (
         event.target.closest(
@@ -380,6 +373,8 @@ function bindEvents() {
       }
 
 
+      /* Execute Modal 닫기 */
+
       if (
         event.target.closest(
           "[data-close-execute]"
@@ -390,6 +385,8 @@ function bindEvents() {
 
       }
 
+
+      /* 실행 기록 */
 
       const executeButton =
         event.target.closest(
@@ -406,6 +403,8 @@ function bindEvents() {
       }
 
 
+      /* Task 삭제 */
+
       const deleteTaskButton =
         event.target.closest(
           "[data-delete-task]"
@@ -421,6 +420,8 @@ function bindEvents() {
       }
 
 
+      /* Plan 삭제 */
+
       const deletePlanButton =
         event.target.closest(
           "[data-delete-plan]"
@@ -435,6 +436,8 @@ function bindEvents() {
 
       }
 
+
+      /* 완료 체크 */
 
       const completeCheckbox =
         event.target.closest(
@@ -470,15 +473,23 @@ supabaseClient.auth.onAuthStateChange(
     );
 
 
-    /*
-     * 로그아웃된 경우
-     * 로그인 화면으로 이동
-     */
+    if (event === "SIGNED_IN") {
 
-    if (
-      event === "SIGNED_OUT" ||
-      !session
-    ) {
+      if (session?.user) {
+
+        currentUser =
+          session.user;
+
+      }
+
+    }
+
+
+    if (event === "SIGNED_OUT") {
+
+      currentUser =
+        null;
+
 
       const currentPage =
         window.location.pathname
@@ -510,6 +521,20 @@ async function loadAll() {
 
   try {
 
+    if (!currentUser) {
+
+      console.error(
+        "현재 로그인 사용자가 없습니다."
+      );
+
+      return;
+    }
+
+
+    const userId =
+      currentUser.id;
+
+
     const [
       plansResult,
       tasksResult,
@@ -517,9 +542,18 @@ async function loadAll() {
     ] =
       await Promise.all([
 
+
+        /* -------------------------
+           PLAN
+           ------------------------- */
+
         supabaseClient
           .from("plans")
           .select("*")
+          .eq(
+            "user_id",
+            userId
+          )
           .order(
             "created_at",
             {
@@ -528,9 +562,17 @@ async function loadAll() {
           ),
 
 
+        /* -------------------------
+           TASK
+           ------------------------- */
+
         supabaseClient
           .from("tasks")
           .select("*")
+          .eq(
+            "user_id",
+            userId
+          )
           .order(
             "created_at",
             {
@@ -539,9 +581,17 @@ async function loadAll() {
           ),
 
 
+        /* -------------------------
+           HISTORY
+           ------------------------- */
+
         supabaseClient
           .from("plan_history")
           .select("*")
+          .eq(
+            "user_id",
+            userId
+          )
           .order(
             "created_at",
             {
@@ -601,58 +651,125 @@ async function loadAll() {
 
 
 /* =========================================================
-   PLAN — 계획 생성
+   PLAN
+   계획 생성
    ========================================================= */
 
 async function createPlan(event) {
-    event.preventDefault();
 
-    if (!currentUser) {
-        alert("로그인이 필요합니다.");
-        return;
-    }
+  event.preventDefault();
 
-    const planName = document.getElementById("planTitle").value.trim();
-    const startDate = document.getElementById("startDate").value;
-    const endDate = document.getElementById("endDate").value;
-    const estimatedHours =
-        document.getElementById("estimatedHours").value;
 
-    if (!planName) {
-        alert("계획 제목을 입력해주세요.");
-        return;
-    }
+  if (!currentUser) {
 
-    const { data, error } = await supabaseClient
-        .from("plans")
-        .insert([
-            {
-                plan_name: planName,
-                start_date: startDate || null,
-                end_date: endDate || null,
-                estimated_hours:
-                    estimatedHours !== ""
-                        ? Number(estimatedHours)
-                        : null,
-                user_id: currentUser.id
-            }
-        ])
-        .select()
-        .single();
+    alert(
+      "로그인이 필요합니다."
+    );
 
-    if (error) {
-        console.error("PLAN INSERT ERROR:", error);
-        alert("계획 저장에 실패했습니다.");
-        return;
-    }
+    return;
+  }
 
-    console.log("PLAN CREATED:", data);
 
-    document.getElementById("planForm").reset();
+  const planName =
+    $("#planTitle")
+      .value
+      .trim();
 
-    await loadAll();
 
-    alert("계획이 저장되었습니다.");
+  const startDate =
+    $("#startDate").value;
+
+
+  const endDate =
+    $("#endDate").value;
+
+
+  const estimatedHours =
+    $("#estimatedHours").value;
+
+
+  if (!planName) {
+
+    alert(
+      "계획 제목을 입력해주세요."
+    );
+
+    return;
+  }
+
+
+  const payload = {
+
+    plan_name:
+      planName,
+
+    start_date:
+      startDate || null,
+
+    end_date:
+      endDate || null,
+
+    estimated_hours:
+      estimatedHours !== ""
+        ? Number(estimatedHours)
+        : null,
+
+    user_id:
+      currentUser.id
+
+  };
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("plans")
+      .insert([
+        payload
+      ])
+      .select()
+      .single();
+
+
+  if (error) {
+
+    console.error(
+      "PLAN INSERT ERROR:",
+      error
+    );
+
+
+    showMessage(
+      "계획 저장에 실패했습니다: " +
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  console.log(
+    "PLAN CREATED:",
+    data
+  );
+
+
+  $("#planForm").reset();
+
+
+  setDefaultDates();
+
+
+  await loadAll();
+
+
+  showMessage(
+    "계획이 저장되었습니다."
+  );
+
 }
 
 
@@ -662,9 +779,7 @@ async function createPlan(event) {
 
 function openTaskModal() {
 
-  if (
-    !plans.length
-  ) {
+  if (!plans.length) {
 
     showMessage(
       "먼저 계획을 하나 저장해주세요.",
@@ -726,6 +841,17 @@ async function createTask(event) {
   event.preventDefault();
 
 
+  if (!currentUser) {
+
+    showMessage(
+      "로그인이 필요합니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
   const payload = {
 
     plan_id:
@@ -742,9 +868,23 @@ async function createTask(event) {
         .trim(),
 
     completed:
-      false
+      false,
+
+    user_id:
+      currentUser.id
 
   };
+
+
+  if (!payload.title) {
+
+    showMessage(
+      "할 일 제목을 입력해주세요.",
+      "error"
+    );
+
+    return;
+  }
 
 
   const {
@@ -879,6 +1019,17 @@ async function saveExecution(event) {
   }
 
 
+  if (!currentUser) {
+
+    showMessage(
+      "로그인이 필요합니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
   const start =
     $("#startedAt").value;
 
@@ -910,10 +1061,7 @@ async function saveExecution(event) {
       : null;
 
 
-  /*
-   * 실제 시간이 입력되지 않았지만
-   * 시작/종료 시간이 있다면 자동 계산
-   */
+  /* 시작/종료 시간으로 자동 계산 */
 
   if (
     minutes === null &&
@@ -965,9 +1113,9 @@ async function saveExecution(event) {
     !!currentTask.completed;
 
 
-  /*
-   * 할 일에 실행 결과 저장
-   */
+  /* -------------------------
+     TASK 실행 결과 저장
+     ------------------------- */
 
   const {
     error
@@ -978,6 +1126,10 @@ async function saveExecution(event) {
       .eq(
         "id",
         currentTask.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
       );
 
 
@@ -999,98 +1151,75 @@ async function saveExecution(event) {
   }
 
 
-  /*
-   * 처음 완료한 경우에만
-   * plan_history에 기록
-   *
-   * 이미 완료된 작업을 수정할 때는
-   * 중복 기록을 만들지 않음
-   */
+  /* -------------------------
+     처음 완료한 경우만
+     history 생성
+     ------------------------- */
 
   if (!wasCompleted) {
 
-    let historyResult =
+    const historyPayload = {
+
+      plan_id:
+        currentTask.plan_id,
+
+      task_id:
+        currentTask.id,
+
+      title:
+        currentTask.title,
+
+      started_at:
+        payload.started_at,
+
+      ended_at:
+        payload.ended_at,
+
+      actual_minutes:
+        payload.actual_minutes,
+
+      blocked_reason:
+        payload.blocked_reason,
+
+      user_id:
+        currentUser.id
+
+    };
+
+
+    const {
+      error:
+        historyError
+    } =
       await supabaseClient
         .from("plan_history")
-        .insert({
-
-          plan_id:
-            currentTask.plan_id,
-
-          task_id:
-            currentTask.id,
-
-          title:
-            currentTask.title,
-
-          started_at:
-            payload.started_at,
-
-          ended_at:
-            payload.ended_at,
-
-          actual_minutes:
-            payload.actual_minutes,
-
-          blocked_reason:
-            payload.blocked_reason
-
-        });
-
-
-    /*
-     * 기존 history 테이블에
-     * title 컬럼이 없는 경우를 대비한
-     * 보조 저장 시도
-     */
-
-    if (
-      historyResult.error
-    ) {
-
-      historyResult =
-        await supabaseClient
-          .from("plan_history")
-          .insert({
-
-            plan_id:
-              currentTask.plan_id,
-
-            task_id:
-              currentTask.id,
-
-            started_at:
-              payload.started_at,
-
-            ended_at:
-              payload.ended_at,
-
-            actual_minutes:
-              payload.actual_minutes,
-
-            blocked_reason:
-              payload.blocked_reason
-
-          });
-
-
-      if (
-        historyResult.error
-      ) {
-
-        showMessage(
-          "실행 기록은 저장됐지만 history 저장에 실패했습니다: " +
-          historyResult.error.message,
-          "error"
+        .insert(
+          historyPayload
         );
 
-        closeExecuteModal();
 
-        await loadAll();
+    if (historyError) {
 
-        return;
-      }
+      console.error(
+        "HISTORY INSERT ERROR:",
+        historyError
+      );
 
+
+      showMessage(
+        "실행 기록은 저장됐지만 history 저장에 실패했습니다: " +
+        historyError.message,
+        "error"
+      );
+
+
+      closeExecuteModal();
+
+
+      await loadAll();
+
+
+      return;
     }
 
   }
@@ -1120,20 +1249,27 @@ async function toggleComplete(
   checked
 ) {
 
+  if (!currentUser) {
+    return;
+  }
+
+
   const {
     error
   } =
     await supabaseClient
       .from("tasks")
       .update({
-
         completed:
           checked
-
       })
       .eq(
         "id",
         id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
       );
 
 
@@ -1174,9 +1310,7 @@ async function deleteTask(id) {
     );
 
 
-  if (
-    !task
-  ) {
+  if (!task) {
     return;
   }
 
@@ -1201,6 +1335,10 @@ async function deleteTask(id) {
       .eq(
         "id",
         id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
       );
 
 
@@ -1279,6 +1417,10 @@ async function deletePlan(id) {
       .eq(
         "id",
         id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
       );
 
 
@@ -1316,17 +1458,32 @@ async function deletePlan(id) {
 
 function renderAll() {
 
-  $("#totalPlans").textContent =
-    plans.length;
+  const totalPlans =
+    $("#totalPlans");
 
 
-  $("#historyCount").textContent =
-    histories.length +
-    "건";
+  if (totalPlans) {
+
+    totalPlans.textContent =
+      plans.length;
+
+  }
+
+
+  const historyCount =
+    $("#historyCount");
+
+
+  if (historyCount) {
+
+    historyCount.textContent =
+      histories.length +
+      "건";
+
+  }
 
 
   renderPlans();
-
 
   renderHistory();
 
@@ -1339,11 +1496,18 @@ function renderAll() {
 
 function renderPlans() {
 
-  if (
-    !plans.length
-  ) {
+  const planList =
+    $("#planList");
 
-    $("#planList").innerHTML =
+
+  if (!planList) {
+    return;
+  }
+
+
+  if (!plans.length) {
+
+    planList.innerHTML =
       `
         <div class="empty">
           아직 저장된 계획이 없습니다.
@@ -1354,7 +1518,7 @@ function renderPlans() {
   }
 
 
-  $("#planList").innerHTML =
+  planList.innerHTML =
     plans
       .map(
         (plan) => {
@@ -1387,18 +1551,6 @@ function renderPlans() {
                       "제목 없음"
                     )}
                   </h4>
-
-                  ${
-                    plan.description
-                      ? `
-                        <p class="plan-desc">
-                          ${esc(
-                            plan.description
-                          )}
-                        </p>
-                      `
-                      : ""
-                  }
 
                 </div>
 
@@ -1571,11 +1723,18 @@ function renderTask(task) {
 
 function renderHistory() {
 
-  if (
-    !histories.length
-  ) {
+  const historyList =
+    $("#historyList");
 
-    $("#historyList").innerHTML =
+
+  if (!historyList) {
+    return;
+  }
+
+
+  if (!histories.length) {
+
+    historyList.innerHTML =
       `
         <div class="empty">
           아직 실행 기록이 없습니다.
@@ -1586,7 +1745,7 @@ function renderHistory() {
   }
 
 
-  $("#historyList").innerHTML =
+  historyList.innerHTML =
     histories
       .map(
         (history) => {
@@ -1624,7 +1783,7 @@ function renderHistory() {
                 <p>
                   계획:
                   ${esc(
-                    plan?.title ||
+                    plan?.plan_name ||
                     "계획 없음"
                   )}
                 </p>
@@ -1707,16 +1866,28 @@ function setDefaultDates() {
   );
 
 
-  $("#startDate").value =
-    dateInput(
-      today
-    );
+  const startDate =
+    $("#startDate");
 
 
-  $("#endDate").value =
-    dateInput(
-      nextWeek
-    );
+  const endDate =
+    $("#endDate");
+
+
+  if (startDate) {
+
+    startDate.value =
+      dateInput(today);
+
+  }
+
+
+  if (endDate) {
+
+    endDate.value =
+      dateInput(nextWeek);
+
+  }
 
 }
 
@@ -1727,21 +1898,11 @@ function setDefaultDates() {
 
 function dateInput(date) {
 
-  return `
-    ${date.getFullYear()}-
-    ${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-
-    ${String(
-      date.getDate()
-    ).padStart(2, "0")}
-  `.replaceAll(
-    "\n",
-    ""
-  ).replaceAll(
-    " ",
-    ""
-  );
+  return `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
 
 }
 
@@ -1758,9 +1919,7 @@ function toLocal(value) {
 
 
   const date =
-    new Date(
-      value
-    );
+    new Date(value);
 
 
   if (
@@ -1774,27 +1933,15 @@ function toLocal(value) {
   }
 
 
-  return `
-    ${date.getFullYear()}-
-    ${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-
-    ${String(
-      date.getDate()
-    ).padStart(2, "0")}T
-    ${String(
-      date.getHours()
-    ).padStart(2, "0")}:
-    ${String(
-      date.getMinutes()
-    ).padStart(2, "0")}
-  `.replaceAll(
-    "\n",
-    ""
-  ).replaceAll(
-    " ",
-    ""
-  );
+  return `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}T${String(
+    date.getHours()
+  ).padStart(2, "0")}:${String(
+    date.getMinutes()
+  ).padStart(2, "0")}`;
 
 }
 
@@ -1811,8 +1958,7 @@ function fmtDate(value) {
 
 
   return new Date(
-    value +
-    "T00:00:00"
+    value + "T00:00:00"
   ).toLocaleDateString(
     "ko-KR"
   );
