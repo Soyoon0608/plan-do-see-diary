@@ -1,11 +1,12 @@
 /* =========================================================
    Plan · Do · See Diary
    Supabase + Authentication
+   최종 버전
    ========================================================= */
 
 
 /* =========================================================
-   Supabase 설정
+   1. Supabase 설정
    ========================================================= */
 
 const SUPABASE_URL =
@@ -28,7 +29,7 @@ const supabaseClient =
 
 
 /* =========================================================
-   전역 변수
+   2. 전역 변수
    ========================================================= */
 
 let plans = [];
@@ -40,7 +41,7 @@ let currentUser = null;
 
 
 /* =========================================================
-   DOM 선택
+   3. DOM 선택
    ========================================================= */
 
 const $ = (selector) =>
@@ -48,7 +49,7 @@ const $ = (selector) =>
 
 
 /* =========================================================
-   로그인 보호
+   4. 로그인 보호
    ========================================================= */
 
 async function requireLogin() {
@@ -91,6 +92,12 @@ async function requireLogin() {
     currentUser =
       data.session.user;
 
+    console.log(
+      "CURRENT USER:",
+      currentUser.id,
+      currentUser.email
+    );
+
     return true;
 
   } catch (error) {
@@ -105,12 +112,11 @@ async function requireLogin() {
 
     return false;
   }
-
 }
 
 
 /* =========================================================
-   현재 로그인 사용자 표시
+   5. 현재 로그인 사용자
    ========================================================= */
 
 async function loadCurrentUser() {
@@ -164,7 +170,7 @@ async function loadCurrentUser() {
 
 
 /* =========================================================
-   로그아웃
+   6. 로그아웃
    ========================================================= */
 
 async function logout() {
@@ -214,14 +220,12 @@ async function logout() {
 
 
 /* =========================================================
-   페이지 시작
+   7. 페이지 시작
    ========================================================= */
 
 document.addEventListener(
   "DOMContentLoaded",
   async () => {
-
-    /* Publishable Key 확인 */
 
     if (hasPlaceholderKey) {
 
@@ -234,8 +238,6 @@ document.addEventListener(
     }
 
 
-    /* 로그인 확인 */
-
     const loggedIn =
       await requireLogin();
 
@@ -245,22 +247,14 @@ document.addEventListener(
     }
 
 
-    /* 현재 사용자 */
-
     await loadCurrentUser();
 
-
-    /* 기본 날짜 */
 
     setDefaultDates();
 
 
-    /* 이벤트 연결 */
-
     bindEvents();
 
-
-    /* 데이터 불러오기 */
 
     await loadAll();
 
@@ -269,7 +263,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   이벤트 연결
+   8. 이벤트 연결
    ========================================================= */
 
 function bindEvents() {
@@ -353,7 +347,7 @@ function bindEvents() {
   }
 
 
-  /* 동적으로 생성되는 버튼 */
+  /* 동적 버튼 */
 
   document.addEventListener(
     "click",
@@ -461,7 +455,7 @@ function bindEvents() {
 
 
 /* =========================================================
-   인증 상태 변경 감지
+   9. 인증 상태 변경
    ========================================================= */
 
 supabaseClient.auth.onAuthStateChange(
@@ -473,19 +467,20 @@ supabaseClient.auth.onAuthStateChange(
     );
 
 
-    if (event === "SIGNED_IN") {
+    if (
+      event === "SIGNED_IN" &&
+      session?.user
+    ) {
 
-      if (session?.user) {
-
-        currentUser =
-          session.user;
-
-      }
+      currentUser =
+        session.user;
 
     }
 
 
-    if (event === "SIGNED_OUT") {
+    if (
+      event === "SIGNED_OUT"
+    ) {
 
       currentUser =
         null;
@@ -514,7 +509,7 @@ supabaseClient.auth.onAuthStateChange(
 
 
 /* =========================================================
-   전체 데이터 불러오기
+   10. 전체 데이터 불러오기
    ========================================================= */
 
 async function loadAll() {
@@ -535,6 +530,22 @@ async function loadAll() {
       currentUser.id;
 
 
+    console.log(
+      "LOAD USER:",
+      userId
+    );
+
+
+    /*
+       중요
+
+       plans      → plans
+       tasks      → tasks
+       histories  → plan_history
+
+       실제 DB 컬럼에 존재하는 정렬 컬럼만 사용한다.
+    */
+
     const [
       plansResult,
       tasksResult,
@@ -548,10 +559,18 @@ async function loadAll() {
            ------------------------- */
 
         supabaseClient
-          .from("plan_history")
-  .select("*")
-  .eq("user_id", userId)
-  .order("changed_at", { ascending: false }),
+          .from("plans")
+          .select("*")
+          .eq(
+            "user_id",
+            userId
+          )
+          .order(
+            "id",
+            {
+              ascending: false
+            }
+          ),
 
 
         /* -------------------------
@@ -566,7 +585,7 @@ async function loadAll() {
             userId
           )
           .order(
-            "changed_at",
+            "id",
             {
               ascending: true
             }
@@ -574,7 +593,7 @@ async function loadAll() {
 
 
         /* -------------------------
-           HISTORY
+           PLAN HISTORY
            ------------------------- */
 
         supabaseClient
@@ -585,7 +604,7 @@ async function loadAll() {
             userId
           )
           .order(
-            "changed_at_at",
+            "changed_at",
             {
               ascending: false
             }
@@ -594,18 +613,30 @@ async function loadAll() {
       ]);
 
 
+    /* PLAN 오류 */
+
     if (plansResult.error) {
+
       throw plansResult.error;
+
     }
 
+
+    /* TASK 오류 */
 
     if (tasksResult.error) {
+
       throw tasksResult.error;
+
     }
 
 
+    /* HISTORY 오류 */
+
     if (historyResult.error) {
+
       throw historyResult.error;
+
     }
 
 
@@ -619,6 +650,24 @@ async function loadAll() {
 
     histories =
       historyResult.data || [];
+
+
+    console.log(
+      "PLANS:",
+      plans
+    );
+
+
+    console.log(
+      "TASKS:",
+      tasks
+    );
+
+
+    console.log(
+      "PLAN HISTORY:",
+      histories
+    );
 
 
     renderAll();
@@ -643,8 +692,7 @@ async function loadAll() {
 
 
 /* =========================================================
-   PLAN
-   계획 생성
+   11. PLAN 생성
    ========================================================= */
 
 async function createPlan(event) {
@@ -766,7 +814,7 @@ async function createPlan(event) {
 
 
 /* =========================================================
-   TASK Modal 열기
+   12. Task Modal 열기
    ========================================================= */
 
 function openTaskModal() {
@@ -782,7 +830,16 @@ function openTaskModal() {
   }
 
 
-  $("#taskPlanId").innerHTML =
+  const select =
+    $("#taskPlanId");
+
+
+  if (!select) {
+    return;
+  }
+
+
+  select.innerHTML =
     plans
       .map(
         (plan) => {
@@ -801,7 +858,13 @@ function openTaskModal() {
       .join("");
 
 
-  $("#taskForm").reset();
+  const taskForm =
+    $("#taskForm");
+
+
+  if (taskForm) {
+    taskForm.reset();
+  }
 
 
   $("#taskModal")
@@ -812,20 +875,28 @@ function openTaskModal() {
 
 
 /* =========================================================
-   TASK Modal 닫기
+   13. Task Modal 닫기
    ========================================================= */
 
 function closeTaskModal() {
 
-  $("#taskModal")
-    .classList
-    .add("hidden");
+  const modal =
+    $("#taskModal");
+
+
+  if (modal) {
+
+    modal.classList.add(
+      "hidden"
+    );
+
+  }
 
 }
 
 
 /* =========================================================
-   TASK 생성
+   14. Task 생성
    ========================================================= */
 
 async function createTask(event) {
@@ -844,31 +915,19 @@ async function createTask(event) {
   }
 
 
-  const payload = {
-
-    plan_id:
-      $("#taskPlanId").value,
-
-    title:
-      $("#taskTitle")
-        .value
-        .trim(),
-
-    memo:
-      $("#taskMemo")
-        .value
-        .trim(),
-
-    completed:
-      false,
-
-    user_id:
-      currentUser.id
-
-  };
+  const title =
+    $("#taskTitle")
+      .value
+      .trim();
 
 
-  if (!payload.title) {
+  const memo =
+    $("#taskMemo")
+      .value
+      .trim();
+
+
+  if (!title) {
 
     showMessage(
       "할 일 제목을 입력해주세요.",
@@ -877,6 +936,26 @@ async function createTask(event) {
 
     return;
   }
+
+
+  const payload = {
+
+    plan_id:
+      $("#taskPlanId").value,
+
+    title:
+      title,
+
+    memo:
+      memo,
+
+    completed:
+      false,
+
+    user_id:
+      currentUser.id
+
+  };
 
 
   const {
@@ -921,7 +1000,7 @@ async function createTask(event) {
 
 
 /* =========================================================
-   실행 기록 Modal 열기
+   15. 실행 기록 Modal 열기
    ========================================================= */
 
 function openExecuteModal(id) {
@@ -939,38 +1018,86 @@ function openExecuteModal(id) {
   }
 
 
-  $("#executeTaskId").value =
-    currentTask.id;
+  const taskId =
+    $("#executeTaskId");
 
 
-  $("#executeTitle").textContent =
-    currentTask.title ||
-    "실행 기록";
+  if (taskId) {
+
+    taskId.value =
+      currentTask.id;
+
+  }
 
 
-  $("#startedAt").value =
-    toLocal(
-      currentTask.started_at
-    ) ||
-    toLocal(
-      new Date()
-    );
+  const executeTitle =
+    $("#executeTitle");
 
 
-  $("#endedAt").value =
-    toLocal(
-      currentTask.ended_at
-    );
+  if (executeTitle) {
+
+    executeTitle.textContent =
+      currentTask.title ||
+      "실행 기록";
+
+  }
 
 
-  $("#actualMinutes").value =
-    currentTask.actual_minutes ??
-    "";
+  const startedAt =
+    $("#startedAt");
 
 
-  $("#blockedReason").value =
-    currentTask.blocked_reason ||
-    "";
+  if (startedAt) {
+
+    startedAt.value =
+      toLocal(
+        currentTask.started_at
+      ) ||
+      toLocal(
+        new Date()
+      );
+
+  }
+
+
+  const endedAt =
+    $("#endedAt");
+
+
+  if (endedAt) {
+
+    endedAt.value =
+      toLocal(
+        currentTask.ended_at
+      );
+
+  }
+
+
+  const actualMinutes =
+    $("#actualMinutes");
+
+
+  if (actualMinutes) {
+
+    actualMinutes.value =
+      currentTask.actual_minutes ??
+      "";
+
+  }
+
+
+  const blockedReason =
+    $("#blockedReason");
+
+
+  if (blockedReason) {
+
+    blockedReason.value =
+      currentTask.blocked_reason ||
+      "";
+
+  }
 
 
   $("#executeModal")
@@ -981,14 +1108,22 @@ function openExecuteModal(id) {
 
 
 /* =========================================================
-   실행 기록 Modal 닫기
+   16. 실행 기록 Modal 닫기
    ========================================================= */
 
 function closeExecuteModal() {
 
-  $("#executeModal")
-    .classList
-    .add("hidden");
+  const modal =
+    $("#executeModal");
+
+
+  if (modal) {
+
+    modal.classList.add(
+      "hidden"
+    );
+
+  }
 
 
   currentTask =
@@ -998,7 +1133,7 @@ function closeExecuteModal() {
 
 
 /* =========================================================
-   실행 기록 저장
+   17. 실행 기록 저장
    ========================================================= */
 
 async function saveExecution(event) {
@@ -1053,7 +1188,7 @@ async function saveExecution(event) {
       : null;
 
 
-  /* 시작/종료 시간으로 자동 계산 */
+  /* 종료 시간이 있고 실제 시간 미입력 시 자동 계산 */
 
   if (
     minutes === null &&
@@ -1065,8 +1200,7 @@ async function saveExecution(event) {
         (
           new Date(end) -
           new Date(start)
-        ) /
-        60000
+        ) / 60000
       );
 
   }
@@ -1100,14 +1234,6 @@ async function saveExecution(event) {
 
   };
 
-
-  const wasCompleted =
-    !!currentTask.completed;
-
-
-  /* -------------------------
-     TASK 실행 결과 저장
-     ------------------------- */
 
   const {
     error
@@ -1143,80 +1269,6 @@ async function saveExecution(event) {
   }
 
 
-  /* -------------------------
-     처음 완료한 경우만
-     history 생성
-     ------------------------- */
-
-  if (!wasCompleted) {
-
-    const historyPayload = {
-
-      plan_id:
-        currentTask.plan_id,
-
-      task_id:
-        currentTask.id,
-
-      title:
-        currentTask.title,
-
-      started_at:
-        payload.started_at,
-
-      ended_at:
-        payload.ended_at,
-
-      actual_minutes:
-        payload.actual_minutes,
-
-      blocked_reason:
-        payload.blocked_reason,
-
-      user_id:
-        currentUser.id
-
-    };
-
-
-    const {
-      error:
-        historyError
-    } =
-      await supabaseClient
-        .from("plan_history")
-        .insert(
-          historyPayload
-        );
-
-
-    if (historyError) {
-
-      console.error(
-        "HISTORY INSERT ERROR:",
-        historyError
-      );
-
-
-      showMessage(
-        "실행 기록은 저장됐지만 history 저장에 실패했습니다: " +
-        historyError.message,
-        "error"
-      );
-
-
-      closeExecuteModal();
-
-
-      await loadAll();
-
-
-      return;
-    }
-
-  }
-
-
   closeExecuteModal();
 
 
@@ -1224,8 +1276,8 @@ async function saveExecution(event) {
 
 
   showMessage(
-    wasCompleted
-      ? "실행 기록을 수정했습니다. 중복 기록은 만들지 않았습니다."
+    currentTask?.completed
+      ? "실행 기록을 수정했습니다."
       : "실행 기록이 저장되었습니다."
   );
 
@@ -1233,7 +1285,7 @@ async function saveExecution(event) {
 
 
 /* =========================================================
-   할 일 완료 상태 변경
+   18. 할 일 완료 상태 변경
    ========================================================= */
 
 async function toggleComplete(
@@ -1289,7 +1341,7 @@ async function toggleComplete(
 
 
 /* =========================================================
-   할 일 삭제
+   19. 할 일 삭제
    ========================================================= */
 
 async function deleteTask(id) {
@@ -1363,7 +1415,7 @@ async function deleteTask(id) {
 
 
 /* =========================================================
-   계획 삭제
+   20. 계획 삭제
    ========================================================= */
 
 async function deletePlan(id) {
@@ -1445,7 +1497,7 @@ async function deletePlan(id) {
 
 
 /* =========================================================
-   전체 화면 렌더링
+   21. 전체 렌더링
    ========================================================= */
 
 function renderAll() {
@@ -1453,621 +1505,3 @@ function renderAll() {
   const totalPlans =
     $("#totalPlans");
 
-
-  if (totalPlans) {
-
-    totalPlans.textContent =
-      plans.length;
-
-  }
-
-
-  const historyCount =
-    $("#historyCount");
-
-
-  if (historyCount) {
-
-    historyCount.textContent =
-      histories.length +
-      "건";
-
-  }
-
-
-  renderPlans();
-
-  renderHistory();
-
-}
-
-
-/* =========================================================
-   계획 목록 렌더링
-   ========================================================= */
-
-function renderPlans() {
-
-  const planList =
-    $("#planList");
-
-
-  if (!planList) {
-    return;
-  }
-
-
-  if (!plans.length) {
-
-    planList.innerHTML =
-      `
-        <div class="empty">
-          아직 저장된 계획이 없습니다.
-        </div>
-      `;
-
-    return;
-  }
-
-
-  planList.innerHTML =
-    plans
-      .map(
-        (plan) => {
-
-          const planTasks =
-            tasks.filter(
-              (task) =>
-                String(task.plan_id) ===
-                String(plan.id)
-            );
-
-
-          const done =
-            planTasks.filter(
-              (task) =>
-                task.completed
-            ).length;
-
-
-          return `
-            <div class="plan-item">
-
-              <div class="plan-main">
-
-                <div>
-
-                  <h4 class="plan-title">
-                    ${esc(
-                      plan.plan_name ||
-                      "제목 없음"
-                    )}
-                  </h4>
-
-                </div>
-
-
-                <button
-                  class="mini-btn danger"
-                  data-delete-plan="${esc(
-                    plan.id
-                  )}"
-                  type="button"
-                >
-                  삭제
-                </button>
-
-              </div>
-
-
-              <div class="plan-meta">
-
-                <span class="badge">
-                  ${fmtDate(
-                    plan.start_date
-                  )}
-                  ~
-                  ${fmtDate(
-                    plan.end_date
-                  )}
-                </span>
-
-
-                ${
-                  plan.estimated_hours != null
-                    ? `
-                      <span class="badge">
-                        예상
-                        ${plan.estimated_hours}
-                        시간
-                      </span>
-                    `
-                    : ""
-                }
-
-
-                <span class="badge">
-                  완료
-                  ${done}/${planTasks.length}
-                </span>
-
-              </div>
-
-
-              <div class="task-box">
-
-                ${
-                  planTasks.length
-                    ? planTasks
-                        .map(
-                          renderTask
-                        )
-                        .join("")
-                    : `
-                      <div class="empty">
-                        아직 할 일이 없습니다.
-                      </div>
-                    `
-                }
-
-              </div>
-
-            </div>
-          `;
-
-        }
-      )
-      .join("");
-
-}
-
-
-/* =========================================================
-   할 일 렌더링
-   ========================================================= */
-
-function renderTask(task) {
-
-  return `
-    <div class="task-row">
-
-      <input
-        class="task-check"
-        type="checkbox"
-        ${
-          task.completed
-            ? "checked"
-            : ""
-        }
-        data-complete="${esc(
-          task.id
-        )}"
-      >
-
-
-      <div
-        class="task-name ${
-          task.completed
-            ? "done"
-            : ""
-        }"
-      >
-
-        ${esc(
-          task.title ||
-          "할 일"
-        )}
-
-
-        ${
-          task.memo
-            ? `
-              <div class="plan-desc">
-                ${esc(
-                  task.memo
-                )}
-              </div>
-            `
-            : ""
-        }
-
-      </div>
-
-
-      <div class="task-actions">
-
-        <button
-          class="mini-btn primary"
-          data-execute="${esc(
-            task.id
-          )}"
-          type="button"
-        >
-          ${
-            task.completed
-              ? "기록 수정"
-              : "실행 기록"
-          }
-        </button>
-
-
-        <button
-          class="mini-btn danger"
-          data-delete-task="${esc(
-            task.id
-          )}"
-          type="button"
-        >
-          삭제
-        </button>
-
-      </div>
-
-    </div>
-  `;
-
-}
-
-
-/* =========================================================
-   실행 기록 렌더링
-   ========================================================= */
-
-function renderHistory() {
-
-  const historyList =
-    $("#historyList");
-
-
-  if (!historyList) {
-    return;
-  }
-
-
-  if (!histories.length) {
-
-    historyList.innerHTML =
-      `
-        <div class="empty">
-          아직 실행 기록이 없습니다.
-        </div>
-      `;
-
-    return;
-  }
-
-
-  historyList.innerHTML =
-    histories
-      .map(
-        (history) => {
-
-          const task =
-            tasks.find(
-              (item) =>
-                String(item.id) ===
-                String(history.task_id)
-            );
-
-
-          const plan =
-            plans.find(
-              (item) =>
-                String(item.id) ===
-                String(history.plan_id)
-            );
-
-
-          return `
-            <div class="history-item">
-
-              <div>
-
-                <h4>
-                  ${esc(
-                    history.title ||
-                    task?.title ||
-                    "실행 기록"
-                  )}
-                </h4>
-
-
-                <p>
-                  계획:
-                  ${esc(
-                    plan?.plan_name ||
-                    "계획 없음"
-                  )}
-                </p>
-
-
-                <p>
-                  시작:
-                  ${fmtDateTime(
-                    history.started_at
-                  )}
-
-                  ${
-                    history.ended_at
-                      ? `
-                        · 종료:
-                        ${fmtDateTime(
-                          history.ended_at
-                        )}
-                      `
-                      : ""
-                  }
-                </p>
-
-
-                ${
-                  history.blocked_reason
-                    ? `
-                      <div class="blocked">
-                        막힌 이유:
-                        ${esc(
-                          history.blocked_reason
-                        )}
-                      </div>
-                    `
-                    : ""
-                }
-
-              </div>
-
-
-              <div class="history-time">
-
-                ${
-                  history.actual_minutes != null
-                    ? history.actual_minutes +
-                      "분"
-                    : "-"
-                }
-
-              </div>
-
-            </div>
-          `;
-
-        }
-      )
-      .join("");
-
-}
-
-
-/* =========================================================
-   기본 날짜
-   ========================================================= */
-
-function setDefaultDates() {
-
-  const today =
-    new Date();
-
-
-  const nextWeek =
-    new Date(
-      today
-    );
-
-
-  nextWeek.setDate(
-    today.getDate() + 7
-  );
-
-
-  const startDate =
-    $("#startDate");
-
-
-  const endDate =
-    $("#endDate");
-
-
-  if (startDate) {
-
-    startDate.value =
-      dateInput(today);
-
-  }
-
-
-  if (endDate) {
-
-    endDate.value =
-      dateInput(nextWeek);
-
-  }
-
-}
-
-
-/* =========================================================
-   날짜 input 변환
-   ========================================================= */
-
-function dateInput(date) {
-
-  return `${date.getFullYear()}-${String(
-    date.getMonth() + 1
-  ).padStart(2, "0")}-${String(
-    date.getDate()
-  ).padStart(2, "0")}`;
-
-}
-
-
-/* =========================================================
-   datetime-local 변환
-   ========================================================= */
-
-function toLocal(value) {
-
-  if (!value) {
-    return "";
-  }
-
-
-  const date =
-    new Date(value);
-
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-
-    return "";
-
-  }
-
-
-  return `${date.getFullYear()}-${String(
-    date.getMonth() + 1
-  ).padStart(2, "0")}-${String(
-    date.getDate()
-  ).padStart(2, "0")}T${String(
-    date.getHours()
-  ).padStart(2, "0")}:${String(
-    date.getMinutes()
-  ).padStart(2, "0")}`;
-
-}
-
-
-/* =========================================================
-   날짜 표시
-   ========================================================= */
-
-function fmtDate(value) {
-
-  if (!value) {
-    return "-";
-  }
-
-
-  return new Date(
-    value + "T00:00:00"
-  ).toLocaleDateString(
-    "ko-KR"
-  );
-
-}
-
-
-/* =========================================================
-   날짜 + 시간 표시
-   ========================================================= */
-
-function fmtDateTime(value) {
-
-  if (!value) {
-    return "-";
-  }
-
-
-  return new Date(
-    value
-  ).toLocaleString(
-    "ko-KR",
-    {
-      year:
-        "numeric",
-
-      month:
-        "2-digit",
-
-      day:
-        "2-digit",
-
-      hour:
-        "2-digit",
-
-      minute:
-        "2-digit"
-    }
-  );
-
-}
-
-
-/* =========================================================
-   HTML Escape
-   ========================================================= */
-
-function esc(value) {
-
-  return String(
-    value ?? ""
-  )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
-}
-
-
-/* =========================================================
-   메시지
-   ========================================================= */
-
-function showMessage(
-  text,
-  type = "success"
-) {
-
-  const message =
-    $("#message");
-
-
-  if (!message) {
-    return;
-  }
-
-
-  message.textContent =
-    text;
-
-
-  message.className =
-    `message ${type}`;
-
-
-  clearTimeout(
-    showMessage.timer
-  );
-
-
-  showMessage.timer =
-    setTimeout(
-      () => {
-
-        message.classList.add(
-          "hidden"
-        );
-
-      },
-      4500
-    );
-
-}
