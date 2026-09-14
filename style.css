@@ -629,3 +629,87 @@ h2 {
 .card h3 {
   text-align: left;
 }
+/* ========================================
+   Do / See / 다음 계획 영역 중앙 정렬
+   ======================================== */
+
+/* 각 섹션 전체 */
+.section,
+.card,
+.do-section,
+.see-section,
+.review-section,
+.next-plan-section {
+  text-align: center;
+}
+
+/* 섹션 제목 */
+.section h2,
+.section h3,
+.card h2,
+.card h3,
+.do-section h2,
+.do-section h3,
+.see-section h2,
+.see-section h3,
+.review-section h2,
+.review-section h3,
+.next-plan-section h2,
+.next-plan-section h3 {
+  text-align: center;
+}
+
+/* 설명 문장 */
+.section p,
+.card p,
+.do-section p,
+.see-section p,
+.review-section p,
+.next-plan-section p {
+  text-align: center;
+}
+
+/* 라벨 */
+.section label,
+.card label,
+.do-section label,
+.see-section label,
+.review-section label,
+.next-plan-section label {
+  text-align: center;
+}
+
+/* 입력창 / 선택창 */
+.section input,
+.section textarea,
+.section select,
+.card input,
+.card textarea,
+.card select,
+.do-section input,
+.do-section textarea,
+.do-section select,
+.see-section input,
+.see-section textarea,
+.see-section select,
+.review-section input,
+.review-section textarea,
+.review-section select,
+.next-plan-section input,
+.next-plan-section textarea,
+.next-plan-section select {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 버튼 */
+.section button,
+.card button,
+.do-section button,
+.see-section button,
+.review-section button,
+.next-plan-section button {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
