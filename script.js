@@ -1,654 +1,140 @@
-// ==============================
-// Supabase 설정
-// ==============================
-
 const SUPABASE_URL = "https://ptrsztelwuwrbounfpod.supabase.co";
-
-// Supabase에서 Project Settings → API에서
-// Publishable key(또는 anon key)를 복사해서 넣어주세요.
 const SUPABASE_KEY = "여기에_SUPABASE_PUBLISHABLE_KEY_입력";
 
+const hasPlaceholderKey = !SUPABASE_KEY || SUPABASE_KEY.includes("여기에_");
+const { createClient } = window.supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+let plans = [], tasks = [], histories = [], currentTask = null;
+const $ = s => document.querySelector(s);
 
-
-// ==============================
-// HTML 요소 가져오기
-// ==============================
-
-const form = document.querySelector("form");
-
-const planNameInput = document.getElementById("planName");
-const startDateInput = document.getElementById("startDate");
-const endDateInput = document.getElementById("endDate");
-const priorityInput = document.getElementById("priority");
-const successCriteriaInput =
-  document.getElementById("successCriteria");
-const estimatedHoursInput =
-  document.getElementById("estimatedHours");
-
-const submitButton =
-  form.querySelector('button[type="submit"]');
-
-
-// 현재 수정 중인 계획 ID
-let editingPlanId = null;
-
-
-// ==============================
-// 계획 목록 영역 만들기
-// ==============================
-
-const planListSection = document.createElement("section");
-
-planListSection.className = "card";
-
-planListSection.innerHTML = `
-  <h2>내 계획</h2>
-
-  <div id="planList">
-    계획을 불러오는 중입니다...
-  </div>
-`;
-
-form.parentElement.appendChild(planListSection);
-
-
-// ==============================
-// 계획 이력 영역 만들기
-// ==============================
-
-const historySection = document.createElement("section");
-
-historySection.className = "card";
-
-historySection.innerHTML = `
-  <h2>수정 이력</h2>
-
-  <div id="historyList">
-    계획의 수정 이력을 선택하면 표시됩니다.
-  </div>
-`;
-
-planListSection.parentElement.appendChild(historySection);
-
-const planList = document.getElementById("planList");
-const historyList = document.getElementById("historyList");
-
-
-// ==============================
-// 페이지 처음 열었을 때 계획 불러오기
-// ==============================
-
-loadPlans();
-
-
-// ==============================
-// 계획 목록 불러오기
-// ==============================
-
-async function loadPlans() {
-
-  planList.innerHTML = "계획을 불러오는 중입니다...";
-
-
-  const { data, error } = await supabaseClient
-    .from("plans")
-    .select("*")
-    .order("created_at", {
-      ascending: false
-    });
-
-
-  if (error) {
-
-    console.error(error);
-
-    planList.innerHTML = `
-      <p>
-        계획을 불러오지 못했습니다.
-      </p>
-    `;
-
+document.addEventListener("DOMContentLoaded", () => {
+  setDefaultDates();
+  bindEvents();
+  if (hasPlaceholderKey) {
+    showMessage("Supabase Publishable key를 script.js의 SUPABASE_KEY에 입력해주세요.", "error");
+    renderAll();
     return;
   }
+  loadAll();
+});
 
-
-  if (!data || data.length === 0) {
-
-    planList.innerHTML = `
-      <p>
-        아직 저장된 계획이 없습니다.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  planList.innerHTML = "";
-
-
-  data.forEach((plan) => {
-
-    const planCard =
-      document.createElement("div");
-
-    planCard.className = "plan-item";
-
-
-    planCard.innerHTML = `
-      <h3>${escapeHTML(plan.plan_name)}</h3>
-
-      <p>
-        <strong>기간</strong><br>
-        ${plan.start_date} ~ ${plan.end_date}
-      </p>
-
-      <p>
-        <strong>우선순위</strong><br>
-        ${escapeHTML(plan.priority)}
-      </p>
-
-      <p>
-        <strong>성공 기준</strong><br>
-        ${escapeHTML(plan.success_criteria)}
-      </p>
-
-      <p>
-        <strong>예상 시간</strong><br>
-        ${plan.estimated_hours}시간
-      </p>
-
-      <button
-        class="edit-button"
-        data-id="${plan.id}"
-      >
-        수정
-      </button>
-
-      <button
-        class="history-button"
-        data-id="${plan.id}"
-      >
-        수정 이력 보기
-      </button>
-
-      <hr>
-    `;
-
-
-    planList.appendChild(planCard);
-
+function bindEvents() {
+  $("#planForm").addEventListener("submit", createPlan);
+  $("#taskForm").addEventListener("submit", createTask);
+  $("#executeForm").addEventListener("submit", saveExecution);
+  $("#refreshBtn").addEventListener("click", loadAll);
+  $("#addTaskBtn").addEventListener("click", openTaskModal);
+  document.addEventListener("click", e => {
+    if (e.target.closest("[data-close-task]")) closeTaskModal();
+    if (e.target.closest("[data-close-execute]")) closeExecuteModal();
+    const x = e.target.closest("[data-execute]"); if (x) openExecuteModal(x.dataset.execute);
+    const d = e.target.closest("[data-delete-task]"); if (d) deleteTask(d.dataset.deleteTask);
+    const p = e.target.closest("[data-delete-plan]"); if (p) deletePlan(p.dataset.deletePlan);
+    const c = e.target.closest("[data-complete]"); if (c) toggleComplete(c.dataset.complete, c.checked);
   });
-
-
-  // 수정 버튼
-  document
-    .querySelectorAll(".edit-button")
-    .forEach((button) => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const id =
-            button.dataset.id;
-
-          const selectedPlan =
-            data.find(
-              (plan) =>
-                String(plan.id) === String(id)
-            );
-
-          if (selectedPlan) {
-
-            startEdit(selectedPlan);
-
-          }
-
-        }
-      );
-
-    });
-
-
-  // 수정 이력 버튼
-  document
-    .querySelectorAll(".history-button")
-    .forEach((button) => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          loadHistory(
-            button.dataset.id
-          );
-
-        }
-      );
-
-    });
-
 }
 
+async function loadAll() {
+  if (hasPlaceholderKey) return;
+  try {
+    const [p,t,h] = await Promise.all([
+      supabaseClient.from("plans").select("*").order("created_at", {ascending:false}),
+      supabaseClient.from("tasks").select("*").order("created_at", {ascending:true}),
+      supabaseClient.from("plan_history").select("*").order("created_at", {ascending:false})
+    ]);
+    if (p.error) throw p.error; if (t.error) throw t.error; if (h.error) throw h.error;
+    plans=p.data||[]; tasks=t.data||[]; histories=h.data||[]; renderAll();
+  } catch(e) { console.error(e); showMessage("데이터를 불러오지 못했습니다: "+e.message,"error"); }
+}
 
-// ==============================
-// 계획 저장 / 수정
-// ==============================
+async function createPlan(e) {
+  e.preventDefault();
+  const title=$("#planTitle").value.trim(), description=$("#planDescription").value.trim();
+  const start_date=$("#startDate").value, end_date=$("#endDate").value;
+  const estimated_hours=$("#estimatedHours").value ? Number($("#estimatedHours").value) : null;
+  if(end_date<start_date) return showMessage("종료일은 시작일보다 빠를 수 없습니다.","error");
+  const {error}=await supabaseClient.from("plans").insert({title,description,start_date,end_date,estimated_hours});
+  if(error) return showMessage("계획 저장에 실패했습니다: "+error.message,"error");
+  $("#planForm").reset(); setDefaultDates(); await loadAll(); showMessage("계획이 저장되었습니다.");
+}
 
-form.addEventListener(
-  "submit",
-  async (event) => {
+function openTaskModal() {
+  if(!plans.length) return showMessage("먼저 계획을 하나 저장해주세요.","error");
+  $("#taskPlanId").innerHTML=plans.map(p=>`<option value="${esc(p.id)}">${esc(p.title||"제목 없음")}</option>`).join("");
+  $("#taskForm").reset(); $("#taskModal").classList.remove("hidden");
+}
+function closeTaskModal(){ $("#taskModal").classList.add("hidden"); }
 
-    event.preventDefault();
+async function createTask(e) {
+  e.preventDefault();
+  const payload={plan_id:$("#taskPlanId").value,title:$("#taskTitle").value.trim(),memo:$("#taskMemo").value.trim(),completed:false};
+  const {error}=await supabaseClient.from("tasks").insert(payload);
+  if(error) return showMessage("할 일 저장에 실패했습니다: "+error.message,"error");
+  closeTaskModal(); await loadAll(); showMessage("할 일이 저장되었습니다.");
+}
 
+function openExecuteModal(id) {
+  currentTask=tasks.find(t=>String(t.id)===String(id)); if(!currentTask) return;
+  $("#executeTaskId").value=currentTask.id; $("#executeTitle").textContent=currentTask.title||"실행 기록";
+  $("#startedAt").value=toLocal(currentTask.started_at)||toLocal(new Date());
+  $("#endedAt").value=toLocal(currentTask.ended_at); $("#actualMinutes").value=currentTask.actual_minutes??"";
+  $("#blockedReason").value=currentTask.blocked_reason||""; $("#executeModal").classList.remove("hidden");
+}
+function closeExecuteModal(){ $("#executeModal").classList.add("hidden"); currentTask=null; }
 
-    const planData = {
-
-      plan_name:
-        planNameInput.value.trim(),
-
-      start_date:
-        startDateInput.value,
-
-      end_date:
-        endDateInput.value,
-
-      priority:
-        priorityInput.value,
-
-      success_criteria:
-        successCriteriaInput.value.trim(),
-
-      estimated_hours:
-        Number(
-          estimatedHoursInput.value
-        )
-
-    };
-
-
-    // ==========================
-    // 필수값 확인
-    // ==========================
-
-    if (
-      !planData.plan_name ||
-      !planData.start_date ||
-      !planData.end_date ||
-      !planData.success_criteria ||
-      !planData.estimated_hours
-    ) {
-
-      alert(
-        "모든 항목을 입력해주세요."
-      );
-
-      return;
-
+async function saveExecution(e) {
+  e.preventDefault(); if(!currentTask) return;
+  const s=$("#startedAt").value, en=$("#endedAt").value;
+  if(en && new Date(en)<new Date(s)) return showMessage("종료 시간은 시작 시간보다 빠를 수 없습니다.","error");
+  let minutes=$("#actualMinutes").value?Number($("#actualMinutes").value):null;
+  if(minutes===null && en) minutes=Math.round((new Date(en)-new Date(s))/60000);
+  const payload={started_at:s?new Date(s).toISOString():null,ended_at:en?new Date(en).toISOString():null,actual_minutes:minutes,blocked_reason:$("#blockedReason").value.trim()||null,completed:true};
+  const wasCompleted=!!currentTask.completed;
+  const {error}=await supabaseClient.from("tasks").update(payload).eq("id",currentTask.id);
+  if(error) return showMessage("실행 기록 저장에 실패했습니다: "+error.message,"error");
+  if(!wasCompleted){
+    let h=await supabaseClient.from("plan_history").insert({plan_id:currentTask.plan_id,task_id:currentTask.id,title:currentTask.title,started_at:payload.started_at,ended_at:payload.ended_at,actual_minutes:payload.actual_minutes,blocked_reason:payload.blocked_reason});
+    if(h.error){
+      h=await supabaseClient.from("plan_history").insert({plan_id:currentTask.plan_id,task_id:currentTask.id,started_at:payload.started_at,ended_at:payload.ended_at,actual_minutes:payload.actual_minutes,blocked_reason:payload.blocked_reason});
+      if(h.error) return showMessage("실행 기록은 저장됐지만 history 저장에 실패했습니다: "+h.error.message,"error");
     }
-
-
-    // ==========================
-    // 새 계획 저장
-    // ==========================
-
-    if (!editingPlanId) {
-
-      const { error } =
-        await supabaseClient
-          .from("plans")
-          .insert([planData]);
-
-
-      if (error) {
-
-        console.error(error);
-
-        alert(
-          "계획 저장에 실패했습니다."
-        );
-
-        return;
-
-      }
-
-
-      alert(
-        "계획이 저장되었습니다!"
-      );
-
-
-      form.reset();
-
-      loadPlans();
-
-      return;
-
-    }
-
-
-    // ==========================
-    // 수정 전 기존 계획 가져오기
-    // ==========================
-
-    const { data: oldPlan, error: oldPlanError } =
-      await supabaseClient
-        .from("plans")
-        .select("*")
-        .eq(
-          "id",
-          editingPlanId
-        )
-        .single();
-
-
-    if (oldPlanError) {
-
-      console.error(oldPlanError);
-
-      alert(
-        "기존 계획을 불러오지 못했습니다."
-      );
-
-      return;
-
-    }
-
-
-    // ==========================
-    // 수정 전 계획을 이력에 저장
-    // ==========================
-
-    const historyData = {
-
-      plan_id:
-        oldPlan.id,
-
-      plan_name:
-        oldPlan.plan_name,
-
-      start_date:
-        oldPlan.start_date,
-
-      end_date:
-        oldPlan.end_date,
-
-      priority:
-        oldPlan.priority,
-
-      success_criteria:
-        oldPlan.success_criteria,
-
-      estimated_hours:
-        oldPlan.estimated_hours
-
-    };
-
-
-    const { error: historyError } =
-      await supabaseClient
-        .from("plan_history")
-        .insert([historyData]);
-
-
-    if (historyError) {
-
-      console.error(historyError);
-
-      alert(
-        "수정 이력 저장에 실패했습니다."
-      );
-
-      return;
-
-    }
-
-
-    // ==========================
-    // 현재 계획 수정
-    // ==========================
-
-    const { error: updateError } =
-      await supabaseClient
-        .from("plans")
-        .update(planData)
-        .eq(
-          "id",
-          editingPlanId
-        );
-
-
-    if (updateError) {
-
-      console.error(updateError);
-
-      alert(
-        "계획 수정에 실패했습니다."
-      );
-
-      return;
-
-    }
-
-
-    alert(
-      "계획이 수정되었고 이전 계획은 수정 이력에 저장되었습니다!"
-    );
-
-
-    // 수정 모드 종료
-    editingPlanId = null;
-
-    submitButton.textContent =
-      "계획 저장";
-
-
-    form.reset();
-
-
-    loadPlans();
-
   }
-);
-
-
-// ==============================
-// 수정 시작
-// ==============================
-
-function startEdit(plan) {
-
-  editingPlanId =
-    plan.id;
-
-
-  planNameInput.value =
-    plan.plan_name;
-
-  startDateInput.value =
-    plan.start_date;
-
-  endDateInput.value =
-    plan.end_date;
-
-  priorityInput.value =
-    plan.priority;
-
-  successCriteriaInput.value =
-    plan.success_criteria;
-
-  estimatedHoursInput.value =
-    plan.estimated_hours;
-
-
-  submitButton.textContent =
-    "계획 수정 저장";
-
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
+  closeExecuteModal(); await loadAll(); showMessage(wasCompleted?"실행 기록을 수정했습니다. 중복 기록은 만들지 않았습니다.":"실행 기록이 저장되었습니다.");
 }
 
-
-// ==============================
-// 수정 이력 불러오기
-// ==============================
-
-async function loadHistory(planId) {
-
-  historyList.innerHTML =
-    "수정 이력을 불러오는 중입니다...";
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("plan_history")
-      .select("*")
-      .eq(
-        "plan_id",
-        planId
-      )
-      .order(
-        "changed_at",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    console.error(error);
-
-    historyList.innerHTML = `
-      <p>
-        수정 이력을 불러오지 못했습니다.
-      </p>
-    `;
-
-    return;
-
-  }
-
-
-  if (!data || data.length === 0) {
-
-    historyList.innerHTML = `
-      <p>
-        아직 수정 이력이 없습니다.
-      </p>
-    `;
-
-    return;
-
-  }
-
-
-  historyList.innerHTML = "";
-
-
-  data.forEach((history) => {
-
-    const historyItem =
-      document.createElement("div");
-
-    historyItem.className =
-      "history-item";
-
-
-    historyItem.innerHTML = `
-
-      <h3>
-        ${escapeHTML(
-          history.plan_name
-        )}
-      </h3>
-
-      <p>
-        <strong>기간</strong><br>
-        ${history.start_date}
-        ~
-        ${history.end_date}
-      </p>
-
-      <p>
-        <strong>우선순위</strong><br>
-        ${escapeHTML(
-          history.priority
-        )}
-      </p>
-
-      <p>
-        <strong>성공 기준</strong><br>
-        ${escapeHTML(
-          history.success_criteria
-        )}
-      </p>
-
-      <p>
-        <strong>예상 시간</strong><br>
-        ${history.estimated_hours}시간
-      </p>
-
-      <p>
-        <strong>수정 전 기록 저장 시간</strong><br>
-        ${formatDate(
-          history.changed_at
-        )}
-      </p>
-
-      <hr>
-
-    `;
-
-
-    historyList.appendChild(
-      historyItem
-    );
-
-  });
-
+async function toggleComplete(id, checked){
+  const {error}=await supabaseClient.from("tasks").update({completed:checked}).eq("id",id);
+  if(error) return showMessage("완료 상태 변경 실패: "+error.message,"error"); await loadAll();
+}
+async function deleteTask(id){
+  const t=tasks.find(x=>String(x.id)===String(id)); if(!t||!confirm(`"${t.title}" 할 일을 삭제할까요?`)) return;
+  const {error}=await supabaseClient.from("tasks").delete().eq("id",id); if(error) return showMessage("삭제 실패: "+error.message,"error"); await loadAll();
+}
+async function deletePlan(id){
+  const related=tasks.filter(t=>String(t.plan_id)===String(id));
+  if(related.length) return showMessage("연결된 할 일을 먼저 삭제해주세요.","error");
+  if(!confirm("이 계획을 삭제할까요?")) return;
+  const {error}=await supabaseClient.from("plans").delete().eq("id",id); if(error) return showMessage("삭제 실패: "+error.message,"error"); await loadAll();
 }
 
-
-// ==============================
-// 날짜 표시
-// ==============================
-
-function formatDate(dateString) {
-
-  const date =
-    new Date(dateString);
-
-
-  return date.toLocaleString(
-    "ko-KR"
-  );
-
+function renderAll(){ $("#totalPlans").textContent=plans.length; $("#historyCount").textContent=histories.length+"건"; renderPlans(); renderHistory(); }
+function renderPlans(){
+  if(!plans.length){$("#planList").innerHTML='<div class="empty">아직 저장된 계획이 없습니다.</div>';return;}
+  $("#planList").innerHTML=plans.map(p=>{
+    const ts=tasks.filter(t=>String(t.plan_id)===String(p.id)); const done=ts.filter(t=>t.completed).length;
+    return `<div class="plan-item"><div class="plan-main"><div><h4 class="plan-title">${esc(p.title||"제목 없음")}</h4>${p.description?`<p class="plan-desc">${esc(p.description)}</p>`:""}</div><button class="mini-btn danger" data-delete-plan="${esc(p.id)}">삭제</button></div><div class="plan-meta"><span class="badge">${fmtDate(p.start_date)} ~ ${fmtDate(p.end_date)}</span>${p.estimated_hours!=null?`<span class="badge">예상 ${p.estimated_hours}시간</span>`:""}<span class="badge">완료 ${done}/${ts.length}</span></div><div class="task-box">${ts.length?ts.map(renderTask).join(""):'<div class="empty">아직 할 일이 없습니다.</div>'}</div></div>`;
+  }).join("");
 }
-
-
-// ==============================
-// HTML 특수문자 처리
-// ==============================
-
-function escapeHTML(text) {
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    text ?? "";
-
-  return div.innerHTML;
-
+function renderTask(t){return `<div class="task-row"><input class="task-check" type="checkbox" ${t.completed?"checked":""} data-complete="${esc(t.id)}"><div class="task-name ${t.completed?"done":""}">${esc(t.title||"할 일")}${t.memo?`<div class="plan-desc">${esc(t.memo)}</div>`:""}</div><div class="task-actions"><button class="mini-btn primary" data-execute="${esc(t.id)}">${t.completed?"기록 수정":"실행 기록"}</button><button class="mini-btn danger" data-delete-task="${esc(t.id)}">삭제</button></div></div>`;}
+function renderHistory(){
+  if(!histories.length){$("#historyList").innerHTML='<div class="empty">아직 실행 기록이 없습니다.</div>';return;}
+  $("#historyList").innerHTML=histories.map(h=>{const t=tasks.find(x=>String(x.id)===String(h.task_id)),p=plans.find(x=>String(x.id)===String(h.plan_id));return `<div class="history-item"><div><h4>${esc(h.title||t?.title||"실행 기록")}</h4><p>계획: ${esc(p?.title||"계획 없음")}</p><p>시작: ${fmtDateTime(h.started_at)}${h.ended_at?` · 종료: ${fmtDateTime(h.ended_at)}`:""}</p>${h.blocked_reason?`<div class="blocked">막힌 이유: ${esc(h.blocked_reason)}</div>`:""}</div><div class="history-time">${h.actual_minutes!=null?h.actual_minutes+"분":"-"}</div></div>`}).join("");
 }
+function setDefaultDates(){const d=new Date(),n=new Date(d);n.setDate(d.getDate()+7);$("#startDate").value=dateInput(d);$("#endDate").value=dateInput(n)}
+function dateInput(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function toLocal(v){if(!v)return"";const d=new Date(v);if(isNaN(d))return"";return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`}
+function fmtDate(v){if(!v)return"-";return new Date(v+"T00:00:00").toLocaleDateString("ko-KR")}
+function fmtDateTime(v){if(!v)return"-";return new Date(v).toLocaleString("ko-KR",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function showMessage(text,type="success"){const m=$("#message");m.textContent=text;m.className=`message ${type}`;clearTimeout(showMessage.timer);showMessage.timer=setTimeout(()=>m.classList.add("hidden"),4500)}
