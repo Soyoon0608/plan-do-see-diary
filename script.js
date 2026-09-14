@@ -1,11 +1,11 @@
-
 // ============================================================
 // Plan Do See Diary
 // script.js
 // ============================================================
 
+
 // ============================================================
-// 1. Supabase 설정
+// 1. Supabase
 // ============================================================
 
 const SUPABASE_URL =
@@ -16,10 +16,11 @@ const SUPABASE_KEY =
 
 const { createClient } = window.supabase;
 
-const supabaseClient = createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const supabaseClient =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
 // ============================================================
@@ -36,12 +37,12 @@ let currentTask = null;
 
 
 // ============================================================
-// 3. DOM helper
+// 3. DOM
 // ============================================================
 
-const $ = (selector) => {
+function $(selector) {
   return document.querySelector(selector);
-};
+}
 
 
 // ============================================================
@@ -49,7 +50,11 @@ const $ = (selector) => {
 // ============================================================
 
 function escapeHtml(value) {
-  if (value === null || value === undefined) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
     return "";
   }
 
@@ -63,11 +68,15 @@ function escapeHtml(value) {
 
 
 // ============================================================
-// 5. 메시지 표시
+// 5. 메시지
 // ============================================================
 
-function showMessage(message, type = "success") {
-  let box = $("#message");
+function showMessage(
+  message,
+  type = "success"
+) {
+
+  const box = $("#message");
 
   if (!box) {
     console.log(message);
@@ -75,56 +84,129 @@ function showMessage(message, type = "success") {
   }
 
   box.textContent = message;
-  box.className = `message ${type}`;
+
+  box.className =
+    `message ${type}`;
 
   setTimeout(() => {
+
     box.textContent = "";
-    box.className = "message";
+
+    box.className =
+      "message hidden";
+
   }, 3000);
 }
 
 
 // ============================================================
-// 6. 날짜 포맷
+// 6. 날짜
 // ============================================================
 
 function formatDate(dateString) {
+
   if (!dateString) {
     return "-";
   }
 
-  const date = new Date(dateString);
+  const date =
+    new Date(dateString);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return dateString;
   }
 
-  return date.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  });
+  return date.toLocaleDateString(
+    "ko-KR",
+    {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+  );
 }
 
 
 function formatDateTime(dateString) {
+
   if (!dateString) {
     return "-";
   }
 
-  const date = new Date(dateString);
+  const date =
+    new Date(dateString);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return dateString;
   }
 
-  return date.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+  return date.toLocaleString(
+    "ko-KR",
+    {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
+}
+
+
+function formatDateTimeForInput(
+  dateString
+) {
+
+  if (!dateString) {
+    return "";
+  }
+
+  const date =
+    new Date(dateString);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "";
+  }
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(2, "0");
+
+  const hour =
+    String(
+      date.getHours()
+    ).padStart(2, "0");
+
+  const minute =
+    String(
+      date.getMinutes()
+    ).padStart(2, "0");
+
+  return (
+    `${year}-${month}-${day}` +
+    `T${hour}:${minute}`
+  );
 }
 
 
@@ -132,52 +214,91 @@ function formatDateTime(dateString) {
 // 7. 시간 계산
 // ============================================================
 
-function calculateMinutes(startedAt, endedAt) {
-  if (!startedAt || !endedAt) {
-    return null;
-  }
-
-  const start = new Date(startedAt);
-  const end = new Date(endedAt);
+function calculateMinutes(
+  startedAt,
+  endedAt
+) {
 
   if (
-    Number.isNaN(start.getTime()) ||
-    Number.isNaN(end.getTime())
+    !startedAt ||
+    !endedAt
   ) {
     return null;
   }
 
-  const diff = Math.round(
-    (end.getTime() - start.getTime()) / 60000
-  );
+  const start =
+    new Date(startedAt);
 
-  return diff >= 0 ? diff : null;
+  const end =
+    new Date(endedAt);
+
+  if (
+    Number.isNaN(
+      start.getTime()
+    ) ||
+    Number.isNaN(
+      end.getTime()
+    )
+  ) {
+    return null;
+  }
+
+  const diff =
+    Math.round(
+      (
+        end.getTime() -
+        start.getTime()
+      ) / 60000
+    );
+
+  return diff >= 0
+    ? diff
+    : null;
 }
 
 
 // ============================================================
-// 8. 현재 로그인 사용자 확인
+// 8. 로그인 확인
 // ============================================================
 
 async function checkAuth() {
-  try {
-    const {
-      data: { session },
-      error: sessionError
-    } = await supabaseClient.auth.getSession();
 
-    if (sessionError) {
-      console.error("SESSION ERROR:", sessionError);
+  try {
+
+    const {
+      data: {
+        session
+      },
+      error
+    } =
+      await supabaseClient
+        .auth
+        .getSession();
+
+    if (error) {
+
+      console.error(
+        "SESSION ERROR:",
+        error
+      );
+
       return false;
     }
 
     if (!session) {
-      console.log("로그인 세션이 없습니다.");
-      window.location.href = "login.html";
+
+      console.log(
+        "로그인 세션이 없습니다."
+      );
+
+      window.location.href =
+        "login.html";
+
       return false;
     }
 
-    currentUser = session.user;
+    currentUser =
+      session.user;
 
     console.log(
       "CURRENT USER:",
@@ -185,10 +306,24 @@ async function checkAuth() {
       currentUser.id
     );
 
+    const userEmail =
+      $("#userEmail");
+
+    if (userEmail) {
+
+      userEmail.textContent =
+        currentUser.email;
+    }
+
     return true;
 
   } catch (error) {
-    console.error("AUTH CHECK ERROR:", error);
+
+    console.error(
+      "AUTH CHECK ERROR:",
+      error
+    );
+
     return false;
   }
 }
@@ -199,15 +334,31 @@ async function checkAuth() {
 // ============================================================
 
 async function logout() {
-  const { error } = await supabaseClient.auth.signOut();
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .auth
+      .signOut();
 
   if (error) {
-    console.error("LOGOUT ERROR:", error);
-    showMessage("로그아웃에 실패했습니다.", "error");
+
+    console.error(
+      "LOGOUT ERROR:",
+      error
+    );
+
+    showMessage(
+      "로그아웃에 실패했습니다.",
+      "error"
+    );
+
     return;
   }
 
-  window.location.href = "login.html";
+  window.location.href =
+    "login.html";
 }
 
 
@@ -218,7 +369,11 @@ async function logout() {
 async function loadAll() {
 
   if (!currentUser) {
-    console.error("현재 로그인 사용자가 없습니다.");
+
+    console.error(
+      "현재 로그인 사용자가 없습니다."
+    );
+
     return;
   }
 
@@ -227,79 +382,115 @@ async function loadAll() {
     currentUser.id
   );
 
-  // ----------------------------------------------------------
-  // plans
-  // ----------------------------------------------------------
 
-  const plansResult = await supabaseClient
-    .from("plans")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .order("created_at", {
-      ascending: true
-    });
+  // ==========================================================
+  // PLAN
+  // ==========================================================
+
+  const plansResult =
+    await supabaseClient
+      .from("plans")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true
+        }
+      );
+
 
   if (plansResult.error) {
+
     console.error(
       "PLANS LOAD ERROR:",
       plansResult.error
     );
 
     plans = [];
+
   } else {
-    plans = plansResult.data || [];
+
+    plans =
+      plansResult.data || [];
   }
 
 
-  // ----------------------------------------------------------
-  // tasks
+  // ==========================================================
+  // TASK
   //
   // 중요:
-  // tasks에는 changed_at 컬럼이 없기 때문에
-  // order("changed_at")를 사용하지 않는다.
-  // ----------------------------------------------------------
+  // tasks에는 changed_at이 없다.
+  // 따라서 order("changed_at") 사용하지 않는다.
+  // ==========================================================
 
-  const tasksResult = await supabaseClient
-    .from("tasks")
-    .select("*")
-    .eq("user_id", currentUser.id);
+  const tasksResult =
+    await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
 
   if (tasksResult.error) {
+
     console.error(
       "TASKS LOAD ERROR:",
       tasksResult.error
     );
 
     tasks = [];
+
   } else {
-    tasks = tasksResult.data || [];
+
+    tasks =
+      tasksResult.data || [];
   }
 
 
-  // ----------------------------------------------------------
-  // plan_history
+  // ==========================================================
+  // PLAN HISTORY
   //
-  // 실제 컬럼명은 changed_at
-  // changed_at_at이 아니다.
-  // ----------------------------------------------------------
+  // 실제 컬럼:
+  // changed_at
+  //
+  // changed_at_at 아님
+  // ==========================================================
 
-  const historyResult = await supabaseClient
-    .from("plan_history")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .order("changed_at", {
-      ascending: false
-    });
+  const historyResult =
+    await supabaseClient
+      .from("plan_history")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "changed_at",
+        {
+          ascending: false
+        }
+      );
+
 
   if (historyResult.error) {
+
     console.error(
       "HISTORY LOAD ERROR:",
       historyResult.error
     );
 
     histories = [];
+
   } else {
-    histories = historyResult.data || [];
+
+    histories =
+      historyResult.data || [];
   }
 
 
@@ -332,49 +523,56 @@ function renderAll() {
 
 
 // ============================================================
-// 12. 숫자 표시
+// 12. 카운트
 // ============================================================
 
 function updateCounts() {
 
-  const totalPlans = $("#totalPlans");
+  const totalPlans =
+    $("#totalPlans");
 
   if (totalPlans) {
-    totalPlans.textContent = plans.length;
+
+    totalPlans.textContent =
+      plans.length;
   }
 
 
-  // 실행 기록은 plan_history가 아니라
-  // tasks에 저장된 실행 데이터를 기준으로 계산한다.
+  const executionCount =
+    tasks.filter(task => {
 
-  const executionCount = tasks.filter(task => {
-    return (
-      task.started_at ||
-      task.ended_at ||
-      task.actual_minutes !== null ||
-      task.blocked_reason
-    );
-  }).length;
+      return (
+        task.started_at ||
+        task.ended_at ||
+        task.actual_minutes !== null &&
+        task.actual_minutes !== undefined ||
+        task.blocked_reason
+      );
+
+    }).length;
 
 
-  const historyCount = $("#historyCount");
+  const historyCount =
+    $("#historyCount");
 
   if (historyCount) {
-    historyCount.textContent = executionCount;
+
+    historyCount.textContent =
+      `${executionCount}건`;
   }
 }
 
 
 // ============================================================
-// 13. PLAN 목록
+// 13. PLAN 렌더링
 // ============================================================
 
 function renderPlans() {
 
-  const planList = $("#planList");
+  const planList =
+    $("#planList");
 
   if (!planList) {
-    console.warn("#planList 요소가 없습니다.");
     return;
   }
 
@@ -391,117 +589,157 @@ function renderPlans() {
   }
 
 
-  planList.innerHTML = plans.map(plan => {
+  planList.innerHTML =
+    plans.map(plan => {
 
-    const planTasks = tasks.filter(task => {
-      return Number(task.plan_id) === Number(plan.id);
-    });
+      const planTasks =
+        tasks.filter(task => {
 
+          return (
+            Number(task.plan_id) ===
+            Number(plan.id)
+          );
 
-    const completedCount =
-      planTasks.filter(task => task.completed).length;
-
-
-    const totalCount = planTasks.length;
-
-
-    return `
-      <div class="plan-item">
-
-        <div class="plan-main">
-
-          <div class="plan-title">
-            ${escapeHtml(plan.plan_name)}
-          </div>
+        });
 
 
-          <div class="plan-meta">
+      const completedCount =
+        planTasks.filter(
+          task => task.completed
+        ).length;
 
-            <span>
-              ${formatDate(plan.start_date)}
-              ~
-              ${formatDate(plan.end_date)}
-            </span>
 
-            <span class="badge">
-              ${completedCount}/${totalCount}
-            </span>
+      const totalCount =
+        planTasks.length;
+
+
+      return `
+        <div class="plan-item">
+
+          <div class="plan-main">
+
+            <div class="plan-title">
+              ${escapeHtml(
+                plan.plan_name
+              )}
+            </div>
 
             ${
-              plan.estimated_hours !== null &&
-              plan.estimated_hours !== undefined
-                ? `<span>예상 ${escapeHtml(plan.estimated_hours)}시간</span>`
+              plan.success_criteria
+                ? `
+                  <div class="plan-desc">
+                    ${escapeHtml(
+                      plan.success_criteria
+                    )}
+                  </div>
+                `
                 : ""
             }
 
+            <div class="plan-meta">
+
+              <span>
+                ${formatDate(
+                  plan.start_date
+                )}
+                ~
+                ${formatDate(
+                  plan.end_date
+                )}
+              </span>
+
+              <span class="badge">
+                ${completedCount}/${totalCount}
+              </span>
+
+              ${
+                plan.estimated_hours !==
+                  null &&
+                plan.estimated_hours !==
+                  undefined
+                  ? `
+                    <span>
+                      예상
+                      ${escapeHtml(
+                        plan.estimated_hours
+                      )}시간
+                    </span>
+                  `
+                  : ""
+              }
+
+            </div>
+
           </div>
 
-        </div>
 
-
-        <div class="plan-actions">
-
-          <button
-            type="button"
-            class="mini-btn danger"
-            onclick="deletePlan(${plan.id})"
-          >
-            계획 삭제
-          </button>
-
-        </div>
-
-
-        <div class="task-box">
-
-          <div class="task-box-title">
-            할 일 목록
-          </div>
-
-
-          ${
-            planTasks.length === 0
-              ? `
-                <div class="empty">
-                  등록된 할 일이 없습니다.
-                </div>
-              `
-              : planTasks.map(task => {
-                  return renderTask(task);
-                }).join("")
-          }
-
-
-          <div class="task-add">
-
-            <input
-              type="text"
-              id="task-title-${plan.id}"
-              placeholder="할 일을 입력하세요"
-            />
-
-            <input
-              type="text"
-              id="task-memo-${plan.id}"
-              placeholder="메모"
-            />
+          <div class="plan-actions">
 
             <button
               type="button"
-              class="mini-btn primary"
-              onclick="createTask(${plan.id})"
+              class="mini-btn danger"
+              onclick="deletePlan(${plan.id})"
             >
-              할 일 추가
+              계획 삭제
             </button>
 
           </div>
 
+
+          <div class="task-box">
+
+            <div class="task-box-title">
+              할 일 목록
+            </div>
+
+
+            ${
+              planTasks.length === 0
+
+                ? `
+                  <div class="empty">
+                    등록된 할 일이 없습니다.
+                  </div>
+                `
+
+                : planTasks
+                    .map(task =>
+                      renderTask(task)
+                    )
+                    .join("")
+            }
+
+
+            <div class="task-add">
+
+              <input
+                type="text"
+                id="task-title-${plan.id}"
+                placeholder="할 일을 입력하세요"
+              />
+
+              <input
+                type="text"
+                id="task-memo-${plan.id}"
+                placeholder="메모"
+              />
+
+              <button
+                type="button"
+                class="mini-btn primary"
+                onclick="createTask(${plan.id})"
+              >
+                할 일 추가
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
+      `;
 
-      </div>
-    `;
-
-  }).join("");
+    }).join("");
 }
 
 
@@ -524,53 +762,78 @@ function renderTask(task) {
               ? "checked"
               : ""
           }
-          onchange="toggleTask(${task.id}, this.checked)"
-        />
-
+          onchange="
+            toggleTask(
+              ${task.id},
+              this.checked
+            )
+          "
+        >
 
         <div>
 
           <div
-            class="task-name ${
-              task.completed ? "done" : ""
-            }"
+            class="
+              task-name
+              ${
+                task.completed
+                  ? "done"
+                  : ""
+              }
+            "
           >
-            ${escapeHtml(task.title)}
+            ${escapeHtml(
+              task.title
+            )}
           </div>
 
 
           ${
             task.memo
+
               ? `
                 <div class="plan-desc">
-                  ${escapeHtml(task.memo)}
+                  ${escapeHtml(
+                    task.memo
+                  )}
                 </div>
               `
+
               : ""
           }
 
 
           ${
-            task.actual_minutes !== null &&
-            task.actual_minutes !== undefined
+            task.actual_minutes !==
+              null &&
+            task.actual_minutes !==
+              undefined
+
               ? `
                 <div class="plan-desc">
                   실제 소요시간:
-                  ${escapeHtml(task.actual_minutes)}분
+                  ${escapeHtml(
+                    task.actual_minutes
+                  )}분
                 </div>
               `
+
               : ""
           }
 
 
           ${
             task.blocked_reason
+
               ? `
                 <div class="blocked">
                   막힌 부분:
-                  ${escapeHtml(task.blocked_reason)}
+                  ${escapeHtml(
+                    task.blocked_reason
+                  )}
                 </div>
               `
+
               : ""
           }
 
@@ -584,7 +847,11 @@ function renderTask(task) {
         <button
           type="button"
           class="mini-btn primary"
-          onclick="openExecutionModal(${task.id})"
+          onclick="
+            openExecutionModal(
+              ${task.id}
+            )
+          "
         >
           실행 기록
         </button>
@@ -593,7 +860,11 @@ function renderTask(task) {
         <button
           type="button"
           class="mini-btn danger"
-          onclick="deleteTask(${task.id})"
+          onclick="
+            deleteTask(
+              ${task.id}
+            )
+          "
         >
           삭제
         </button>
@@ -606,40 +877,69 @@ function renderTask(task) {
 
 
 // ============================================================
-// 15. 계획 생성
+// 15. PLAN 생성
 // ============================================================
 
 async function createPlan() {
 
   if (!currentUser) {
+
     showMessage(
       "로그인 정보를 확인할 수 없습니다.",
       "error"
     );
+
     return;
   }
 
 
+  // HTML의 실제 ID와 맞춤
   const planName =
-    $("#planName")?.value.trim() || "";
+    $("#planTitle")
+      ?.value
+      .trim() || "";
+
+
+  const planDescription =
+    $("#planDescription")
+      ?.value
+      .trim() || "";
 
 
   const startDate =
-    $("#startDate")?.value || "";
+    $("#startDate")
+      ?.value || "";
 
 
   const endDate =
-    $("#endDate")?.value || "";
+    $("#endDate")
+      ?.value || "";
 
 
   const estimatedHours =
-    $("#estimatedHours")?.value || "";
+    $("#estimatedHours")
+      ?.value || "";
 
 
   if (!planName) {
 
     showMessage(
-      "계획 이름을 입력해주세요.",
+      "계획 제목을 입력해주세요.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if (
+    startDate &&
+    endDate &&
+    startDate > endDate
+  ) {
+
+    showMessage(
+      "종료일은 시작일보다 빠를 수 없습니다.",
       "error"
     );
 
@@ -649,13 +949,17 @@ async function createPlan() {
 
   const payload = {
 
-    plan_name: planName,
+    plan_name:
+      planName,
 
     start_date:
       startDate || null,
 
     end_date:
       endDate || null,
+
+    success_criteria:
+      planDescription || null,
 
     estimated_hours:
       estimatedHours !== ""
@@ -676,11 +980,12 @@ async function createPlan() {
   const {
     data,
     error
-  } = await supabaseClient
-    .from("plans")
-    .insert(payload)
-    .select()
-    .single();
+  } =
+    await supabaseClient
+      .from("plans")
+      .insert(payload)
+      .select()
+      .single();
 
 
   if (error) {
@@ -705,7 +1010,11 @@ async function createPlan() {
   );
 
 
-  // plan_history에는 실제 존재하는 컬럼만 저장한다.
+  // ==========================================================
+  // 계획 생성 기록
+  // plan_history 실제 컬럼만 사용
+  // ==========================================================
+
   const historyPayload = {
 
     plan_id:
@@ -721,10 +1030,12 @@ async function createPlan() {
       data.end_date,
 
     priority:
-      data.priority || null,
+      data.priority ||
+      null,
 
     success_criteria:
-      data.success_criteria || null,
+      data.success_criteria ||
+      null,
 
     estimated_hours:
       data.estimated_hours,
@@ -739,9 +1050,12 @@ async function createPlan() {
 
   const {
     error: historyError
-  } = await supabaseClient
-    .from("plan_history")
-    .insert(historyPayload);
+  } =
+    await supabaseClient
+      .from("plan_history")
+      .insert(
+        historyPayload
+      );
 
 
   if (historyError) {
@@ -751,15 +1065,19 @@ async function createPlan() {
       historyError
     );
 
-    // 계획 자체는 정상 저장되었으므로
-    // 사용자에게 계획 저장 실패라고 표시하지 않는다.
   }
 
 
-  // 입력창 초기화
+  // ==========================================================
+  // 입력 초기화
+  // ==========================================================
 
-  if ($("#planName")) {
-    $("#planName").value = "";
+  if ($("#planTitle")) {
+    $("#planTitle").value = "";
+  }
+
+  if ($("#planDescription")) {
+    $("#planDescription").value = "";
   }
 
   if ($("#startDate")) {
@@ -791,10 +1109,12 @@ async function createPlan() {
 async function createTask(planId) {
 
   if (!currentUser) {
+
     showMessage(
       "로그인 정보를 확인할 수 없습니다.",
       "error"
     );
+
     return;
   }
 
@@ -812,11 +1132,15 @@ async function createTask(planId) {
 
 
   const title =
-    titleInput?.value.trim() || "";
+    titleInput
+      ?.value
+      .trim() || "";
 
 
   const memo =
-    memoInput?.value.trim() || "";
+    memoInput
+      ?.value
+      .trim() || "";
 
 
   if (!title) {
@@ -839,7 +1163,7 @@ async function createTask(planId) {
       title,
 
     memo:
-      memo,
+      memo || null,
 
     completed:
       false,
@@ -857,9 +1181,10 @@ async function createTask(planId) {
 
   const {
     error
-  } = await supabaseClient
-    .from("tasks")
-    .insert(payload);
+  } =
+    await supabaseClient
+      .from("tasks")
+      .insert(payload);
 
 
   if (error) {
@@ -888,20 +1213,35 @@ async function createTask(planId) {
 
 
 // ============================================================
-// 17. TASK 완료 상태 변경
+// 17. TASK 완료 상태
 // ============================================================
 
-async function toggleTask(taskId, completed) {
+async function toggleTask(
+  taskId,
+  completed
+) {
+
+  if (!currentUser) {
+    return;
+  }
+
 
   const {
     error
-  } = await supabaseClient
-    .from("tasks")
-    .update({
-      completed: completed
-    })
-    .eq("id", taskId)
-    .eq("user_id", currentUser.id);
+  } =
+    await supabaseClient
+      .from("tasks")
+      .update({
+        completed
+      })
+      .eq(
+        "id",
+        taskId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if (error) {
@@ -925,14 +1265,18 @@ async function toggleTask(taskId, completed) {
 
 
 // ============================================================
-// 18. 실행 기록 모달 열기
+// 18. 실행 모달 열기
 // ============================================================
 
-function openExecutionModal(taskId) {
+function openExecutionModal(
+  taskId
+) {
 
   currentTask =
     tasks.find(
-      task => Number(task.id) === Number(taskId)
+      task =>
+        Number(task.id) ===
+        Number(taskId)
     );
 
 
@@ -947,25 +1291,30 @@ function openExecutionModal(taskId) {
   }
 
 
+  // HTML의 실제 ID:
+  // executeModal
   const modal =
-    $("#executionModal");
+    $("#executeModal");
 
 
   if (!modal) {
 
-    console.warn(
-      "#executionModal 요소가 없습니다."
+    console.error(
+      "#executeModal을 찾을 수 없습니다."
     );
 
     return;
   }
 
 
+  // HTML의 실제 ID:
+  // executeTitle
   const title =
-    $("#executionTaskTitle");
+    $("#executeTitle");
 
 
   if (title) {
+
     title.textContent =
       currentTask.title;
   }
@@ -976,6 +1325,7 @@ function openExecutionModal(taskId) {
 
 
   if (startedAt) {
+
     startedAt.value =
       currentTask.started_at
         ? formatDateTimeForInput(
@@ -990,6 +1340,7 @@ function openExecutionModal(taskId) {
 
 
   if (endedAt) {
+
     endedAt.value =
       currentTask.ended_at
         ? formatDateTimeForInput(
@@ -1004,6 +1355,7 @@ function openExecutionModal(taskId) {
 
 
   if (actualMinutes) {
+
     actualMinutes.value =
       currentTask.actual_minutes ??
       "";
@@ -1015,80 +1367,34 @@ function openExecutionModal(taskId) {
 
 
   if (blockedReason) {
+
     blockedReason.value =
       currentTask.blocked_reason ||
       "";
   }
 
 
-  modal.classList.add("show");
+  modal.classList.remove(
+    "hidden"
+  );
 }
 
 
 // ============================================================
-// 19. datetime-local 변환
-// ============================================================
-
-function formatDateTimeForInput(dateString) {
-
-  if (!dateString) {
-    return "";
-  }
-
-
-  const date =
-    new Date(dateString);
-
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-
-  const year =
-    date.getFullYear();
-
-
-  const month =
-    String(
-      date.getMonth() + 1
-    ).padStart(2, "0");
-
-
-  const day =
-    String(
-      date.getDate()
-    ).padStart(2, "0");
-
-
-  const hours =
-    String(
-      date.getHours()
-    ).padStart(2, "0");
-
-
-  const minutes =
-    String(
-      date.getMinutes()
-    ).padStart(2, "0");
-
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
-
-// ============================================================
-// 20. 실행 기록 모달 닫기
+// 19. 실행 모달 닫기
 // ============================================================
 
 function closeExecutionModal() {
 
   const modal =
-    $("#executionModal");
+    $("#executeModal");
 
 
   if (modal) {
-    modal.classList.remove("show");
+
+    modal.classList.add(
+      "hidden"
+    );
   }
 
 
@@ -1097,7 +1403,7 @@ function closeExecutionModal() {
 
 
 // ============================================================
-// 21. 실행 기록 저장
+// 20. 실행 기록 저장
 // ============================================================
 
 async function saveExecution() {
@@ -1114,31 +1420,44 @@ async function saveExecution() {
 
 
   const startedAt =
-    $("#startedAt")?.value || "";
+    $("#startedAt")
+      ?.value || "";
 
 
   const endedAt =
-    $("#endedAt")?.value || "";
+    $("#endedAt")
+      ?.value || "";
 
 
   const actualMinutesInput =
-    $("#actualMinutes")?.value || "";
+    $("#actualMinutes")
+      ?.value || "";
 
 
   const blockedReason =
-    $("#blockedReason")?.value.trim() || "";
+    $("#blockedReason")
+      ?.value
+      .trim() || "";
 
 
-  let actualMinutes = null;
+  let actualMinutes =
+    null;
 
 
-  if (actualMinutesInput !== "") {
+  if (
+    actualMinutesInput !== ""
+  ) {
 
     actualMinutes =
-      Number(actualMinutesInput);
+      Number(
+        actualMinutesInput
+      );
+
 
     if (
-      Number.isNaN(actualMinutes) ||
+      Number.isNaN(
+        actualMinutes
+      ) ||
       actualMinutes < 0
     ) {
 
@@ -1152,9 +1471,7 @@ async function saveExecution() {
   }
 
 
-  // 시작/종료 시간이 모두 있고
-  // 실제 시간값을 직접 입력하지 않았다면
-  // 자동 계산
+  // 시작/종료 시간이 있으면 자동 계산
 
   if (
     actualMinutes === null &&
@@ -1174,19 +1491,24 @@ async function saveExecution() {
 
     started_at:
       startedAt
-        ? new Date(startedAt).toISOString()
+        ? new Date(
+            startedAt
+          ).toISOString()
         : null,
 
     ended_at:
       endedAt
-        ? new Date(endedAt).toISOString()
+        ? new Date(
+            endedAt
+          ).toISOString()
         : null,
 
     actual_minutes:
       actualMinutes,
 
     blocked_reason:
-      blockedReason || null,
+      blockedReason ||
+      null,
 
     completed:
       true
@@ -1200,24 +1522,26 @@ async function saveExecution() {
 
 
   // ==========================================================
-  // 중요
+  // 실행 기록은 tasks에 저장
   //
-  // 실행 기록은 tasks에 저장한다.
-  //
-  // plan_history에는
-  // task_id / title / started_at /
-  // ended_at / actual_minutes /
-  // blocked_reason 컬럼이 없으므로
-  // 더 이상 INSERT하지 않는다.
+  // plan_history에는 실행 관련 컬럼이 없기 때문에
+  // 절대로 task_id/title/started_at 등을 넣지 않는다.
   // ==========================================================
 
   const {
     error
-  } = await supabaseClient
-    .from("tasks")
-    .update(payload)
-    .eq("id", currentTask.id)
-    .eq("user_id", currentUser.id);
+  } =
+    await supabaseClient
+      .from("tasks")
+      .update(payload)
+      .eq(
+        "id",
+        currentTask.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if (error) {
@@ -1249,7 +1573,7 @@ async function saveExecution() {
 
 
 // ============================================================
-// 22. 실행 기록 렌더링
+// 21. 실행 기록 렌더링
 // ============================================================
 
 function renderHistory() {
@@ -1264,6 +1588,7 @@ function renderHistory() {
 
 
   // 실행 기록은 tasks에서 가져온다.
+
   const executionTasks =
     tasks
       .filter(task => {
@@ -1271,7 +1596,8 @@ function renderHistory() {
         return (
           task.started_at ||
           task.ended_at ||
-          task.actual_minutes !== null ||
+          task.actual_minutes !== null &&
+          task.actual_minutes !== undefined ||
           task.blocked_reason
         );
 
@@ -1280,19 +1606,25 @@ function renderHistory() {
 
         const aTime =
           a.started_at
-            ? new Date(a.started_at).getTime()
+            ? new Date(
+                a.started_at
+              ).getTime()
             : 0;
 
         const bTime =
           b.started_at
-            ? new Date(b.started_at).getTime()
+            ? new Date(
+                b.started_at
+              ).getTime()
             : 0;
 
         return bTime - aTime;
       });
 
 
-  if (executionTasks.length === 0) {
+  if (
+    executionTasks.length === 0
+  ) {
 
     historyList.innerHTML = `
       <div class="empty">
@@ -1305,99 +1637,117 @@ function renderHistory() {
 
 
   historyList.innerHTML =
-    executionTasks.map(task => {
+    executionTasks
+      .map(task => {
 
-      const plan =
-        plans.find(
-          p =>
-            Number(p.id) ===
-            Number(task.plan_id)
-        );
+        const plan =
+          plans.find(
+            p =>
+              Number(p.id) ===
+              Number(task.plan_id)
+          );
 
 
-      return `
-        <div class="history-item">
+        return `
+          <div class="history-item">
 
-          <div class="history-time">
+            <div class="history-time">
+              ${
+                task.started_at
+                  ? formatDateTime(
+                      task.started_at
+                    )
+                  : "실행 시간 미기록"
+              }
+            </div>
+
+
+            <div class="history-title">
+              ${escapeHtml(
+                task.title
+              )}
+            </div>
+
+
             ${
-              task.started_at
-                ? formatDateTime(
-                    task.started_at
-                  )
-                : "실행 시간 미기록"
+              plan
+                ? `
+                  <div class="plan-desc">
+                    계획:
+                    ${escapeHtml(
+                      plan.plan_name
+                    )}
+                  </div>
+                `
+                : ""
             }
+
+
+            ${
+              task.actual_minutes !==
+                null &&
+              task.actual_minutes !==
+                undefined
+
+                ? `
+                  <div class="plan-desc">
+                    실제 소요시간:
+                    ${escapeHtml(
+                      task.actual_minutes
+                    )}분
+                  </div>
+                `
+
+                : ""
+            }
+
+
+            ${
+              task.ended_at
+
+                ? `
+                  <div class="plan-desc">
+                    종료:
+                    ${formatDateTime(
+                      task.ended_at
+                    )}
+                  </div>
+                `
+
+                : ""
+            }
+
+
+            ${
+              task.blocked_reason
+
+                ? `
+                  <div class="blocked">
+                    막힌 부분:
+                    ${escapeHtml(
+                      task.blocked_reason
+                    )}
+                  </div>
+                `
+
+                : ""
+            }
+
           </div>
+        `;
 
-
-          <div class="history-title">
-            ${escapeHtml(task.title)}
-          </div>
-
-
-          ${
-            plan
-              ? `
-                <div class="plan-desc">
-                  계획:
-                  ${escapeHtml(plan.plan_name)}
-                </div>
-              `
-              : ""
-          }
-
-
-          ${
-            task.actual_minutes !== null &&
-            task.actual_minutes !== undefined
-              ? `
-                <div class="plan-desc">
-                  실제 소요시간:
-                  ${escapeHtml(task.actual_minutes)}분
-                </div>
-              `
-              : ""
-          }
-
-
-          ${
-            task.ended_at
-              ? `
-                <div class="plan-desc">
-                  종료:
-                  ${formatDateTime(
-                    task.ended_at
-                  )}
-                </div>
-              `
-              : ""
-          }
-
-
-          ${
-            task.blocked_reason
-              ? `
-                <div class="blocked">
-                  막힌 부분:
-                  ${escapeHtml(
-                    task.blocked_reason
-                  )}
-                </div>
-              `
-              : ""
-          }
-
-        </div>
-      `;
-
-    }).join("");
+      })
+      .join("");
 }
 
 
 // ============================================================
-// 23. 계획 삭제
+// 22. 계획 삭제
 // ============================================================
 
-async function deletePlan(planId) {
+async function deletePlan(
+  planId
+) {
 
   const confirmed =
     confirm(
@@ -1410,15 +1760,22 @@ async function deletePlan(planId) {
   }
 
 
-  // 먼저 해당 계획의 task 삭제
+  // 연결된 TASK 삭제
 
   const {
     error: taskDeleteError
-  } = await supabaseClient
-    .from("tasks")
-    .delete()
-    .eq("plan_id", planId)
-    .eq("user_id", currentUser.id);
+  } =
+    await supabaseClient
+      .from("tasks")
+      .delete()
+      .eq(
+        "plan_id",
+        planId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if (taskDeleteError) {
@@ -1437,15 +1794,22 @@ async function deletePlan(planId) {
   }
 
 
-  // plan_history 삭제
+  // 연결된 HISTORY 삭제
 
   const {
     error: historyDeleteError
-  } = await supabaseClient
-    .from("plan_history")
-    .delete()
-    .eq("plan_id", planId)
-    .eq("user_id", currentUser.id);
+  } =
+    await supabaseClient
+      .from("plan_history")
+      .delete()
+      .eq(
+        "plan_id",
+        planId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if (historyDeleteError) {
@@ -1457,15 +1821,22 @@ async function deletePlan(planId) {
   }
 
 
-  // 계획 삭제
+  // PLAN 삭제
 
   const {
     error
-  } = await supabaseClient
-    .from("plans")
-    .delete()
-    .eq("id", planId)
-    .eq("user_id", currentUser.id);
+  } =
+    await supabaseClient
+      .from("plans")
+      .delete()
+      .eq(
+        "id",
+        planId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if (error) {
@@ -1494,10 +1865,12 @@ async function deletePlan(planId) {
 
 
 // ============================================================
-// 24. TASK 삭제
+// 23. TASK 삭제
 // ============================================================
 
-async function deleteTask(taskId) {
+async function deleteTask(
+  taskId
+) {
 
   const confirmed =
     confirm(
@@ -1512,11 +1885,18 @@ async function deleteTask(taskId) {
 
   const {
     error
-  } = await supabaseClient
-    .from("tasks")
-    .delete()
-    .eq("id", taskId)
-    .eq("user_id", currentUser.id);
+  } =
+    await supabaseClient
+      .from("tasks")
+      .delete()
+      .eq(
+        "id",
+        taskId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if (error) {
@@ -1545,153 +1925,414 @@ async function deleteTask(taskId) {
 
 
 // ============================================================
+// 24. 새로고침
+// ============================================================
+
+async function refreshData() {
+
+  const button =
+    $("#refreshBtn");
+
+  if (button) {
+
+    button.disabled = true;
+
+    button.textContent =
+      "불러오는 중...";
+  }
+
+
+  try {
+
+    await loadAll();
+
+    showMessage(
+      "데이터를 새로 불러왔습니다."
+    );
+
+  } finally {
+
+    if (button) {
+
+      button.disabled = false;
+
+      button.textContent =
+        "새로고침";
+    }
+  }
+}
+
+
+// ============================================================
 // 25. 이벤트 연결
 // ============================================================
 
 function bindEvents() {
 
-  // 로그아웃 버튼
+  // ----------------------------------------------------------
+  // 로그아웃
+  // ----------------------------------------------------------
 
-  const logoutButton =
+  const logoutBtn =
     $("#logoutBtn");
 
+  if (logoutBtn) {
 
-  if (logoutButton) {
-
-    logoutButton.addEventListener(
+    logoutBtn.addEventListener(
       "click",
       logout
     );
   }
 
 
-  // 계획 저장 버튼
+  // ----------------------------------------------------------
+  // 새로고침
+  // ----------------------------------------------------------
+
+  const refreshBtn =
+    $("#refreshBtn");
+
+  if (refreshBtn) {
+
+    refreshBtn.addEventListener(
+      "click",
+      refreshData
+    );
+  }
+
+
+  // ----------------------------------------------------------
+  // PLAN 저장
+  // ----------------------------------------------------------
 
   const planForm =
     $("#planForm");
-
 
   if (planForm) {
 
     planForm.addEventListener(
       "submit",
-      async (event) => {
+      async event => {
 
         event.preventDefault();
 
         await createPlan();
-
       }
     );
   }
 
 
-  // 실행 기록 저장
+  // ----------------------------------------------------------
+  // TASK Modal 열기
+  // ----------------------------------------------------------
 
-  const executionForm =
-    $("#executionForm");
+  const addTaskBtn =
+    $("#addTaskBtn");
+
+  if (addTaskBtn) {
+
+    addTaskBtn.addEventListener(
+      "click",
+      openTaskModal
+    );
+  }
 
 
-  if (executionForm) {
+  // ----------------------------------------------------------
+  // TASK Form
+  // ----------------------------------------------------------
 
-    executionForm.addEventListener(
+  const taskForm =
+    $("#taskForm");
+
+  if (taskForm) {
+
+    taskForm.addEventListener(
       "submit",
-      async (event) => {
+      async event => {
+
+        event.preventDefault();
+
+        await createTaskFromModal();
+      }
+    );
+  }
+
+
+  // ----------------------------------------------------------
+  // EXECUTION Form
+  // ----------------------------------------------------------
+
+  const executeForm =
+    $("#executeForm");
+
+  if (executeForm) {
+
+    executeForm.addEventListener(
+      "submit",
+      async event => {
 
         event.preventDefault();
 
         await saveExecution();
-
       }
     );
   }
 
 
-  // 모달 닫기
+  // ----------------------------------------------------------
+  // TASK Modal 닫기
+  // ----------------------------------------------------------
 
-  const closeButton =
-    $("#closeExecutionModal");
+  document
+    .querySelectorAll(
+      "[data-close-task]"
+    )
+    .forEach(element => {
 
+      element.addEventListener(
+        "click",
+        closeTaskModal
+      );
 
-  if (closeButton) {
-
-    closeButton.addEventListener(
-      "click",
-      closeExecutionModal
-    );
-  }
-
-
-  // 취소 버튼
-
-  const cancelButton =
-    $("#cancelExecution");
+    });
 
 
-  if (cancelButton) {
+  // ----------------------------------------------------------
+  // EXECUTION Modal 닫기
+  // ----------------------------------------------------------
 
-    cancelButton.addEventListener(
-      "click",
-      closeExecutionModal
-    );
-  }
+  document
+    .querySelectorAll(
+      "[data-close-execute]"
+    )
+    .forEach(element => {
+
+      element.addEventListener(
+        "click",
+        closeExecutionModal
+      );
+
+    });
+}
 
 
-  // 모달 바깥 클릭
+// ============================================================
+// 26. TASK Modal
+// ============================================================
+
+function openTaskModal() {
 
   const modal =
-    $("#executionModal");
+    $("#taskModal");
 
+  if (!modal) {
+    return;
+  }
+
+
+  const select =
+    $("#taskPlanId");
+
+  if (!select) {
+    return;
+  }
+
+
+  if (plans.length === 0) {
+
+    showMessage(
+      "먼저 계획을 하나 만들어주세요.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  select.innerHTML =
+    plans
+      .map(plan => {
+
+        return `
+          <option value="${plan.id}">
+            ${escapeHtml(
+              plan.plan_name
+            )}
+          </option>
+        `;
+
+      })
+      .join("");
+
+
+  const title =
+    $("#taskTitle");
+
+  const memo =
+    $("#taskMemo");
+
+
+  if (title) {
+    title.value = "";
+  }
+
+  if (memo) {
+    memo.value = "";
+  }
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+}
+
+
+function closeTaskModal() {
+
+  const modal =
+    $("#taskModal");
 
   if (modal) {
 
-    modal.addEventListener(
-      "click",
-      (event) => {
-
-        if (
-          event.target === modal
-        ) {
-
-          closeExecutionModal();
-
-        }
-
-      }
+    modal.classList.add(
+      "hidden"
     );
   }
 }
 
 
 // ============================================================
-// 26. Supabase Auth 이벤트
+// 27. TASK Modal에서 생성
 // ============================================================
 
-supabaseClient.auth.onAuthStateChange(
-  (event, session) => {
+async function createTaskFromModal() {
 
-    console.log(
-      "AUTH EVENT:",
-      event
+  const planId =
+    $("#taskPlanId")
+      ?.value || "";
+
+
+  const title =
+    $("#taskTitle")
+      ?.value
+      .trim() || "";
+
+
+  const memo =
+    $("#taskMemo")
+      ?.value
+      .trim() || "";
+
+
+  if (!planId) {
+
+    showMessage(
+      "계획을 선택해주세요.",
+      "error"
     );
 
-
-    if (
-      event === "SIGNED_OUT"
-    ) {
-
-      currentUser = null;
-
-      window.location.href =
-        "login.html";
-    }
-
+    return;
   }
-);
+
+
+  if (!title) {
+
+    showMessage(
+      "할 일을 입력해주세요.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const payload = {
+
+    plan_id:
+      Number(planId),
+
+    title:
+      title,
+
+    memo:
+      memo || null,
+
+    completed:
+      false,
+
+    user_id:
+      currentUser.id
+  };
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .insert(payload);
+
+
+  if (error) {
+
+    console.error(
+      "TASK MODAL INSERT ERROR:",
+      error
+    );
+
+    showMessage(
+      "할 일 저장에 실패했습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  closeTaskModal();
+
+
+  showMessage(
+    "할 일이 추가되었습니다."
+  );
+
+
+  await loadAll();
+}
 
 
 // ============================================================
-// 27. 페이지 시작
+// 28. Auth 이벤트
+// ============================================================
+
+supabaseClient
+  .auth
+  .onAuthStateChange(
+    (event, session) => {
+
+      console.log(
+        "AUTH EVENT:",
+        event
+      );
+
+
+      if (
+        event ===
+        "SIGNED_OUT"
+      ) {
+
+        currentUser = null;
+
+        window.location.href =
+          "login.html";
+      }
+    }
+  );
+
+
+// ============================================================
+// 29. 시작
 // ============================================================
 
 document.addEventListener(
@@ -1716,7 +2357,5 @@ document.addEventListener(
 
 
     await loadAll();
-
   }
 );
-
