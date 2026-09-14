@@ -604,106 +604,54 @@ async function loadAll() {
    ========================================================= */
 
 async function createPlan(event) {
+    event.preventDefault();
 
-  event.preventDefault();
+    if (!currentUser) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
 
+    const planName = document.getElementById("planTitle").value.trim();
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const estimatedHours =
+        document.getElementById("estimatedHours").value;
 
-  const title =
-    $("#planTitle")
-      .value
-      .trim();
+    if (!planName) {
+        alert("계획 제목을 입력해주세요.");
+        return;
+    }
 
+    const { data, error } = await supabaseClient
+        .from("plans")
+        .insert([
+            {
+                plan_name: planName,
+                start_date: startDate || null,
+                end_date: endDate || null,
+                estimated_hours:
+                    estimatedHours !== ""
+                        ? Number(estimatedHours)
+                        : null,
+                user_id: currentUser.id
+            }
+        ])
+        .select()
+        .single();
 
-  const description =
-    $("#planDescription")
-      .value
-      .trim();
+    if (error) {
+        console.error("PLAN INSERT ERROR:", error);
+        alert("계획 저장에 실패했습니다.");
+        return;
+    }
 
+    console.log("PLAN CREATED:", data);
 
-  const start_date =
-    $("#startDate")
-      .value;
+    document.getElementById("planForm").reset();
 
+    await loadAll();
 
-  const end_date =
-    $("#endDate")
-      .value;
-
-
-  const estimated_hours =
-    $("#estimatedHours")
-      .value
-      ? Number(
-          $("#estimatedHours").value
-        )
-      : null;
-
-
-  if (
-    end_date <
-    start_date
-  ) {
-
-    showMessage(
-      "종료일은 시작일보다 빠를 수 없습니다.",
-      "error"
-    );
-
-    return;
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("plans")
-      .insert({
-
-        title,
-
-        description,
-
-        start_date,
-
-        end_date,
-
-        estimated_hours
-
-      });
-
-
-  if (error) {
-
-    console.error(
-      "PLAN INSERT ERROR:",
-      error
-    );
-
-
-    showMessage(
-      "계획 저장에 실패했습니다: " +
-      error.message,
-      "error"
-    );
-
-    return;
-  }
-
-
-  $("#planForm").reset();
-
-
-  setDefaultDates();
-
-
-  await loadAll();
-
-
-  showMessage(
-    "계획이 저장되었습니다."
-  );
-
+    alert("계획이 저장되었습니다.");
 }
 
 
