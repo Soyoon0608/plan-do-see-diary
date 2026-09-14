@@ -45,6 +45,7 @@ function $(selector) {
 
 // ============================================================
 // 4. HTML escape
+// XSS 방지
 // ============================================================
 
 function escapeHtml(value) {
@@ -124,6 +125,36 @@ function formatDate(dateString) {
       year: "numeric",
       month: "2-digit",
       day: "2-digit"
+    }
+  );
+}
+
+
+function formatDateTime(dateString) {
+
+  if (!dateString) {
+    return "-";
+  }
+
+  const date =
+    new Date(dateString);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return dateString;
+  }
+
+  return date.toLocaleString(
+    "ko-KR",
+    {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
     }
   );
 }
@@ -279,20 +310,6 @@ async function loadAll() {
 
   // ==========================================================
   // TASK
-  //
-  // 실제 DB 컬럼:
-  //
-  // id
-  // plan_id
-  // task_name
-  // due_date
-  // priority
-  // tag
-  // estimated_hours
-  // is_completed
-  // created_at
-  // updated_at
-  // user_id
   // ==========================================================
 
   const tasksResult =
@@ -413,8 +430,10 @@ function updateCounts() {
       return (
         task.started_at ||
         task.ended_at ||
-        task.actual_minutes !== null &&
-        task.actual_minutes !== undefined ||
+        (
+          task.actual_minutes !== null &&
+          task.actual_minutes !== undefined
+        ) ||
         task.blocked_reason
       );
 
@@ -625,6 +644,18 @@ function renderPlans() {
 
 function renderTask(task) {
 
+  const hasExecution =
+    !!(
+      task.started_at ||
+      task.ended_at ||
+      (
+        task.actual_minutes !== null &&
+        task.actual_minutes !== undefined
+      ) ||
+      task.blocked_reason
+    );
+
+
   return `
     <div class="task-row">
 
@@ -723,12 +754,36 @@ function renderTask(task) {
               : ""
           }
 
+
+          ${
+            hasExecution
+              ? `
+                <div class="plan-desc">
+                  ✓ 실행 기록이 저장되었습니다.
+                </div>
+              `
+              : ""
+          }
+
         </div>
 
       </div>
 
 
       <div class="task-actions">
+
+        <button
+          type="button"
+          class="mini-btn primary"
+          onclick="
+            openExecuteModal(
+              ${task.id}
+            )
+          "
+        >
+          실행 기록
+        </button>
+
 
         <button
           type="button"
@@ -1069,7 +1124,9 @@ async function toggleTask(
       .from("tasks")
       .update({
         is_completed:
-          completed
+          completed,
+        updated_at:
+          new Date().toISOString()
       })
       .eq(
         "id",
@@ -1409,6 +1466,11 @@ function closeTaskModal() {
 
 async function createTaskFromModal() {
 
+  if (!currentUser) {
+    return;
+  }
+
+
   const planId =
     $("#taskPlanId")
       ?.value || "";
@@ -1504,16 +1566,351 @@ async function createTaskFromModal() {
 
 
 // ============================================================
-// 22. 실행 기록
-//
-// 현재 tasks 테이블에는 실행 기록 컬럼이 없으므로
-// 이 버전에서는 기존 실행 기록 코드를 호출하지 않는다.
-// DB 컬럼을 추가한 뒤 실행 기록 기능을 연결한다.
+// 22. 실행 기록 Modal
 // ============================================================
+
+function openExecuteModal(taskId) {
+
+  const task =
+    tasks.find(
+      item =>
+        Number(item.id) ===
+        Number(taskId)
+    );
+
+
+  if (!task) {
+
+    showMessage(
+      "할 일을 찾을 수 없습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const modal =
+    $("#executeModal");
+
+  if (!modal) {
+
+    showMessage(
+      "실행 기록 창을 찾을 수 없습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const executeTaskId =
+    $("#executeTaskId");
+
+  if (executeTaskId) {
+
+    executeTaskId.value =
+      task.id;
+  }
+
+
+  const executeTitle =
+    $("#executeTitle");
+
+  if (executeTitle) {
+
+    executeTitle.textContent =
+      task.task_name;
+  }
+
+
+  const startedAt =
+    $("#startedAt");
+
+  const endedAt =
+    $("#endedAt");
+
+  const actualMinutes =
+    $("#actualMinutes");
+
+  const blockedReason =
+    $("#blockedReason");
+
+
+  if (startedAt) {
+
+    startedAt.value =
+      task.started_at
+        ? toDateTimeLocal(
+            task.started_at
+          )
+        : "";
+  }
+
+
+  if (endedAt) {
+
+    endedAt.value =
+      task.ended_at
+        ? toDateTimeLocal(
+            task.ended_at
+          )
+        : "";
+  }
+
+
+  if (actualMinutes) {
+
+    actualMinutes.value =
+      task.actual_minutes ??
+      "";
+  }
+
+
+  if (blockedReason) {
+
+    blockedReason.value =
+      task.blocked_reason ??
+      "";
+  }
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+}
+
+
+function closeExecuteModal() {
+
+  const modal =
+    $("#executeModal");
+
+  if (modal) {
+
+    modal.classList.add(
+      "hidden"
+    );
+  }
+}
+
+
+function toDateTimeLocal(
+  dateString
+) {
+
+  if (!dateString) {
+    return "";
+  }
+
+  const date =
+    new Date(dateString);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "";
+  }
+
+
+  const year =
+    date.getFullYear();
+
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(2, "0");
+
+
+  const hours =
+    String(
+      date.getHours()
+    ).padStart(2, "0");
+
+
+  const minutes =
+    String(
+      date.getMinutes()
+    ).padStart(2, "0");
+
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
 
 // ============================================================
-// 23. SEE 렌더링
+// 23. 실행 기록 저장
+// ============================================================
+
+async function saveExecution() {
+
+  if (!currentUser) {
+    return;
+  }
+
+
+  const taskId =
+    $("#executeTaskId")
+      ?.value || "";
+
+
+  if (!taskId) {
+
+    showMessage(
+      "실행 기록 대상이 없습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const startedAt =
+    $("#startedAt")
+      ?.value || "";
+
+
+  const endedAt =
+    $("#endedAt")
+      ?.value || "";
+
+
+  const actualMinutesValue =
+    $("#actualMinutes")
+      ?.value || "";
+
+
+  const blockedReason =
+    $("#blockedReason")
+      ?.value
+      .trim() || "";
+
+
+  if (
+    startedAt &&
+    endedAt &&
+    new Date(startedAt) >
+      new Date(endedAt)
+  ) {
+
+    showMessage(
+      "종료 시간은 시작 시간보다 빠를 수 없습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const payload = {
+
+    started_at:
+      startedAt
+        ? new Date(
+            startedAt
+          ).toISOString()
+        : null,
+
+    ended_at:
+      endedAt
+        ? new Date(
+            endedAt
+          ).toISOString()
+        : null,
+
+    actual_minutes:
+      actualMinutesValue !== ""
+        ? Number(
+            actualMinutesValue
+          )
+        : null,
+
+    blocked_reason:
+      blockedReason || null,
+
+    updated_at:
+      new Date().toISOString()
+  };
+
+
+  if (
+    actualMinutesValue !== "" &&
+    (
+      Number.isNaN(
+        Number(
+          actualMinutesValue
+        )
+      ) ||
+      Number(
+        actualMinutesValue
+      ) < 0
+    )
+  ) {
+
+    showMessage(
+      "실제 소요 시간은 0 이상의 숫자로 입력해주세요.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("tasks")
+      .update(payload)
+      .eq(
+        "id",
+        taskId
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+
+  if (error) {
+
+    console.error(
+      "EXECUTION SAVE ERROR:",
+      error
+    );
+
+    showMessage(
+      "실행 기록 저장에 실패했습니다.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  closeExecuteModal();
+
+
+  showMessage(
+    "실행 기록이 저장되었습니다."
+  );
+
+
+  await loadAll();
+}
+
+
+// ============================================================
+// 24. SEE 렌더링
 // ============================================================
 
 function renderHistory() {
@@ -1526,9 +1923,48 @@ function renderHistory() {
   }
 
 
+  const executionTasks =
+    tasks
+      .filter(task => {
+
+        return (
+          task.started_at ||
+          task.ended_at ||
+          (
+            task.actual_minutes !== null &&
+            task.actual_minutes !== undefined
+          ) ||
+          task.blocked_reason
+        );
+
+      })
+      .sort(
+        (a, b) => {
+
+          const dateA =
+            new Date(
+              a.updated_at ||
+              a.created_at
+            ).getTime();
+
+          const dateB =
+            new Date(
+              b.updated_at ||
+              b.created_at
+            ).getTime();
+
+          return dateB - dateA;
+        }
+      );
+
+
+  const planHistoryItems =
+    histories || [];
+
+
   if (
-    !histories ||
-    histories.length === 0
+    executionTasks.length === 0 &&
+    planHistoryItems.length === 0
   ) {
 
     historyList.innerHTML = `
@@ -1541,24 +1977,117 @@ function renderHistory() {
   }
 
 
-  historyList.innerHTML =
-    histories
+  const executionHtml =
+    executionTasks
+      .map(task => {
+
+        return `
+          <div class="history-item">
+
+            <div class="history-time">
+              ${
+                task.updated_at
+                  ? formatDateTime(
+                      task.updated_at
+                    )
+                  : "-"
+              }
+            </div>
+
+
+            <div class="history-title">
+              ${escapeHtml(
+                task.task_name
+              )}
+            </div>
+
+
+            ${
+              task.started_at
+                ? `
+                  <div class="plan-desc">
+                    시작:
+                    ${formatDateTime(
+                      task.started_at
+                    )}
+                  </div>
+                `
+                : ""
+            }
+
+
+            ${
+              task.ended_at
+                ? `
+                  <div class="plan-desc">
+                    종료:
+                    ${formatDateTime(
+                      task.ended_at
+                    )}
+                  </div>
+                `
+                : ""
+            }
+
+
+            ${
+              task.actual_minutes !==
+                null &&
+              task.actual_minutes !==
+                undefined
+                ? `
+                  <div class="plan-desc">
+                    실제 소요 시간:
+                    ${escapeHtml(
+                      task.actual_minutes
+                    )}분
+                  </div>
+                `
+                : ""
+            }
+
+
+            ${
+              task.blocked_reason
+                ? `
+                  <div class="plan-desc blocked">
+                    막힌 이유:
+                    ${escapeHtml(
+                      task.blocked_reason
+                    )}
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+
+  const planHistoryHtml =
+    planHistoryItems
       .map(history => {
 
         return `
           <div class="history-item">
 
             <div class="history-time">
-              ${formatDate(
+              계획 기록 ·
+              ${formatDateTime(
                 history.changed_at
               )}
             </div>
+
 
             <div class="history-title">
               ${escapeHtml(
                 history.plan_name
               )}
             </div>
+
 
             ${
               history.success_criteria
@@ -1577,11 +2106,16 @@ function renderHistory() {
 
       })
       .join("");
+
+
+  historyList.innerHTML =
+    executionHtml +
+    planHistoryHtml;
 }
 
 
 // ============================================================
-// 24. 이벤트 연결
+// 25. 이벤트 연결
 // ============================================================
 
 function bindEvents() {
@@ -1681,11 +2215,46 @@ function bindEvents() {
       );
 
     });
+
+
+  // 실행 기록 저장
+
+  const executeForm =
+    $("#executeForm");
+
+  if (executeForm) {
+
+    executeForm.addEventListener(
+      "submit",
+      async event => {
+
+        event.preventDefault();
+
+        await saveExecution();
+      }
+    );
+  }
+
+
+  // 실행 기록 모달 닫기
+
+  document
+    .querySelectorAll(
+      "[data-close-execute]"
+    )
+    .forEach(element => {
+
+      element.addEventListener(
+        "click",
+        closeExecuteModal
+      );
+
+    });
 }
 
 
 // ============================================================
-// 25. Auth 이벤트
+// 26. Auth 이벤트
 // ============================================================
 
 supabaseClient
@@ -1714,7 +2283,7 @@ supabaseClient
 
 
 // ============================================================
-// 26. 시작
+// 27. 시작
 // ============================================================
 
 document.addEventListener(
